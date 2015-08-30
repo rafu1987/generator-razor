@@ -271,7 +271,7 @@ function substituteMarker(content, marker, newContent, toString) {
 
 function getRazor(rzr) {
   // Get razor
-  rzr.extract("https://bitbucket.org/rafu1987/razor-installer/get/master.tar.gz", "typo3conf/ext/", function() {
+  rzr.extract("https://bitbucket.org/rafu1987/razor/get/master.tar.gz", "typo3conf/ext/", function() {
     glob("typo3conf/ext/*", function(er, files) {
       files.forEach(function(file) {
         mv(file, 'typo3conf/ext/razor', {

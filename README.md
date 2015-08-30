@@ -1,4 +1,4 @@
-# generator-razor [![Build Status](https://secure.travis-ci.org/rafu1987/generator-razor.png?branch=master)](https://travis-ci.org/rafu1987/generator-razor)
+# generator-razor
 
 > [Yeoman](http://yeoman.io) generator
 
