@@ -76,7 +76,7 @@ module.exports = yeoman.generators.Base.extend({
         type: 'input',
         name: 'Pass',
         message: 'Install tool / admin password?',
-        default: ''
+        default: 'joh316'
       }, {
         type: 'input',
         name: 'Transport',
@@ -218,8 +218,8 @@ function createDb(rzr, callback) {
 
   // Create database table and user
   connection.query("CREATE DATABASE " + rzr.DbNew + " CHARACTER SET utf8 COLLATE utf8_general_ci;");
-  connection.query("CREATE USER '" + rzr.DbNew + "'@'" + rzr.DbHostname + "' IDENTIFIED BY '" + rzr.DbNew + "';")
-  connection.query("GRANT ALL PRIVILEGES ON " + rzr.DbNew + ".* TO '" + rzr.DbNew + "'@'" + rzr.DbHostname + "';");
+  connection.query("CREATE USER '" + rzr.DbNew + "'@'%' IDENTIFIED BY '" + rzr.DbNew + "';")
+  connection.query("GRANT ALL PRIVILEGES ON " + rzr.DbNew + ".* TO '" + rzr.DbNew + "'@'%';");
 
   // Connect to new db
   connection.query("use " + rzr.DbNew);
