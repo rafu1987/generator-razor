@@ -231,7 +231,7 @@ function processSqlFile(rzr, connection, callback) {
   // Read sql file
   fs.readFile('./db.sql', 'utf8', function(err, data) {
     if (err) {
-      return console.log(err);
+      console.log(err);
     }
 
     var result = substituteMarker(data, '###PASS###', md5(rzr.Pass), false);
@@ -240,7 +240,7 @@ function processSqlFile(rzr, connection, callback) {
     // Write file
     fs.writeFile('db.sql', result, 'utf8', function(err) {
       if (err) {
-        return console.log(err);
+        console.log(err);
       }
 
       // Read file again with changes
