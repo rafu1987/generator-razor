@@ -124,6 +124,8 @@ module.exports = yeoman.generators.Base.extend({
       var rzr = this;
       var path = this.SrcPath + '/typo3_src-' + this.Version;
 
+      rmDir('./', false);
+
       createSymlinks(this, path, function() {
         rzr.directory('install', './').on('end', function() {
           localconf(rzr);
@@ -139,6 +141,23 @@ module.exports = yeoman.generators.Base.extend({
     },
   }
 });
+
+function rmDir(dirPath, removeSelf) {
+  if (removeSelf === undefined)
+    removeSelf = true;
+  try { var files = fs.readdirSync(dirPath); }
+  catch(e) { return; }
+  if (files.length > 0)
+    for (var i = 0; i < files.length; i++) {
+      var filePath = dirPath + '/' + files[i];
+      if (fs.statSync(filePath).isFile())
+        fs.unlinkSync(filePath);
+      else
+        rmDir(filePath);
+    }
+  if (removeSelf)
+    fs.rmdirSync(dirPath);
+};
 
 function getSrc(url, callback) {
   // Get TYPO3 source from JSON
