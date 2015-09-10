@@ -182,7 +182,7 @@ function localconf(rzr) {
     var newContent = substituteMarker(content, '###DBNEW###', rzr.DbNew, true);
     newContent = substituteMarker(newContent, '###HOST###', rzr.DbHostname, true);
     newContent = substituteMarker(newContent, '###PROJECTNAME###', rzr.ProjectName, true);
-    newContent = substituteMarker(newContent, '###PASS###', rzr.Pass, true);
+    newContent = substituteMarker(newContent, '###PASS###', md5(rzr.Pass), true);
 
     fs.writeFile('typo3conf/LocalConfiguration.php', newContent, 'utf8', function(err) {});
   });
