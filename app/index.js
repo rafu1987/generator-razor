@@ -24,22 +24,22 @@ module.exports = yeoman.generators.Base.extend({
       var prompts = [{
         type: 'input',
         name: 'ProjectName',
-        message: 'Project name',
+        message: 'Choose your project name',
         default: 'Project'
       }, {
         type: 'input',
         name: 'SrcPath',
-        message: 'Path to typo3_src',
+        message: 'What is the path to the TYPO3 source files?',
         default: '../typo3_src'
       }, {
         type: 'list',
         name: 'Version',
-        message: 'TYPO3 version',
+        message: 'Choose your TYPO3 version',
         choices: response
       }, {
         type: 'input',
         name: 'DbUsername',
-        message: 'Database user?',
+        message: 'Database username?',
         default: 'root'
       }, {
         type: 'input',
@@ -65,23 +65,29 @@ module.exports = yeoman.generators.Base.extend({
       }, {
         type: 'input',
         name: 'DbNew',
-        message: 'New database user + password?',
+        message: 'New database name? A new database, username and password will be created.',
         default: 'newproject'
       }, {
         type: 'input',
         name: 'User',
-        message: 'Admin username?',
+        message: 'TYPO3 admin username?',
         default: 'admin'
       }, {
         type: 'input',
         name: 'Pass',
-        message: 'Install tool / admin password?',
+        message: 'TYPO3 install tool & admin user password?',
         default: 'joh316'
       }, {
-        type: 'input',
+        type: 'list',
         name: 'Transport',
         message: 'How to send emails?',
-        default: 'mail'
+        choices: [{
+          name: 'mail',
+          value: 'mail'
+        }, {
+          name: 'smtp',
+          value: 'smtp'
+        }]
       }, {
         type: 'input',
         name: 'SmtpUser',
