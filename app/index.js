@@ -79,6 +79,17 @@ module.exports = yeoman.generators.Base.extend({
         default: 'joh316'
       }, {
         type: 'list',
+        name: 'Vhs',
+        message: 'Download vhs from GitHub?',
+        choices: [{
+          name: 'Yes',
+          value: '1'
+        }, {
+          name: 'No',
+          value: '0'
+        }]
+      }, {
+        type: 'list',
         name: 'Transport',
         message: 'How to send emails?',
         choices: [{
@@ -116,6 +127,7 @@ module.exports = yeoman.generators.Base.extend({
         this.DbNew = answers.DbNew;
         this.User = answers.User;
         this.Pass = answers.Pass;
+        this.Vhs = answers.Vhs;
         this.Transport = answers.Transport;
         this.SmtpUser = answers.SmtpUser;
         this.SmtpPass = answers.SmtpPass;
@@ -138,6 +150,10 @@ module.exports = yeoman.generators.Base.extend({
           createDb(rzr, function(response) {
             processSqlFile(rzr, response, function() {
               getRazor(rzr);
+
+              if(rzr.Vhs == 1) {
+                getVhs(rzr);
+              }
             });
           });
         });
@@ -285,5 +301,14 @@ function getRazor(rzr) {
         }, function(err) {});
       });
     });
+  });
+}
+
+function getVhs(rzr) {
+  // Get vhs
+  rzr.extract("https://github.com/FluidTYPO3/vhs/archive/development.tar.gz", "typo3conf/ext/", function() {
+    mv('typo3conf/ext/vhs-development', 'typo3conf/ext/vhs', {
+      mkdirp: true
+    }, function(err) {});
   });
 }
