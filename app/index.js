@@ -77,7 +77,7 @@ module.exports = yeoman.generators.Base.extend({
         name: 'Pass',
         message: 'TYPO3 install tool & admin user password?',
         default: 'joh316'
-      }, {
+      }, /*{
         type: 'list',
         name: 'Vhs',
         message: 'Download vhs from GitHub?',
@@ -88,7 +88,7 @@ module.exports = yeoman.generators.Base.extend({
           name: 'No',
           value: '0'
         }]
-      }, {
+      },*/ {
         type: 'list',
         name: 'Transport',
         message: 'How to send emails?',
@@ -127,7 +127,7 @@ module.exports = yeoman.generators.Base.extend({
         this.DbNew = answers.DbNew;
         this.User = answers.User;
         this.Pass = answers.Pass;
-        this.Vhs = answers.Vhs;
+        //this.Vhs = answers.Vhs;
         this.Transport = answers.Transport;
         this.SmtpUser = answers.SmtpUser;
         this.SmtpPass = answers.SmtpPass;
@@ -151,9 +151,9 @@ module.exports = yeoman.generators.Base.extend({
             processSqlFile(rzr, response, function() {
               getRazor(rzr);
 
-              if(rzr.Vhs == 1) {
+/*              if(rzr.Vhs == 1) {
                 getVhs(rzr);
-              }
+              }*/
             });
           });
         });
