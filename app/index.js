@@ -100,20 +100,46 @@ module.exports = yeoman.generators.Base.extend({
           value: 'smtp'
         }]
       }, {
+        when: function(resp) {
+          if(resp.Transport == 'smtp') {
+            return true;
+          }
+        },
         type: 'input',
         name: 'SmtpUser',
         message: 'SMTP username?',
         default: ''
       }, {
+        when: function(resp) {
+          if(resp.Transport == 'smtp') {
+            return true;
+          }
+        },
         type: 'input',
         name: 'SmtpPass',
         message: 'SMTP password?',
         default: ''
       }, {
+        when: function(resp) {
+          if(resp.Transport == 'smtp') {
+            return true;
+          }
+        },
         type: 'input',
         name: 'SmtpServer',
         message: 'SMTP server?',
         default: 'localhost:25'
+      }, {
+        type: 'list',
+        name: 'English',
+        message: 'Activate English language in TYPO3?',
+        choices: [{
+          name: 'No',
+          value: '0'
+        }, {
+          name: 'Yes',
+          value: '1'
+        }]
       }];
 
       rzr.prompt(prompts, function(answers) {
@@ -128,6 +154,7 @@ module.exports = yeoman.generators.Base.extend({
         this.User = answers.User;
         this.Pass = answers.Pass;
         //this.Vhs = answers.Vhs;
+        this.English = answers.English;
         this.Transport = answers.Transport;
         this.SmtpUser = answers.SmtpUser;
         this.SmtpPass = answers.SmtpPass;
@@ -150,6 +177,13 @@ module.exports = yeoman.generators.Base.extend({
           createDb(rzr, function(response) {
             processSqlFile(rzr, response, function() {
               getRazor(rzr);
+
+              if(rzr.English == 1) {
+                getRazorConfig(rzr);
+              }
+              else {
+                fs.unlink('razor.json');
+              }
 
 /*              if(rzr.Vhs == 1) {
                 getVhs(rzr);
@@ -211,14 +245,19 @@ function localconf(rzr) {
 }
 
 function localSettings(rzr) {
-  fs.readFile('typo3conf/Local.php', 'utf8', function(err, content) {
-    var newContent = substituteMarker(content, '###TRANSPORT###', rzr.Transport, true);
-    newContent = substituteMarker(newContent, '###SMTP_PASS###', rzr.SmtpPass, true);
-    newContent = substituteMarker(newContent, '###SMTP_SERVER###', rzr.SmtpServer, true);
-    newContent = substituteMarker(newContent, '###SMTP_USER###', rzr.SmtpUser, true);
+  if(rzr.Transport == 'smtp') {
+    fs.readFile('typo3conf/Local.php', 'utf8', function(err, content) {
+      var newContent = substituteMarker(content, '###TRANSPORT###', rzr.Transport, true);
+      newContent = substituteMarker(newContent, '###SMTP_PASS###', rzr.SmtpPass, true);
+      newContent = substituteMarker(newContent, '###SMTP_SERVER###', rzr.SmtpServer, true);
+      newContent = substituteMarker(newContent, '###SMTP_USER###', rzr.SmtpUser, true);
 
-    fs.writeFile('typo3conf/Local.php', newContent, 'utf8', function(err) {});
-  });
+      fs.writeFile('typo3conf/Local.php', newContent, 'utf8', function(err) {});
+    });
+  }
+  else {
+    fs.unlink('typo3conf/Local.php');
+  }
 }
 
 function createDb(rzr, callback) {
@@ -304,11 +343,15 @@ function getRazor(rzr) {
   });
 }
 
-function getVhs(rzr) {
+function getRazorConfig(rzr) {
+  
+}
+
+/*function getVhs(rzr) {
   // Get vhs
   rzr.extract("https://github.com/FluidTYPO3/vhs/archive/development.tar.gz", "typo3conf/ext/", function() {
     mv('typo3conf/ext/vhs-development', 'typo3conf/ext/vhs', {
       mkdirp: true
     }, function(err) {});
   });
-}
+}*/
