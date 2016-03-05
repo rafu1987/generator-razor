@@ -77,18 +77,7 @@ module.exports = yeoman.generators.Base.extend({
         name: 'Pass',
         message: 'TYPO3 install tool & admin user password?',
         default: 'joh316'
-      }, /*{
-        type: 'list',
-        name: 'Vhs',
-        message: 'Download vhs from GitHub?',
-        choices: [{
-          name: 'Yes',
-          value: '1'
-        }, {
-          name: 'No',
-          value: '0'
-        }]
-      },*/ {
+      }, {
         type: 'list',
         name: 'Transport',
         message: 'How to send emails?',
@@ -135,11 +124,26 @@ module.exports = yeoman.generators.Base.extend({
         message: 'Activate English language in TYPO3?',
         choices: [{
           name: 'No',
-          value: '0'
+          value: false
         }, {
           name: 'Yes',
-          value: '1'
+          value: true
         }]
+      }, {
+        type: 'input',
+        name: 'Author',
+        message: 'Author name',
+        default: 'John Doe'
+      }, {
+        type: 'input',
+        name: 'Email',
+        message: 'Author eMail',
+        default: 'john@doe.com'
+      }, {
+        type: 'input',
+        name: 'Website',
+        message: 'Author website',
+        default: 'www.johndoe.com'
       }];
 
       rzr.prompt(prompts, function(answers) {
@@ -153,8 +157,10 @@ module.exports = yeoman.generators.Base.extend({
         this.DbNew = answers.DbNew;
         this.User = answers.User;
         this.Pass = answers.Pass;
-        //this.Vhs = answers.Vhs;
         this.English = answers.English;
+        this.Author = answers.Author;
+        this.Email = answers.Email;
+        this.Website = answers.Website;
         this.Transport = answers.Transport;
         this.SmtpUser = answers.SmtpUser;
         this.SmtpPass = answers.SmtpPass;
@@ -177,17 +183,7 @@ module.exports = yeoman.generators.Base.extend({
           createDb(rzr, function(response) {
             processSqlFile(rzr, response, function() {
               getRazor(rzr);
-
-              if(rzr.English == 1) {
-                getRazorConfig(rzr);
-              }
-              else {
-                fs.unlink('razor.json');
-              }
-
-/*              if(rzr.Vhs == 1) {
-                getVhs(rzr);
-              }*/
+              setRazorConfig(rzr);
             });
           });
         });
@@ -343,15 +339,12 @@ function getRazor(rzr) {
   });
 }
 
-function getRazorConfig(rzr) {
-  
-}
+function setRazorConfig(rzr) {
+  var obj = {english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website};
 
-/*function getVhs(rzr) {
-  // Get vhs
-  rzr.extract("https://github.com/FluidTYPO3/vhs/archive/development.tar.gz", "typo3conf/ext/", function() {
-    mv('typo3conf/ext/vhs-development', 'typo3conf/ext/vhs', {
-      mkdirp: true
-    }, function(err) {});
+  fs.writeFile("razor.json", JSON.stringify(obj, null, 2), function(err) {
+    if(err) {
+      return console.log(err);
+    }
   });
-}*/
+}
