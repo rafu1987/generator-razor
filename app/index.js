@@ -144,6 +144,17 @@ module.exports = yeoman.generators.Base.extend({
         name: 'Website',
         message: 'Author website',
         default: 'www.johndoe.com'
+      }, {
+        type: 'list',
+        name: 'Copyright',
+        message: 'Add werdewelt copyright?',
+        choices: [{
+          name: 'No',
+          value: false
+        }, {
+          name: 'Yes',
+          value: true
+        }]
       }];
 
       rzr.prompt(prompts, function(answers) {
@@ -161,6 +172,7 @@ module.exports = yeoman.generators.Base.extend({
         this.Author = answers.Author;
         this.Email = answers.Email;
         this.Website = answers.Website;
+        this.Copyright = answers.Copyright;
         this.Transport = answers.Transport;
         this.SmtpUser = answers.SmtpUser;
         this.SmtpPass = answers.SmtpPass;
@@ -340,7 +352,7 @@ function getRazor(rzr) {
 }
 
 function setRazorConfig(rzr) {
-  var obj = {english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website};
+  var obj = {english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright};
 
   fs.writeFile("razor.json", JSON.stringify(obj, null, 2), function(err) {
     if(err) {
