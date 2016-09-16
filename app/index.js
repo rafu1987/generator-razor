@@ -187,8 +187,6 @@ module.exports = yeoman.generators.Base.extend({
       var rzr = this;
       var path = this.SrcPath + '/typo3_src-' + this.Version;
 
-      console.log(this.Version);
-
       if(this.Version.indexOf('6.2.') !== -1) {
         var version = '62';
       }
