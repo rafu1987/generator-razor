@@ -187,8 +187,17 @@ module.exports = yeoman.generators.Base.extend({
       var rzr = this;
       var path = this.SrcPath + '/typo3_src-' + this.Version;
 
+      console.log(this.Version);
+
+      if(this.Version.indexOf('6.2.') !== -1) {
+        var version = '62';
+      }
+      else {
+        var version = '76';
+      }
+
       createSymlinks(this, path, function() {
-        rzr.directory('install', './').on('end', function() {
+        rzr.directory(version, './').on('end', function() {
           localconf(rzr);
           localSettings(rzr);
 
@@ -211,21 +220,35 @@ function getSrc(url, callback) {
     json: true
   }, function(error, response, body) {
     if (!error && response.statusCode === 200) {
-      var releases = body['6.2']['releases'];
-      var keys = Object.keys(releases);
+      var releases62 = body['6.2']['releases'];
+      var releases7 = body['7']['releases'];
+
+      var releasesObj = merge_options(releases62, releases7);
+
+      var keys = Object.keys(releasesObj);
       var len = keys.length;
       var arr = [];
 
+      // Filter out only 6.2.x and 7.6.x versions
       for (var i = 0; i < len; i++) {
-        arr.push({
-          name: keys[i],
-          value: keys[i]
-        });
+        if(keys[i].indexOf('6.2.') !== -1 || keys[i].indexOf('7.6.') !== -1) {
+          arr.push({
+            name: keys[i],
+            value: keys[i]
+          });
+        }
       }
 
       return callback(arr);
     }
   });
+}
+
+function merge_options(obj1, obj2){
+  var obj3 = {};
+  for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+  for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+  return obj3;
 }
 
 function createSymlinks(rzr, path, callback) {
