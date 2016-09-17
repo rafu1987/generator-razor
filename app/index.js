@@ -189,9 +189,11 @@ module.exports = yeoman.generators.Base.extend({
 
       if(this.Version.indexOf('6.2.') !== -1) {
         var version = '62';
+        var branch = 'master';
       }
       else {
         var version = '76';
+        var branch = 'razor7';
       }
 
       createSymlinks(this, path, function() {
@@ -201,7 +203,7 @@ module.exports = yeoman.generators.Base.extend({
 
           createDb(rzr, function(response) {
             processSqlFile(rzr, response, function() {
-              getRazor(rzr);
+              getRazor(rzr, branch);
               setRazorConfig(rzr);
             });
           });
@@ -359,9 +361,9 @@ function substituteMarker(content, marker, newContent, toString) {
   }
 }
 
-function getRazor(rzr) {
+function getRazor(rzr, branch) { 
   // Get razor
-  rzr.extract("https://bitbucket.org/rafu1987/razor/get/master.tar.gz", "typo3conf/ext/", function() {
+  rzr.extract("https://bitbucket.org/rafu1987/razor/get/"+ branch +".tar.gz", "typo3conf/ext/", function() {
     glob("typo3conf/ext/*", function(er, files) {
       files.forEach(function(file) {
         mv(file, 'typo3conf/ext/razor', {
