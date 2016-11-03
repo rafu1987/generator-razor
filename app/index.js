@@ -95,6 +95,16 @@ module.exports = yeoman.generators.Base.extend({
           }
         },
         type: 'input',
+        name: 'Encrypt',
+        message: 'SMTP encrypt?',
+        default: ''
+      }, {
+        when: function(resp) {
+          if(resp.Transport == 'smtp') {
+            return true;
+          }
+        },
+        type: 'input',
         name: 'SmtpUser',
         message: 'SMTP username?',
         default: ''
@@ -174,6 +184,7 @@ module.exports = yeoman.generators.Base.extend({
         this.Website = answers.Website;
         this.Copyright = answers.Copyright;
         this.Transport = answers.Transport;
+        this.Encrypt = answers.Encrypt;
         this.SmtpUser = answers.SmtpUser;
         this.SmtpPass = answers.SmtpPass;
         this.SmtpServer = answers.SmtpServer;
@@ -279,6 +290,7 @@ function localSettings(rzr) {
   if(rzr.Transport == 'smtp') {
     fs.readFile('typo3conf/Local.php', 'utf8', function(err, content) {
       var newContent = substituteMarker(content, '###TRANSPORT###', rzr.Transport, true);
+      newContent = substituteMarker(newContent, '###SMTP_ENCRYPT###', rzr.Encrypt, true);
       newContent = substituteMarker(newContent, '###SMTP_PASS###', rzr.SmtpPass, true);
       newContent = substituteMarker(newContent, '###SMTP_SERVER###', rzr.SmtpServer, true);
       newContent = substituteMarker(newContent, '###SMTP_USER###', rzr.SmtpUser, true);
