@@ -310,7 +310,7 @@ function createDb(rzr, callback) {
 
   // Create database table and user
   connection.query("CREATE DATABASE " + rzr.DbNew + " CHARACTER SET utf8 COLLATE utf8_general_ci;");
-  connection.query("CREATE USER '" + rzr.DbNew + "'@'%' IDENTIFIED BY '" + rzr.DbNew + "';")
+  connection.query("CREATE USER '" + rzr.DbNew + "'@'%' IDENTIFIED BY '" + rzr.DbNew + "';");
   connection.query("GRANT ALL PRIVILEGES ON " + rzr.DbNew + ".* TO '" + rzr.DbNew + "'@'%';");
 
   // Connect to new db
