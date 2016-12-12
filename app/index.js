@@ -10,10 +10,11 @@ var fs = require('fs');
 var pathExists = require('path-exists');
 var request = require("request");
 var md5 = require('md5');
+var rzr;
 
 module.exports = yeoman.generators.Base.extend({
   prompting: function() {
-    var rzr = this;
+    var t = this;
     var done = this.async();
 
     this.log(yosay(
@@ -178,39 +179,20 @@ module.exports = yeoman.generators.Base.extend({
         }]
       }];
 
-      rzr.prompt(prompts, function(answers) {
-        this.ProjectName = answers.ProjectName;
-        this.SrcPath = answers.SrcPath;
-        this.Version = answers.Version;
-        this.DbUsername = answers.DbUsername;
-        this.DbPassword = answers.DbPassword;
-        this.DbHostname = answers.DbHostname;
-        this.DbSocket = answers.DbSocket;
-        this.DbNew = answers.DbNew;
-        this.User = answers.User;
-        this.Pass = answers.Pass;
-        this.English = answers.English;
-        this.Author = answers.Author;
-        this.Email = answers.Email;
-        this.Website = answers.Website;
-        this.Copyright = answers.Copyright;
-        this.Htaccess = answers.Htaccess;
-        this.Transport = answers.Transport;
-        this.Encrypt = answers.Encrypt;
-        this.SmtpUser = answers.SmtpUser;
-        this.SmtpPass = answers.SmtpPass;
-        this.SmtpServer = answers.SmtpServer;
+      t.prompt(prompts, function(answers) {
+        this.props = answers;
         done();
-      }.bind(rzr));
+      }.bind(t));
     });
   },
 
   writing: {
     app: function() {
-      var rzr = this;
-      var path = this.SrcPath + '/typo3_src-' + this.Version;
+      var t = this;
+      rzr = this.props;
+      var path = rzr.SrcPath + '/typo3_src-' + rzr.Version;
 
-      if(this.Version.indexOf('6.2.') !== -1) {
+      if(rzr.Version.indexOf('6.2.') !== -1) {
         var version = '62';
         var branch = 'master';
       }
@@ -220,14 +202,14 @@ module.exports = yeoman.generators.Base.extend({
       }
 
       createSymlinks(this, path, function() {
-        rzr.directory(version, './').on('end', function() {
-          localconf(rzr);
-          localSettings(rzr);
+        t.directory(version, './').on('end', function() {
+          localconf();
+          localSettings();
 
-          createDb(rzr, function(response) {
-            processSqlFile(rzr, response, function() {
-              getRazor(rzr, branch);
-              setRazorConfig(rzr);
+          createDb(function(response) {
+            processSqlFile(response, function() {
+              getRazor(t, branch);
+              setRazorConfig();
             });
           });
         });
@@ -267,17 +249,17 @@ function getSrc(url, callback) {
   });
 }
 
-function merge_options(obj1, obj2){
+function merge_options(obj1, obj2) {
   var obj3 = {};
   for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
   for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
   return obj3;
 }
 
-function createSymlinks(rzr, path, callback) {
+function createSymlinks(t, path, callback) {
   // Check if TYPO3 source is available
   if (pathExists.sync(path) === false) {
-    rzr.extract("http://get.typo3.org/" + rzr.Version, rzr.SrcPath, function() {});
+    t.extract("http://get.typo3.org/" + rzr.Version, rzr.SrcPath, function() {});
   }
 
   // Symlinks
@@ -287,7 +269,7 @@ function createSymlinks(rzr, path, callback) {
   return callback();
 }
 
-function localconf(rzr) {
+function localconf() {
   fs.readFile('typo3conf/LocalConfiguration.php', 'utf8', function(err, content) {
     var newContent = substituteMarker(content, '###DBNEW###', rzr.DbNew, true);
     newContent = substituteMarker(newContent, '###HOST###', rzr.DbHostname, true);
@@ -298,7 +280,7 @@ function localconf(rzr) {
   });
 }
 
-function localSettings(rzr) {
+function localSettings() {
   if(rzr.Transport == 'smtp') {
     fs.readFile('typo3conf/Local.php', 'utf8', function(err, content) {
       var newContent = substituteMarker(content, '###TRANSPORT###', rzr.Transport, true);
@@ -315,7 +297,7 @@ function localSettings(rzr) {
   }
 }
 
-function createDb(rzr, callback) {
+function createDb(callback) {
   // Connect to database
   var connection = mysql.createConnection({
     host: rzr.DbHostname,
@@ -343,7 +325,7 @@ function createDb(rzr, callback) {
   return callback(connection);
 }
 
-function processSqlFile(rzr, connection, callback) {
+function processSqlFile(connection, callback) {
   // Read sql file
   fs.readFile('./db.sql', 'utf8', function(err, data) {
     if (err) {
@@ -385,9 +367,9 @@ function substituteMarker(content, marker, newContent, toString) {
   }
 }
 
-function getRazor(rzr, branch) { 
+function getRazor(t, branch) { 
   // Get razor
-  rzr.extract("https://bitbucket.org/rafu1987/razor/get/"+ branch +".tar.gz", "typo3conf/ext/", function() {
+  t.extract("https://bitbucket.org/rafu1987/razor/get/"+ branch +".tar.gz", "typo3conf/ext/", function() {
     glob("typo3conf/ext/*", function(er, files) {
       files.forEach(function(file) {
         mv(file, 'typo3conf/ext/razor', {
@@ -398,7 +380,7 @@ function getRazor(rzr, branch) {
   });
 }
 
-function setRazorConfig(rzr) {
+function setRazorConfig() {
   var obj = {english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, htaccess: rzr.Htaccess};
 
   fs.writeFile("razor.json", JSON.stringify(obj, null, 2), function(err) {
