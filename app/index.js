@@ -165,6 +165,17 @@ module.exports = yeoman.generators.Base.extend({
           name: 'Yes',
           value: true
         }]
+      },{
+        type: 'list',
+        name: 'Htaccess',
+        message: 'Add .htaccess-dev file for development?',
+        choices: [{
+          name: 'No',
+          value: false
+        }, {
+          name: 'Yes',
+          value: true
+        }]
       }];
 
       rzr.prompt(prompts, function(answers) {
@@ -183,6 +194,7 @@ module.exports = yeoman.generators.Base.extend({
         this.Email = answers.Email;
         this.Website = answers.Website;
         this.Copyright = answers.Copyright;
+        this.Htaccess = answers.Htaccess;
         this.Transport = answers.Transport;
         this.Encrypt = answers.Encrypt;
         this.SmtpUser = answers.SmtpUser;
@@ -387,7 +399,7 @@ function getRazor(rzr, branch) {
 }
 
 function setRazorConfig(rzr) {
-  var obj = {english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright};
+  var obj = {english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, htaccess: rzr.Htaccess};
 
   fs.writeFile("razor.json", JSON.stringify(obj, null, 2), function(err) {
     if(err) {
