@@ -293,7 +293,7 @@ function localSettings() {
     });
   }
   else {
-    fs.unlink('typo3conf/Local.php');
+    fs.unlink('typo3conf/Local.php', function(err) {});
   }
 }
 
@@ -348,7 +348,7 @@ function processSqlFile(connection, callback) {
           connection.end();
 
           // Delete db.sql file after import
-          fs.unlink('db.sql');
+          fs.unlink('db.sql', function(err) {});
 
           return callback();
         });
