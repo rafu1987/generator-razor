@@ -383,6 +383,14 @@ function getRazor(t, branch) {
 function setRazorConfig() {
   var obj = {english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, htaccess: rzr.Htaccess};
 
+  // Rename or delete?
+  if(rzr.Htaccess) {
+    fs.rename('_.htaccess-dev', '.htaccess-dev', function(err) {});
+  }
+  else {
+    fs.unlink('_.htaccess-dev', function(err) {});
+  }
+
   fs.writeFile("razor.json", JSON.stringify(obj, null, 2), function(err) {
     if(err) {
       return console.log(err);
