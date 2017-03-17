@@ -171,11 +171,11 @@ module.exports = yeoman.generators.Base.extend({
         name: 'Htaccess',
         message: 'Add .htaccess-dev file for development?',
         choices: [{
-          name: 'No',
-          value: false
-        }, {
           name: 'Yes',
           value: true
+        }, {
+          name: 'No',
+          value: false
         }]
       }];
 
