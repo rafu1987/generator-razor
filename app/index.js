@@ -79,6 +79,11 @@ module.exports = yeoman.generators.Base.extend({
         message: 'TYPO3 install tool & admin user password?',
         default: 'joh316'
       }, {
+        type: 'input',
+        name: 'AdminEmail',
+        message: 'TYPO3 admin email?',
+        default: 'john@doe.com'
+      }, {
         type: 'list',
         name: 'Transport',
         message: 'How to send emails?',
@@ -381,7 +386,7 @@ function getRazor(t, branch) {
 }
 
 function setRazorConfig() {
-  var obj = {english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, htaccess: rzr.Htaccess};
+  var obj = {user: rzr.User, adminEmail: rzr.AdminEmail, english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, htaccess: rzr.Htaccess};
 
   // Rename or delete?
   if(rzr.Htaccess) {
