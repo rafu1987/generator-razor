@@ -201,9 +201,13 @@ module.exports = yeoman.generators.Base.extend({
         var version = '62';
         var branch = 'master';
       }
-      else {
+      else if(rzr.Version.indexOf('7.6') !== -1) {
         var version = '76';
         var branch = 'razor7';
+      }
+      else {
+        var version = '87';
+        var branch = 'razor8';
       }
 
       createSymlinks(this, path, function() {
@@ -232,16 +236,17 @@ function getSrc(url, callback) {
     if (!error && response.statusCode === 200) {
       var releases62 = body['6.2']['releases'];
       var releases7 = body['7']['releases'];
+      var releases8 = body['8']['releases'];
 
-      var releasesObj = merge_options(releases62, releases7);
+      var releasesObj = merge_options(releases62, releases7, releases8);
 
       var keys = Object.keys(releasesObj);
       var len = keys.length;
       var arr = [];
 
-      // Filter out only 6.2.x and 7.6.x versions
+      // Filter out only 6.2.x, 7.6.x versions and 8.7.x versions
       for (var i = 0; i < len; i++) {
-        if(keys[i].indexOf('6.2.') !== -1 || keys[i].indexOf('7.6.') !== -1) {
+        if(keys[i].indexOf('6.2.') !== -1 || keys[i].indexOf('7.6.') !== -1 || keys[i].indexOf('8.7.') !== -1) {
           arr.push({
             name: keys[i],
             value: keys[i]
@@ -254,11 +259,12 @@ function getSrc(url, callback) {
   });
 }
 
-function merge_options(obj1, obj2) {
-  var obj3 = {};
-  for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
-  for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
-  return obj3;
+function merge_options(obj1, obj2, obj3) {
+  var obj4 = {};
+  for (var attrname in obj1) { obj4[attrname] = obj1[attrname]; }
+  for (var attrname in obj2) { obj4[attrname] = obj2[attrname]; }
+  for (var attrname in obj3) { obj4[attrname] = obj3[attrname]; }
+  return obj4;
 }
 
 function createSymlinks(t, path, callback) {
