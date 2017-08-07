@@ -276,6 +276,7 @@ function createSymlinks(t, path, callback) {
   // Symlinks
   link(path, 'typo3_src');
   link('typo3_src/typo3', 'typo3');
+  link('typo3_src/index.php', 'index.php');
 
   return callback();
 }
