@@ -165,11 +165,11 @@ module.exports = yeoman.generators.Base.extend({
         name: 'Copyright',
         message: 'Add werdewelt copyright?',
         choices: [{
-          name: 'No',
-          value: false
-        }, {
           name: 'Yes',
           value: true
+        }, {
+          name: 'No',
+          value: false
         }]
       },{
         type: 'list',
