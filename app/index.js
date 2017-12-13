@@ -217,7 +217,12 @@ module.exports = yeoman.generators.Base.extend({
 
           createDb(function(response) {
             processSqlFile(response, function() {
-              getRazor(t, branch);
+              getRazor(t, branch, function() {
+                if(version == '87') {
+                  getExtension(t, 'https://github.com/FriendsOfTYPO3/extension_builder/archive/master.tar.gz', 'extension_builder-master', 'extension_builder');
+                  getExtension(t, 'https://github.com/TYPO3-extensions/gridelements/archive/master.tar.gz', 'gridelements-master', 'gridelements');
+                }
+              });
               setRazorConfig();
             });
           });
@@ -379,12 +384,27 @@ function substituteMarker(content, marker, newContent, toString) {
   }
 }
 
-function getRazor(t, branch) { 
+function getRazor(t, branch, callback) { 
   // Get razor
   t.extract("https://bitbucket.org/rafu1987/razor/get/"+ branch +".tar.gz", "typo3conf/ext/", function() {
     glob("typo3conf/ext/*", function(er, files) {
       files.forEach(function(file) {
         mv(file, 'typo3conf/ext/razor', {
+          mkdirp: true
+        }, function(err) {});
+
+        return callback();
+      });
+    });
+  });
+}
+
+function getExtension(t, url, oldName, newName) { 
+  // Get razor
+  t.extract(url, "typo3conf/ext/", function() {
+    glob("typo3conf/ext/"+ oldName, function(er, files) {
+      files.forEach(function(file) {
+        mv(file, 'typo3conf/ext/'+newName, {
           mkdirp: true
         }, function(err) {});
       });
