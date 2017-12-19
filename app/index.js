@@ -165,6 +165,17 @@ module.exports = yeoman.generators.Base.extend({
         name: 'Copyright',
         message: 'Add werdewelt copyright?',
         choices: [{
+          name: 'No',
+          value: false
+        }, {
+          name: 'Yes',
+          value: true
+        }]
+      },{
+        type: 'list',
+        name: 'Htaccess',
+        message: 'Add .htaccess-dev file for development?',
+        choices: [{
           name: 'Yes',
           value: true
         }, {
@@ -172,9 +183,14 @@ module.exports = yeoman.generators.Base.extend({
           value: false
         }]
       },{
+        when: function(resp) {
+          if(resp.Version.indexOf('8.7') !== -1) {
+            return true;
+          }
+        },
         type: 'list',
-        name: 'Htaccess',
-        message: 'Add .htaccess-dev file for development?',
+        name: 'Github',
+        message: 'Get gridelements and extension_builder from GitHub?',
         choices: [{
           name: 'Yes',
           value: true
@@ -218,7 +234,7 @@ module.exports = yeoman.generators.Base.extend({
           createDb(function(response) {
             processSqlFile(response, function() {
               getRazor(t, branch, function() {
-                if(version == '87') {
+                if(rzr.Github) {
                   getExtension(t, 'https://github.com/FriendsOfTYPO3/extension_builder/archive/master.tar.gz', 'extension_builder-master', 'extension_builder');
                   getExtension(t, 'https://github.com/TYPO3-extensions/gridelements/archive/master.tar.gz', 'gridelements-master', 'gridelements');
                 }
@@ -413,7 +429,7 @@ function getExtension(t, url, oldName, newName) {
 }
 
 function setRazorConfig() {
-  var obj = {user: rzr.User, adminEmail: rzr.AdminEmail, english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, htaccess: rzr.Htaccess};
+  var obj = {siteName: rzr.ProjectName, user: rzr.User, adminEmail: rzr.AdminEmail, english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, htaccess: rzr.Htaccess};
 
   // Rename or delete?
   if(rzr.Htaccess) {
