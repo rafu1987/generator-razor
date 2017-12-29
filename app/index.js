@@ -190,7 +190,7 @@ module.exports = yeoman.generators.Base.extend({
         },
         type: 'list',
         name: 'Github',
-        message: 'Get gridelements and extension_builder from GitHub?',
+        message: 'Get extension_builder from GitHub?',
         choices: [{
           name: 'Yes',
           value: true
@@ -236,7 +236,6 @@ module.exports = yeoman.generators.Base.extend({
               getRazor(t, branch, function() {
                 if(rzr.Github) {
                   getExtension(t, 'https://github.com/FriendsOfTYPO3/extension_builder/archive/master.tar.gz', 'extension_builder-master', 'extension_builder');
-                  getExtension(t, 'https://github.com/TYPO3-extensions/gridelements/archive/master.tar.gz', 'gridelements-master', 'gridelements');
                 }
               });
               setRazorConfig();
