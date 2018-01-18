@@ -31,7 +31,8 @@ module.exports = yeoman.generators.Base.extend({
         type: 'input',
         name: 'SrcPath',
         message: 'What is the path to the TYPO3 source files?',
-        default: '../typo3_src'
+        default: '../typo3_src',
+        store: true
       }, {
         type: 'list',
         name: 'Version',
@@ -41,17 +42,20 @@ module.exports = yeoman.generators.Base.extend({
         type: 'input',
         name: 'DbUsername',
         message: 'Database username?',
-        default: 'root'
+        default: 'root',
+        store: true
       }, {
         type: 'input',
         name: 'DbPassword',
         message: 'Database password?',
-        default: 'root'
+        default: 'root',
+        store: true
       }, {
         type: 'input',
         name: 'DbHostname',
         message: 'Database hostname?',
-        default: 'localhost'
+        default: 'localhost',
+        store: true
       }, {
         type: 'list',
         name: 'DbSocket',
@@ -62,7 +66,8 @@ module.exports = yeoman.generators.Base.extend({
         }, {
           name: 'MAMP',
           value: '/Applications/MAMP/tmp/mysql/mysql.sock'
-        }]
+        }],
+        store: true
       }, {
         type: 'input',
         name: 'DbNew',
@@ -72,7 +77,8 @@ module.exports = yeoman.generators.Base.extend({
         type: 'input',
         name: 'User',
         message: 'TYPO3 admin username?',
-        default: 'admin'
+        default: 'admin',
+        store: true
       }, {
         type: 'input',
         name: 'Pass',
@@ -82,7 +88,8 @@ module.exports = yeoman.generators.Base.extend({
         type: 'input',
         name: 'AdminEmail',
         message: 'TYPO3 admin email?',
-        default: 'john@doe.com'
+        default: 'john@doe.com',
+        store: true
       }, {
         type: 'list',
         name: 'Transport',
@@ -93,7 +100,8 @@ module.exports = yeoman.generators.Base.extend({
         }, {
           name: 'smtp',
           value: 'smtp'
-        }]
+        }],
+        store: true
       }, {
         when: function(resp) {
           if(resp.Transport == 'smtp') {
@@ -103,7 +111,8 @@ module.exports = yeoman.generators.Base.extend({
         type: 'input',
         name: 'Encrypt',
         message: 'SMTP encrypt?',
-        default: ''
+        default: '',
+        store: true
       }, {
         when: function(resp) {
           if(resp.Transport == 'smtp') {
@@ -113,7 +122,8 @@ module.exports = yeoman.generators.Base.extend({
         type: 'input',
         name: 'SmtpUser',
         message: 'SMTP username?',
-        default: ''
+        default: '',
+        store: true
       }, {
         when: function(resp) {
           if(resp.Transport == 'smtp') {
@@ -123,7 +133,8 @@ module.exports = yeoman.generators.Base.extend({
         type: 'input',
         name: 'SmtpPass',
         message: 'SMTP password?',
-        default: ''
+        default: '',
+        store: true
       }, {
         when: function(resp) {
           if(resp.Transport == 'smtp') {
@@ -133,7 +144,8 @@ module.exports = yeoman.generators.Base.extend({
         type: 'input',
         name: 'SmtpServer',
         message: 'SMTP server?',
-        default: 'localhost:25'
+        default: 'localhost:25',
+        store: true
       }, {
         type: 'list',
         name: 'English',
@@ -149,17 +161,20 @@ module.exports = yeoman.generators.Base.extend({
         type: 'input',
         name: 'Author',
         message: 'Author name',
-        default: 'John Doe'
+        default: 'John Doe',
+        store: true
       }, {
         type: 'input',
         name: 'Email',
         message: 'Author eMail',
-        default: 'john@doe.com'
+        default: 'john@doe.com',
+        store: true
       }, {
         type: 'input',
         name: 'Website',
         message: 'Author website',
-        default: 'www.johndoe.com'
+        default: 'www.johndoe.com',
+        store: true
       }, {
         type: 'list',
         name: 'Copyright',
@@ -173,7 +188,8 @@ module.exports = yeoman.generators.Base.extend({
         }, {
           name: 'werdewelt',
           value: 2
-        }]
+        }],
+        store: true
       },{
         type: 'list',
         name: 'Htaccess',
@@ -184,7 +200,8 @@ module.exports = yeoman.generators.Base.extend({
         }, {
           name: 'No',
           value: false
-        }]
+        }],
+        store: true
       },{
         when: function(resp) {
           if(resp.Version.indexOf('8.7') !== -1) {
