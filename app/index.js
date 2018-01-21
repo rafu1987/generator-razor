@@ -209,6 +209,22 @@ module.exports = yeoman.generators.Base.extend({
           }
         },
         type: 'list',
+        name: 'Dark',
+        message: 'Editor dark mode?',
+        choices: [{
+          name: 'Yes',
+          value: true
+        }, {
+          name: 'No',
+          value: false
+        }]
+      },{
+        when: function(resp) {
+          if(resp.Version.indexOf('8.7') !== -1) {
+            return true;
+          }
+        },
+        type: 'list',
         name: 'Github',
         message: 'Get extension_builder from GitHub?',
         choices: [{
@@ -273,12 +289,12 @@ function getSrc(url, callback) {
     url: url,
     json: true
   }, function(error, response, body) {
-    if (!error && response.statusCode === 200) {
-      var releases62 = body['6.2']['releases'];
+    if (!error && response.statusCode === 200) {      
       var releases7 = body['7']['releases'];
       var releases8 = body['8']['releases'];
+      var releases62 = body['6.2']['releases'];
 
-      var releasesObj = merge_options(releases62, releases7, releases8);
+      var releasesObj = merge_options(releases7, releases8, releases62);
 
       var keys = Object.keys(releasesObj);
       var len = keys.length;
@@ -286,7 +302,7 @@ function getSrc(url, callback) {
 
       // Filter out only 6.2.x, 7.6.x versions and 8.7.x versions
       for (var i = 0; i < len; i++) {
-        if(keys[i].indexOf('6.2.') !== -1 || keys[i].indexOf('7.6.') !== -1 || keys[i].indexOf('8.7.') !== -1) {
+        if(keys[i].indexOf('7.6.') !== -1 || keys[i].indexOf('8.7.') !== -1 || keys[i].indexOf('6.2.') !== -1) {
           arr.push({
             name: keys[i],
             value: keys[i]
@@ -448,7 +464,7 @@ function getExtension(t, url, oldName, newName) {
 }
 
 function setRazorConfig() {
-  var obj = {siteName: rzr.ProjectName, user: rzr.User, adminEmail: rzr.AdminEmail, english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, htaccess: rzr.Htaccess};
+  var obj = {siteName: rzr.ProjectName, user: rzr.User, adminEmail: rzr.AdminEmail, english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, dark: rzr.Dark, htaccess: rzr.Htaccess};
 
   // Rename or delete?
   if(rzr.Htaccess) {
