@@ -212,12 +212,13 @@ module.exports = yeoman.generators.Base.extend({
         name: 'Dark',
         message: 'Editor dark mode?',
         choices: [{
-          name: 'Yes',
-          value: true
-        }, {
           name: 'No',
           value: false
-        }]
+        }, {
+          name: 'Yes',
+          value: true
+        }],
+        store: true
       },{
         when: function(resp) {
           if(resp.Version.indexOf('8.7') !== -1) {
@@ -233,7 +234,8 @@ module.exports = yeoman.generators.Base.extend({
         }, {
           name: 'No',
           value: false
-        }]
+        }],
+        store: true
       }];
 
       t.prompt(prompts, function(answers) {
