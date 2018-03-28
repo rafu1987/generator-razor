@@ -226,6 +226,23 @@ module.exports = yeoman.generators.Base.extend({
           }
         },
         type: 'list',
+        name: 'Cols',
+        message: 'Bootstrap cols?',
+        choices: [{
+          name: '12',
+          value: '12'
+        }, {
+          name: '24',
+          value: '24'
+        }],
+        store: true
+      },{
+        when: function(resp) {
+          if(resp.Version.indexOf('8.7') !== -1) {
+            return true;
+          }
+        },
+        type: 'list',
         name: 'Github',
         message: 'Get extension_builder from GitHub?',
         choices: [{
@@ -466,7 +483,7 @@ function getExtension(t, url, oldName, newName) {
 }
 
 function setRazorConfig() {
-  var obj = {siteName: rzr.ProjectName, user: rzr.User, adminEmail: rzr.AdminEmail, english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, dark: rzr.Dark, htaccess: rzr.Htaccess};
+  var obj = {siteName: rzr.ProjectName, user: rzr.User, adminEmail: rzr.AdminEmail, english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, dark: rzr.Dark, cols: rzr.Cols, htaccess: rzr.Htaccess};
 
   // Rename or delete?
   if(rzr.Htaccess) {
