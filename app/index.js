@@ -95,11 +95,11 @@ module.exports = yeoman.generators.Base.extend({
         name: 'Transport',
         message: 'How to send emails?',
         choices: [{
-          name: 'mail',
-          value: 'mail'
-        }, {
           name: 'smtp',
           value: 'smtp'
+        }, {
+          name: 'mail',
+          value: 'mail'
         }],
         store: true
       }, {
@@ -133,6 +133,28 @@ module.exports = yeoman.generators.Base.extend({
         type: 'input',
         name: 'SmtpPass',
         message: 'SMTP password?',
+        default: '',
+        store: true
+      }, {
+        when: function(resp) {
+          if(resp.Transport == 'smtp') {
+            return true;
+          }
+        },
+        type: 'input',
+        name: 'SmtpEmail',
+        message: 'Sender email?',
+        default: '',
+        store: true
+      }, {
+        when: function(resp) {
+          if(resp.Transport == 'smtp') {
+            return true;
+          }
+        },
+        type: 'input',
+        name: 'SmtpName',
+        message: 'Sender name?',
         default: '',
         store: true
       }, {
@@ -375,6 +397,8 @@ function localSettings() {
       newContent = substituteMarker(newContent, '###SMTP_PASS###', rzr.SmtpPass, true);
       newContent = substituteMarker(newContent, '###SMTP_SERVER###', rzr.SmtpServer, true);
       newContent = substituteMarker(newContent, '###SMTP_USER###', rzr.SmtpUser, true);
+      newContent = substituteMarker(newContent, '###SMTP_EMAIL###', rzr.SmtpEmail, true);
+      newContent = substituteMarker(newContent, '###SMTP_NAME###', rzr.SmtpName, true);
 
       fs.writeFile('typo3conf/Local.php', newContent, 'utf8', function(err) {});
     });
