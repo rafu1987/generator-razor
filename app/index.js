@@ -312,7 +312,7 @@ module.exports = yeoman.generators.Base.extend({
             processSqlFile(response, function() {
               getRazor(t, branch, function() {
                 if(rzr.Github) {
-                  getExtension(t, 'https://github.com/FriendsOfTYPO3/extension_builder/archive/master.tar.gz', 'extension_builder-master', 'extension_builder');
+                  getExtension(t, 'https://github.com/FriendsOfTYPO3/extension_builder/archive/8.7.tar.gz', 'extension_builder-8.7', 'extension_builder');
                 }
               });
               setRazorConfig();
