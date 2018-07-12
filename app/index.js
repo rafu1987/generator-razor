@@ -1,19 +1,21 @@
 'use strict';
-var yeoman = require('yeoman-generator');
+var Generator = require('yeoman-generator');
 var chalk = require('chalk');
 var yosay = require('yosay');
 var link = require('fs-symlink');
 var mysql = require('mysql');
-var glob = require("glob");
+var glob = require('glob');
 var mv = require('mv');
 var fs = require('fs');
 var pathExists = require('path-exists');
-var request = require("request");
+var request = require('request');
 var md5 = require('md5');
+var copydir = require('copy-dir');
+var remote = require('yeoman-remote');
 var rzr;
 
-module.exports = yeoman.generators.Base.extend({
-  prompting: function() {
+module.exports = class extends Generator {
+  prompting() {
     var t = this;
     var done = this.async();
 
@@ -21,8 +23,8 @@ module.exports = yeoman.generators.Base.extend({
       'Welcome to the official TYPO3 ' + chalk.red('razor') + ' generator!'
     ));
 
-    getSrc("http://get.typo3.org/json", function(response) {
-      var prompts = [{
+    getSrc('http://get.typo3.org/json', function(response) {
+      const prompts = [{
         type: 'input',
         name: 'ProjectName',
         message: 'Choose your project name',
@@ -103,66 +105,42 @@ module.exports = yeoman.generators.Base.extend({
         }],
         store: true
       }, {
-        when: function(resp) {
-          if(resp.Transport == 'smtp') {
-            return true;
-          }
-        },
+        when: answers => answers.Transport == 'smtp',
         type: 'input',
         name: 'Encrypt',
         message: 'SMTP encrypt?',
         default: '',
         store: true
       }, {
-        when: function(resp) {
-          if(resp.Transport == 'smtp') {
-            return true;
-          }
-        },
+        when: answers => answers.Transport == 'smtp',
         type: 'input',
         name: 'SmtpUser',
         message: 'SMTP username?',
         default: '',
         store: true
       }, {
-        when: function(resp) {
-          if(resp.Transport == 'smtp') {
-            return true;
-          }
-        },
+        when: answers => answers.Transport == 'smtp',
         type: 'input',
         name: 'SmtpPass',
         message: 'SMTP password?',
         default: '',
         store: true
       }, {
-        when: function(resp) {
-          if(resp.Transport == 'smtp') {
-            return true;
-          }
-        },
+        when: answers => answers.Transport == 'smtp',
         type: 'input',
         name: 'SmtpEmail',
         message: 'Sender email?',
         default: '',
         store: true
       }, {
-        when: function(resp) {
-          if(resp.Transport == 'smtp') {
-            return true;
-          }
-        },
+        when: answers => answers.Transport == 'smtp',
         type: 'input',
         name: 'SmtpName',
         message: 'Sender name?',
         default: '',
         store: true
       }, {
-        when: function(resp) {
-          if(resp.Transport == 'smtp') {
-            return true;
-          }
-        },
+        when: answers => answers.Transport == 'smtp',
         type: 'input',
         name: 'SmtpServer',
         message: 'SMTP server?',
@@ -225,11 +203,7 @@ module.exports = yeoman.generators.Base.extend({
         }],
         store: true
       },{
-        when: function(resp) {
-          if(resp.Version.indexOf('8.7') !== -1) {
-            return true;
-          }
-        },
+        when: answers => answers.Version.indexOf('8.7') !== -1,
         type: 'list',
         name: 'Dark',
         message: 'Editor dark mode?',
@@ -242,11 +216,7 @@ module.exports = yeoman.generators.Base.extend({
         }],
         store: true
       },{
-        when: function(resp) {
-          if(resp.Version.indexOf('8.7') !== -1) {
-            return true;
-          }
-        },
+        when: answers => answers.Version.indexOf('8.7') !== -1,
         type: 'list',
         name: 'Cols',
         message: 'Bootstrap cols?',
@@ -259,11 +229,7 @@ module.exports = yeoman.generators.Base.extend({
         }],
         store: true
       },{
-        when: function(resp) {
-          if(resp.Version.indexOf('8.7') !== -1) {
-            return true;
-          }
-        },
+        when: answers => answers.Version.indexOf('8.7') !== -1,
         type: 'list',
         name: 'Github',
         message: 'Get extension_builder from GitHub?',
@@ -277,52 +243,54 @@ module.exports = yeoman.generators.Base.extend({
         store: true
       }];
 
-      t.prompt(prompts, function(answers) {
-        this.props = answers;
+      return t.prompt(prompts).then(answers => {
+        t.props = answers;
         done();
-      }.bind(t));
+      });
     });
-  },
+  }
 
-  writing: {
-    app: function() {
-      var t = this;
-      rzr = this.props;
-      var path = rzr.SrcPath + '/typo3_src-' + rzr.Version;
+  writing() {  
+    var t = this;
+    rzr = this.props;
+    var path = rzr.SrcPath + '/typo3_src-' + rzr.Version;
 
-      if(rzr.Version.indexOf('6.2.') !== -1) {
-        var version = '62';
-        var branch = 'master';
-      }
-      else if(rzr.Version.indexOf('7.6') !== -1) {
-        var version = '76';
-        var branch = 'razor7';
-      }
-      else {
-        var version = '87';
-        var branch = 'razor8';
-      }
+    if(rzr.Version.indexOf('6.2.') !== -1) {
+      var version = '62';
+      var branch = 'master';
+    }
+    else if(rzr.Version.indexOf('7.6') !== -1) {
+      var version = '76';
+      var branch = 'razor7';
+    }
+    else {
+      var version = '87';
+      var branch = 'razor8';
+    }
 
-      createSymlinks(this, path, function() {
-        t.directory(version, './').on('end', function() {
-          localconf();
-          localSettings();
+    createSymlinks(this, path, function() {
+      copydir(t.templatePath(version), t.destinationPath('./'), function() {
+        localconf();
+        localSettings();
 
-          createDb(function(response) {
-            processSqlFile(response, function() {
-              getRazor(t, branch, function() {
-                if(rzr.Github) {
-                  getExtension(t, 'https://github.com/FriendsOfTYPO3/extension_builder/archive/8.7.tar.gz', 'extension_builder-8.7', 'extension_builder');
-                }
-              });
-              setRazorConfig();
+        createDb(function(response) {
+          processSqlFile(response, function() {
+            getRazor(t, branch, function() {
+              if(rzr.Github) {
+                getExtension(t, 'https://github.com/FriendsOfTYPO3/extension_builder/archive/8.7.tar.gz', 'extension_builder-8.7', 'extension_builder', function() {
+                  t.log(
+                    chalk.yellow.bold('razor') + ' was successfully installed!'
+                  );
+                });
+              }
             });
+            setRazorConfig();
           });
         });
       });
-    },
+    });
   }
-});
+};
 
 function getSrc(url, callback) {
   // Get TYPO3 source from JSON
@@ -330,20 +298,20 @@ function getSrc(url, callback) {
     url: url,
     json: true
   }, function(error, response, body) {
-    if (!error && response.statusCode === 200) {      
-      var releases7 = body['7']['releases'];
+    if (!error && response.statusCode === 200) {
       var releases8 = body['8']['releases'];
+      var releases7 = body['7']['releases'];
       var releases62 = body['6.2']['releases'];
 
-      var releasesObj = merge_options(releases7, releases8, releases62);
+      var releasesObj = merge_options(releases8, releases7, releases62);
 
       var keys = Object.keys(releasesObj);
       var len = keys.length;
       var arr = [];
 
-      // Filter out only 6.2.x, 7.6.x versions and 8.7.x versions
+      // Filter out only 8.7.x, 7.6.x versions and 6.2.x versions
       for (var i = 0; i < len; i++) {
-        if(keys[i].indexOf('7.6.') !== -1 || keys[i].indexOf('8.7.') !== -1 || keys[i].indexOf('6.2.') !== -1) {
+        if(keys[i].indexOf('8.7.') !== -1 || keys[i].indexOf('7.6.') !== -1 || keys[i].indexOf('6.2.') !== -1) {
           arr.push({
             name: keys[i],
             value: keys[i]
@@ -367,7 +335,7 @@ function merge_options(obj1, obj2, obj3) {
 function createSymlinks(t, path, callback) {
   // Check if TYPO3 source is available
   if (pathExists.sync(path) === false) {
-    t.extract("http://get.typo3.org/" + rzr.Version, rzr.SrcPath, function() {});
+    remote.extract('http://get.typo3.org/' + rzr.Version, rzr.SrcPath, function() {});
   }
 
   // Symlinks
@@ -480,8 +448,8 @@ function substituteMarker(content, marker, newContent, toString) {
 
 function getRazor(t, branch, callback) { 
   // Get razor
-  t.extract("https://bitbucket.org/rafu1987/razor/get/"+ branch +".tar.gz", "typo3conf/ext/", function() {
-    glob("typo3conf/ext/*", function(er, files) {
+  remote.extract('https://bitbucket.org/rafu1987/razor/get/'+ branch +'.tar.gz', 'typo3conf/ext/', function() {
+    glob('typo3conf/ext/*', function(er, files) {
       files.forEach(function(file) {
         mv(file, 'typo3conf/ext/razor', {
           mkdirp: true
@@ -493,14 +461,16 @@ function getRazor(t, branch, callback) {
   });
 }
 
-function getExtension(t, url, oldName, newName) { 
+function getExtension(t, url, oldName, newName, callback) { 
   // Get razor
-  t.extract(url, "typo3conf/ext/", function() {
-    glob("typo3conf/ext/"+ oldName, function(er, files) {
+  remote.extract(url, 'typo3conf/ext/', function() {
+    glob('typo3conf/ext/' + oldName, function(er, files) {
       files.forEach(function(file) {
-        mv(file, 'typo3conf/ext/'+newName, {
+        mv(file, 'typo3conf/ext/' + newName, {
           mkdirp: true
         }, function(err) {});
+
+        return callback();
       });
     });
   });
@@ -517,7 +487,7 @@ function setRazorConfig() {
     fs.unlink('_.htaccess-dev', function(err) {});
   }
 
-  fs.writeFile("razor.json", JSON.stringify(obj, null, 2), function(err) {
+  fs.writeFile('razor.json', JSON.stringify(obj, null, 2), function(err) {
     if(err) {
       return console.log(err);
     }
