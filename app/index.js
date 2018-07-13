@@ -24,7 +24,7 @@ module.exports = class extends Generator {
       'Welcome to the official TYPO3 ' + chalk.red('razor') + ' generator!'
     ));
 
-    this._getSrc(this, 'http://get.typo3.org/json', (response) => {
+    this._getSrc(this, 'https://get.typo3.org/json', (response) => {
       const prompts = [{
         type: 'input',
         name: 'ProjectName',
@@ -342,7 +342,7 @@ module.exports = class extends Generator {
   _createSymlinks(t, path, callback) {
     // Check if TYPO3 source is available
     if (pathExists.sync(path) === false) {
-      remote.extract('http://get.typo3.org/' + rzr.Version, rzr.SrcPath, () => {});
+      remote.extract('https://get.typo3.org/' + rzr.Version, rzr.SrcPath, () => {});
     }
 
     // Symlinks
