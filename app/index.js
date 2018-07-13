@@ -1,29 +1,30 @@
 'use strict';
-var Generator = require('yeoman-generator');
-var chalk = require('chalk');
-var yosay = require('yosay');
-var link = require('fs-symlink');
-var mysql = require('mysql');
-var glob = require('glob');
-var mv = require('mv');
-var fs = require('fs');
-var pathExists = require('path-exists');
-var request = require('request');
-var md5 = require('md5');
-var copydir = require('copy-dir');
-var remote = require('yeoman-remote');
-var rzr;
+const Generator = require('yeoman-generator');
+const chalk = require('chalk');
+const yosay = require('yosay');
+const link = require('fs-symlink');
+const mysql = require('mysql');
+const glob = require('glob');
+const mv = require('mv');
+const fs = require('fs');
+const pathExists = require('path-exists');
+const request = require('request');
+const md5 = require('md5');
+const copydir = require('copy-dir');
+const remote = require('yeoman-remote');
+
+let rzr;
 
 module.exports = class extends Generator {
   prompting() {
-    var t = this;
-    var done = this.async();
+    const t = this;
+    const done = this.async();
 
     this.log(yosay(
       'Welcome to the official TYPO3 ' + chalk.red('razor') + ' generator!'
     ));
 
-    getSrc('http://get.typo3.org/json', function(response) {
+    this._getSrc(this, 'http://get.typo3.org/json', (response) => {
       const prompts = [{
         type: 'input',
         name: 'ProjectName',
@@ -250,246 +251,254 @@ module.exports = class extends Generator {
     });
   }
 
-  writing() {  
-    var t = this;
+  writing() {
+    const t = this;
     rzr = this.props;
-    var path = rzr.SrcPath + '/typo3_src-' + rzr.Version;
+    const path = rzr.SrcPath + '/typo3_src-' + rzr.Version;
+
+    // Version and branch
+    let version;
+    let branch;
 
     if(rzr.Version.indexOf('6.2.') !== -1) {
-      var version = '62';
-      var branch = 'master';
+      version = '62';
+      branch = 'master';
     }
     else if(rzr.Version.indexOf('7.6') !== -1) {
-      var version = '76';
-      var branch = 'razor7';
+      version = '76';
+      branch = 'razor7';
     }
     else {
-      var version = '87';
-      var branch = 'razor8';
+      version = '87';
+      branch = 'razor8';
     }
 
-    createSymlinks(this, path, function() {
-      copydir(t.templatePath(version), t.destinationPath('./'), function() {
-        localconf();
-        localSettings();
+    this._createSymlinks(this, path, () => {
+      copydir(t.templatePath(version), t.destinationPath('./'), () => {
+        t._localconf(t);
+        t._localSettings(t);
 
-        createDb(function(response) {
-          processSqlFile(response, function() {
-            getRazor(t, branch, function() {
+        t._createDb((response) => {
+          t._processSqlFile(t, response, () => {
+            t._getRazor(t, branch, () => {
               if(rzr.Github) {
-                getExtension(t, 'https://github.com/FriendsOfTYPO3/extension_builder/archive/8.7.tar.gz', 'extension_builder-8.7', 'extension_builder', function() {
+                t._getExtension(t, 'https://github.com/FriendsOfTYPO3/extension_builder/archive/8.7.tar.gz', 'extension_builder-8.7', 'extension_builder', () => {
                   t.log(
                     chalk.yellow.bold('razor') + ' was successfully installed!'
                   );
                 });
               }
             });
-            setRazorConfig();
+
+            t._setRazorConfig();
           });
         });
       });
     });
   }
-};
 
-function getSrc(url, callback) {
-  // Get TYPO3 source from JSON
-  request({
-    url: url,
-    json: true
-  }, function(error, response, body) {
-    if (!error && response.statusCode === 200) {
-      var releases8 = body['8']['releases'];
-      var releases7 = body['7']['releases'];
-      var releases62 = body['6.2']['releases'];
+  _getSrc(t, url, callback) {
+    // Get TYPO3 source from JSON
+    request({
+      url: url,
+      json: true
+    }, (error, response, body) => {
+      if (!error && response.statusCode === 200) {
+        const releases8 = body['8']['releases'];
+        const releases7 = body['7']['releases'];
+        const releases62 = body['6.2']['releases'];
 
-      var releasesObj = merge_options(releases8, releases7, releases62);
+        const releasesObj = t._mergeOptions(releases8, releases7, releases62);
 
-      var keys = Object.keys(releasesObj);
-      var len = keys.length;
-      var arr = [];
+        const keys = Object.keys(releasesObj);
+        const len = keys.length;
+        const arr = [];
 
-      // Filter out only 8.7.x, 7.6.x versions and 6.2.x versions
-      for (var i = 0; i < len; i++) {
-        if(keys[i].indexOf('8.7.') !== -1 || keys[i].indexOf('7.6.') !== -1 || keys[i].indexOf('6.2.') !== -1) {
-          arr.push({
-            name: keys[i],
-            value: keys[i]
-          });
+        // Filter out only 8.7.x, 7.6.x versions and 6.2.x versions
+        for (let i = 0; i < len; i++) {
+          if(keys[i].indexOf('8.7.') !== -1 || keys[i].indexOf('7.6.') !== -1 || keys[i].indexOf('6.2.') !== -1) {
+            arr.push({
+              name: keys[i],
+              value: keys[i]
+            });
+          }
         }
+
+        return callback(arr);
       }
-
-      return callback(arr);
-    }
-  });
-}
-
-function merge_options(obj1, obj2, obj3) {
-  var obj4 = {};
-  for (var attrname in obj1) { obj4[attrname] = obj1[attrname]; }
-  for (var attrname in obj2) { obj4[attrname] = obj2[attrname]; }
-  for (var attrname in obj3) { obj4[attrname] = obj3[attrname]; }
-  return obj4;
-}
-
-function createSymlinks(t, path, callback) {
-  // Check if TYPO3 source is available
-  if (pathExists.sync(path) === false) {
-    remote.extract('http://get.typo3.org/' + rzr.Version, rzr.SrcPath, function() {});
-  }
-
-  // Symlinks
-  link(path, 'typo3_src');
-  link('typo3_src/typo3', 'typo3');
-  link('typo3_src/index.php', 'index.php');
-
-  return callback();
-}
-
-function localconf() {
-  fs.readFile('typo3conf/LocalConfiguration.php', 'utf8', function(err, content) {
-    var newContent = substituteMarker(content, '###DBNEW###', rzr.DbNew, true);
-    newContent = substituteMarker(newContent, '###HOST###', rzr.DbHostname, true);
-    newContent = substituteMarker(newContent, '###PROJECTNAME###', rzr.ProjectName, true);
-    newContent = substituteMarker(newContent, '###PASS###', md5(rzr.Pass), true);
-
-    fs.writeFile('typo3conf/LocalConfiguration.php', newContent, 'utf8', function(err) {});
-  });
-}
-
-function localSettings() {
-  if(rzr.Transport == 'smtp') {
-    fs.readFile('typo3conf/Local.php', 'utf8', function(err, content) {
-      var newContent = substituteMarker(content, '###TRANSPORT###', rzr.Transport, true);
-      newContent = substituteMarker(newContent, '###SMTP_ENCRYPT###', rzr.Encrypt, true);
-      newContent = substituteMarker(newContent, '###SMTP_PASS###', rzr.SmtpPass, true);
-      newContent = substituteMarker(newContent, '###SMTP_SERVER###', rzr.SmtpServer, true);
-      newContent = substituteMarker(newContent, '###SMTP_USER###', rzr.SmtpUser, true);
-      newContent = substituteMarker(newContent, '###SMTP_EMAIL###', rzr.SmtpEmail, true);
-      newContent = substituteMarker(newContent, '###SMTP_NAME###', rzr.SmtpName, true);
-
-      fs.writeFile('typo3conf/Local.php', newContent, 'utf8', function(err) {});
     });
   }
-  else {
-    fs.unlink('typo3conf/Local.php', function(err) {});
+
+  _mergeOptions(obj1, obj2, obj3) {
+    const obj4 = {};
+
+    for (let attrname in obj1) { obj4[attrname] = obj1[attrname]; }
+    for (let attrname in obj2) { obj4[attrname] = obj2[attrname]; }
+    for (let attrname in obj3) { obj4[attrname] = obj3[attrname]; }
+
+    return obj4;
   }
-}
 
-function createDb(callback) {
-  // Connect to database
-  var connection = mysql.createConnection({
-    host: rzr.DbHostname,
-    user: rzr.DbUsername,
-    password: rzr.DbPassword,
-    socketPath: rzr.DbSocket,
-    multipleStatements: true
-  });
-
-  connection.connect(function(err) {
-    if (err) {
-      console.error('error connecting');
-      return;
-    }
-  });
-
-  // Create database table and user
-  connection.query("CREATE DATABASE `" + rzr.DbNew + "` CHARACTER SET utf8 COLLATE utf8_unicode_ci;");
-  connection.query("CREATE USER '" + rzr.DbNew + "'@'%' IDENTIFIED BY '" + rzr.DbNew + "';");
-  connection.query("GRANT ALL PRIVILEGES ON `" + rzr.DbNew + "`.* TO '" + rzr.DbNew + "'@'%';");
-
-  // Connect to new db
-  connection.query("USE `" + rzr.DbNew + "`;");
-
-  return callback(connection);
-}
-
-function processSqlFile(connection, callback) {
-  // Read sql file
-  fs.readFile('./db.sql', 'utf8', function(err, data) {
-    if (err) {
-      console.log(err);
+  _createSymlinks(t, path, callback) {
+    // Check if TYPO3 source is available
+    if (pathExists.sync(path) === false) {
+      remote.extract('http://get.typo3.org/' + rzr.Version, rzr.SrcPath, () => {});
     }
 
-    var result = substituteMarker(data, '###PASS###', md5(rzr.Pass), false);
-    result = substituteMarker(result, '###ADMIN###', rzr.User, false);
+    // Symlinks
+    link(path, 'typo3_src');
+    link('typo3_src/typo3', 'typo3');
+    link('typo3_src/index.php', 'index.php');
 
-    // Write file
-    fs.writeFile('db.sql', result, 'utf8', function(err) {
+    return callback();
+  }
+
+  _localconf(t) {
+    fs.readFile('typo3conf/LocalConfiguration.php', 'utf8', (err, content) => {
+      let newContent = t._substituteMarker(content, '###DBNEW###', rzr.DbNew, true);
+      newContent = t._substituteMarker(newContent, '###HOST###', rzr.DbHostname, true);
+      newContent = t._substituteMarker(newContent, '###PROJECTNAME###', rzr.ProjectName, true);
+      newContent = t._substituteMarker(newContent, '###PASS###', md5(rzr.Pass), true);
+
+      fs.writeFile('typo3conf/LocalConfiguration.php', newContent, 'utf8', () => {});
+    });
+  }
+
+  _localSettings(t) {
+    if(rzr.Transport == 'smtp') {
+      fs.readFile('typo3conf/Local.php', 'utf8', (err, content) => {
+        let newContent = t._substituteMarker(content, '###TRANSPORT###', rzr.Transport, true);
+        newContent = t._substituteMarker(newContent, '###SMTP_ENCRYPT###', rzr.Encrypt, true);
+        newContent = t._substituteMarker(newContent, '###SMTP_PASS###', rzr.SmtpPass, true);
+        newContent = t._substituteMarker(newContent, '###SMTP_SERVER###', rzr.SmtpServer, true);
+        newContent = t._substituteMarker(newContent, '###SMTP_USER###', rzr.SmtpUser, true);
+        newContent = t._substituteMarker(newContent, '###SMTP_EMAIL###', rzr.SmtpEmail, true);
+        newContent = t._substituteMarker(newContent, '###SMTP_NAME###', rzr.SmtpName, true);
+
+        fs.writeFile('typo3conf/Local.php', newContent, 'utf8', () => {});
+      });
+    }
+    else {
+      fs.unlink('typo3conf/Local.php', () => {});
+    }
+  }
+
+  _createDb(callback) {
+    // Connect to database
+    const connection = mysql.createConnection({
+      host: rzr.DbHostname,
+      user: rzr.DbUsername,
+      password: rzr.DbPassword,
+      socketPath: rzr.DbSocket,
+      multipleStatements: true
+    });
+
+    connection.connect((err) => {
+      if (err) {
+        console.error('error connecting');
+
+        return;
+      }
+    });
+
+    // Create database table and user
+    connection.query('CREATE DATABASE `' + rzr.DbNew + '` CHARACTER SET utf8 COLLATE utf8_unicode_ci;');
+    connection.query('CREATE USER "' + rzr.DbNew + '"@"%" IDENTIFIED BY "' + rzr.DbNew + '";');
+    connection.query('GRANT ALL PRIVILEGES ON `' + rzr.DbNew + '`.* TO "' + rzr.DbNew + '"@"%";');
+
+    // Connect to new db
+    connection.query('USE `' + rzr.DbNew + '`;');
+
+    return callback(connection);
+  }
+
+  _processSqlFile(t, connection, callback) {
+    // Read sql file
+    fs.readFile('./db.sql', 'utf8', (err, data) => {
       if (err) {
         console.log(err);
       }
 
-      // Read file again with changes
-      fs.readFile('./db.sql', 'utf8', function(err, data) {
-        // Import sql file
-        connection.query(data, function(err, results) {
-          connection.end();
+      let result = t._substituteMarker(data, '###PASS###', md5(rzr.Pass), false);
+      result = t._substituteMarker(result, '###ADMIN###', rzr.User, false);
 
-          // Delete db.sql file after import
-          fs.unlink('db.sql', function(err) {});
+      // Write file
+      fs.writeFile('db.sql', result, 'utf8', (err) => {
+        if (err) {
+          console.log(err);
+        }
+
+        // Read file again with changes
+        fs.readFile('./db.sql', 'utf8', (err, data) => {
+          // Import sql file
+          connection.query(data, () => {
+            connection.end();
+
+            // Delete db.sql file after import
+            fs.unlink('db.sql', () => {});
+
+            return callback();
+          });
+        });
+      });
+    });
+  }
+
+  _substituteMarker(content, marker, newContent, toString) {
+    const regEx = new RegExp(marker, 'g');
+
+    if (toString) {
+      return content.toString().replace(regEx, newContent);
+    } else {
+      return content.replace(regEx, newContent);
+    }
+  }
+
+  _getRazor(t, branch, callback) {
+    // Get razor
+    remote.extract('https://bitbucket.org/rafu1987/razor/get/'+ branch +'.tar.gz', 'typo3conf/ext/', () => {
+      glob('typo3conf/ext/*', (er, files) => {
+        files.forEach((file) => {
+          mv(file, 'typo3conf/ext/razor', {
+            mkdirp: true
+          }, () => {});
 
           return callback();
         });
       });
     });
-  });
-}
-
-function substituteMarker(content, marker, newContent, toString) {
-  var regEx = new RegExp(marker, 'g');
-
-  if (toString) {
-    return content.toString().replace(regEx, newContent);
-  } else {
-    return content.replace(regEx, newContent);
   }
-}
 
-function getRazor(t, branch, callback) { 
-  // Get razor
-  remote.extract('https://bitbucket.org/rafu1987/razor/get/'+ branch +'.tar.gz', 'typo3conf/ext/', function() {
-    glob('typo3conf/ext/*', function(er, files) {
-      files.forEach(function(file) {
-        mv(file, 'typo3conf/ext/razor', {
-          mkdirp: true
-        }, function(err) {});
+  _getExtension(t, url, oldName, newName, callback) {
+    // Get razor
+    remote.extract(url, 'typo3conf/ext/', () => {
+      glob('typo3conf/ext/' + oldName, (er, files) => {
+        files.forEach((file) => {
+          mv(file, 'typo3conf/ext/' + newName, {
+            mkdirp: true
+          }, () => {});
 
-        return callback();
+          return callback();
+        });
       });
     });
-  });
-}
-
-function getExtension(t, url, oldName, newName, callback) { 
-  // Get razor
-  remote.extract(url, 'typo3conf/ext/', function() {
-    glob('typo3conf/ext/' + oldName, function(er, files) {
-      files.forEach(function(file) {
-        mv(file, 'typo3conf/ext/' + newName, {
-          mkdirp: true
-        }, function(err) {});
-
-        return callback();
-      });
-    });
-  });
-}
-
-function setRazorConfig() {
-  var obj = {siteName: rzr.ProjectName, user: rzr.User, adminEmail: rzr.AdminEmail, english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, dark: rzr.Dark, cols: rzr.Cols, htaccess: rzr.Htaccess};
-
-  // Rename or delete?
-  if(rzr.Htaccess) {
-    fs.rename('_.htaccess-dev', '.htaccess-dev', function(err) {});
-  }
-  else {
-    fs.unlink('_.htaccess-dev', function(err) {});
   }
 
-  fs.writeFile('razor.json', JSON.stringify(obj, null, 2), function(err) {
-    if(err) {
-      return console.log(err);
+  _setRazorConfig() {
+    const obj = {siteName: rzr.ProjectName, user: rzr.User, adminEmail: rzr.AdminEmail, english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, dark: rzr.Dark, cols: rzr.Cols, htaccess: rzr.Htaccess};
+
+    // Rename or delete?
+    if(rzr.Htaccess) {
+      fs.rename('_.htaccess-dev', '.htaccess-dev', () => {});
     }
-  });
-}
+    else {
+      fs.unlink('_.htaccess-dev', () => {});
+    }
+
+    fs.writeFile('razor.json', JSON.stringify(obj, null, 2), (err) => {
+      if(err) {
+        return console.log(err);
+      }
+    });
+  }
+};
