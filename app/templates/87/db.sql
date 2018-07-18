@@ -678,7 +678,6 @@ CREATE TABLE `pages` (
   `backend_layout` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `backend_layout_next_level` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `tsconfig_includes` text COLLATE utf8_unicode_ci,
-  `tx_impexp_origuid` int(11) NOT NULL DEFAULT '0',
   `categories` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -725,7 +724,6 @@ CREATE TABLE `pages_language_overlay` (
   `urltype` smallint(5) UNSIGNED NOT NULL DEFAULT '0',
   `shortcut` int(10) UNSIGNED NOT NULL DEFAULT '0',
   `shortcut_mode` int(10) UNSIGNED NOT NULL DEFAULT '0',
-  `tx_impexp_origuid` int(11) NOT NULL DEFAULT '0',
   `l10n_state` text COLLATE utf8_unicode_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
@@ -1355,7 +1353,6 @@ CREATE TABLE `sys_template` (
   `deleted` smallint(5) UNSIGNED NOT NULL DEFAULT '0',
   `includeStaticAfterBasedOn` smallint(5) UNSIGNED NOT NULL DEFAULT '0',
   `static_file_mode` smallint(5) UNSIGNED NOT NULL DEFAULT '0',
-  `tx_impexp_origuid` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1443,7 +1440,6 @@ CREATE TABLE `tt_content` (
   `table_enclosure` smallint(5) UNSIGNED NOT NULL DEFAULT '0',
   `table_header_position` smallint(5) UNSIGNED NOT NULL DEFAULT '0',
   `table_tfoot` smallint(5) UNSIGNED NOT NULL DEFAULT '0',
-  `tx_impexp_origuid` int(11) NOT NULL DEFAULT '0',
   `l10n_state` text COLLATE utf8_unicode_ci,
   `categories` int(11) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -1505,22 +1501,6 @@ CREATE TABLE `tx_extensionmanager_domain_model_repository` (
 
 INSERT INTO `tx_extensionmanager_domain_model_repository` (`uid`, `pid`, `title`, `description`, `wsdl_url`, `mirror_list_url`, `last_update`, `extension_count`) VALUES
 (1, 0, 'TYPO3.org Main Repository', 'Main repository on typo3.org. This repository has some mirrors configured which are available with the mirror url.', 'https://typo3.org/wsdl/tx_ter_wsdl.php', 'https://repositories.typo3.org/mirrors.xml.gz', 1346191200, 0);
-
--- --------------------------------------------------------
-
---
--- Tabellenstruktur für Tabelle `tx_impexp_presets`
---
-
-DROP TABLE IF EXISTS `tx_impexp_presets`;
-CREATE TABLE `tx_impexp_presets` (
-  `uid` int(11) NOT NULL,
-  `user_uid` int(11) NOT NULL DEFAULT '0',
-  `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `public` smallint(6) NOT NULL DEFAULT '0',
-  `item_uid` int(11) NOT NULL DEFAULT '0',
-  `preset_data` blob
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -1955,13 +1935,6 @@ ALTER TABLE `tx_extensionmanager_domain_model_repository`
   ADD PRIMARY KEY (`uid`);
 
 --
--- Indizes für die Tabelle `tx_impexp_presets`
---
-ALTER TABLE `tx_impexp_presets`
-  ADD PRIMARY KEY (`uid`),
-  ADD KEY `lookup` (`item_uid`);
-
---
 -- Indizes für die Tabelle `tx_rsaauth_keys`
 --
 ALTER TABLE `tx_rsaauth_keys`
@@ -2202,11 +2175,6 @@ ALTER TABLE `tx_extensionmanager_domain_model_extension`
 --
 ALTER TABLE `tx_extensionmanager_domain_model_repository`
   MODIFY `uid` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
---
--- AUTO_INCREMENT für Tabelle `tx_impexp_presets`
---
-ALTER TABLE `tx_impexp_presets`
-  MODIFY `uid` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT für Tabelle `tx_rsaauth_keys`
 --
