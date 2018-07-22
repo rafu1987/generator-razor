@@ -64,7 +64,7 @@ return [
         'devIPmask' => '',
         'displayErrors' => 0,
         'enableDeprecationLog' => false,
-        'encryptionKey' => 'fdedfe00fd7c1d286de6fe0a4e495e71872c8e3fc8f32ea139c47d297573dc01b68350afe57b02d26b55a69bf109a836',
+        'encryptionKey' => '89a4b09fec70d70c6ecbe499b3d3e042308a2f41a4604c18d5166edda1c99e84f3a0c5d47cf816a58fb9f2ed0a5f8789',
         'exceptionalErrors' => 20480,
         'isInitialDatabaseImportDone' => true,
         'isInitialInstallationInProgress' => false,

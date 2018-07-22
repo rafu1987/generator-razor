@@ -17,6 +17,9 @@ return [
         'fluid' => [
             'packagePath' => 'typo3/sysext/fluid/',
         ],
+        'install' => [
+            'packagePath' => 'typo3/sysext/install/',
+        ],
         'frontend' => [
             'packagePath' => 'typo3/sysext/frontend/',
         ],
@@ -68,29 +71,14 @@ return [
         'beuser' => [
             'packagePath' => 'typo3/sysext/beuser/',
         ],
-        'context_help' => [
-            'packagePath' => 'typo3/sysext/context_help/',
-        ],
         'cshmanual' => [
             'packagePath' => 'typo3/sysext/cshmanual/',
         ],
         'documentation' => [
             'packagePath' => 'typo3/sysext/documentation/',
         ],
-        'felogin' => [
-            'packagePath' => 'typo3/sysext/felogin/',
-        ],
         'filelist' => [
             'packagePath' => 'typo3/sysext/filelist/',
-        ],
-        'form' => [
-            'packagePath' => 'typo3/sysext/form/',
-        ],
-        'impexp' => [
-            'packagePath' => 'typo3/sysext/impexp/',
-        ],
-        'install' => [
-            'packagePath' => 'typo3/sysext/install/',
         ],
         'lowlevel' => [
             'packagePath' => 'typo3/sysext/lowlevel/',
