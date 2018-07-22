@@ -110,7 +110,7 @@ module.exports = class extends Generator {
         type: 'input',
         name: 'Encrypt',
         message: 'SMTP encrypt?',
-        default: '',
+        default: 'ssl',
         store: true
       }, {
         when: answers => answers.Transport == 'smtp',
