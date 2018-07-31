@@ -186,9 +186,6 @@ module.exports = class extends Generator {
         }, {
           name: 'Gandayo',
           value: 1
-        }, {
-          name: 'werdewelt',
-          value: 2
         }],
         store: true
       },{
