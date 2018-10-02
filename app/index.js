@@ -226,19 +226,6 @@ module.exports = class extends Generator {
           value: '24'
         }],
         store: true
-      },{
-        when: answers => answers.Version.indexOf('8.7') !== -1,
-        type: 'list',
-        name: 'Github',
-        message: 'Get extension_builder from GitHub?',
-        choices: [{
-          name: 'Yes',
-          value: true
-        }, {
-          name: 'No',
-          value: false
-        }],
-        store: true
       }];
 
       return t.prompt(prompts).then(answers => {
@@ -277,15 +264,7 @@ module.exports = class extends Generator {
 
         t._createDb((response) => {
           t._processSqlFile(t, response, () => {
-            t._getRazor(t, branch, () => {
-              if(rzr.Github) {
-                t._getExtension(t, 'https://github.com/FriendsOfTYPO3/extension_builder/archive/8.7.tar.gz', 'extension_builder-8.7', 'extension_builder', () => {
-                  t.log(
-                    chalk.yellow.bold('razor') + ' was successfully installed!'
-                  );
-                });
-              }
-            });
+            t._getRazor(t, branch);
 
             t._setRazorConfig();
           });
@@ -451,7 +430,7 @@ module.exports = class extends Generator {
     }
   }
 
-  _getRazor(t, branch, callback) {
+  _getRazor(t, branch) {
     // Get razor
     remote.extract('https://bitbucket.org/rafu1987/razor/get/'+ branch +'.tar.gz', 'typo3conf/ext/', () => {
       glob('typo3conf/ext/*', (er, files) => {
@@ -459,23 +438,6 @@ module.exports = class extends Generator {
           mv(file, 'typo3conf/ext/razor', {
             mkdirp: true
           }, () => {});
-
-          return callback();
-        });
-      });
-    });
-  }
-
-  _getExtension(t, url, oldName, newName, callback) {
-    // Get razor
-    remote.extract(url, 'typo3conf/ext/', () => {
-      glob('typo3conf/ext/' + oldName, (er, files) => {
-        files.forEach((file) => {
-          mv(file, 'typo3conf/ext/' + newName, {
-            mkdirp: true
-          }, () => {});
-
-          return callback();
         });
       });
     });
