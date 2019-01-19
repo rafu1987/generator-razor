@@ -444,7 +444,7 @@ module.exports = class extends Generator {
   }
 
   _setRazorConfig() {
-    const obj = {siteName: rzr.ProjectName, user: rzr.User, adminEmail: rzr.AdminEmail, english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, dark: rzr.Dark, cols: rzr.Cols, htaccess: rzr.Htaccess};
+    const obj = {siteName: rzr.ProjectName, user: rzr.User, adminEmail: rzr.AdminEmail, english: rzr.English, author: rzr.Author, email: rzr.Email, website: rzr.Website, copyright: rzr.Copyright, dark: rzr.Dark, cols: rzr.Cols, htaccess: rzr.Htaccess, smtpemail: rzr.SmtpEmail};
 
     // Rename or delete?
     if(rzr.Htaccess) {
