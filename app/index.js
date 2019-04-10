@@ -254,18 +254,18 @@ module.exports = class extends Generator {
       hashMethod = 'argon2'
     }
 
-    // this._createSymlinks(this, path, () => {
-    //   copydir(t.templatePath(version), t.destinationPath('./'), () => {
-    //     t._localconf(t, hashMethod)
-    //     t._localSettings(t)
+    this._createSymlinks(this, path, () => {
+      copydir(t.templatePath(version), t.destinationPath('./'), () => {
+        t._localconf(t, hashMethod)
+        t._localSettings(t)
 
-    //     t._createDb((response) => {
-    //       t._processSqlFile(t, hashMethod, response, () => {
-    //         t._setRazorConfig()
-    //       })
-    //     })
-    //   })
-    // })
+        t._createDb((response) => {
+          t._processSqlFile(t, hashMethod, response, () => {
+            t._setRazorConfig()
+          })
+        })
+      })
+    })
   }
 
   install () {
@@ -290,14 +290,16 @@ module.exports = class extends Generator {
     // Install razor
     if (branch === 'razor9') {
       this.yarnInstall([
-        'ssh://git@bitbucket.org/rafu1987/razor.git#' + branch,
+        // 'ssh://git@bitbucket.org/rafu1987/razor.git#' + branch,
+        'https://bitbucket.org/rafu1987/razor.git#' + branch,
         'https://github.com/lochmueller/sourceopt.git',
         'https://github.com/franzholz/static_info_tables_de.git',
         'https://github.com/FriendsOfTYPO3/extension_builder.git'
       ], yarnSettings)
     } else {
       this.yarnInstall([
-        'ssh://git@bitbucket.org/rafu1987/razor.git#' + branch
+        // 'ssh://git@bitbucket.org/rafu1987/razor.git#' + branch
+        'https://bitbucket.org/rafu1987/razor.git#' + branch
       ], yarnSettings)
     }
   }
