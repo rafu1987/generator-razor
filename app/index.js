@@ -290,16 +290,14 @@ module.exports = class extends Generator {
     // Install razor
     if (branch === 'razor9') {
       this.yarnInstall([
-        // 'ssh://git@bitbucket.org/rafu1987/razor.git#' + branch,
-        'https://bitbucket.org/rafu1987/razor.git#' + branch,
+        'ssh://git@bitbucket.org/rafu1987/razor.git#' + branch,
         'https://github.com/lochmueller/sourceopt.git',
         'https://github.com/franzholz/static_info_tables_de.git',
         'https://github.com/FriendsOfTYPO3/extension_builder.git'
       ], yarnSettings)
     } else {
       this.yarnInstall([
-        // 'ssh://git@bitbucket.org/rafu1987/razor.git#' + branch
-        'https://bitbucket.org/rafu1987/razor.git#' + branch
+        'ssh://git@bitbucket.org/rafu1987/razor.git#' + branch
       ], yarnSettings)
     }
   }
