@@ -200,6 +200,18 @@ module.exports = class extends Generator {
         }],
         store: true
       }, {
+        type: 'list',
+        name: 'FontAwesome',
+        message: 'FontAwesome Pro?',
+        choices: [{
+          name: 'Yes',
+          value: true
+        }, {
+          name: 'No',
+          value: false
+        }],
+        store: true
+      }, {
         when: answers => answers.Version.indexOf('8.7') !== -1,
         type: 'list',
         name: 'Dark',
@@ -512,6 +524,7 @@ module.exports = class extends Generator {
       website: rzr.Website,
       copyright: rzr.Copyright,
       dark: rzr.Dark,
+      fontawesome: rzr.FontAwesome,
       cols: rzr.Cols,
       htaccess: rzr.Htaccess,
       smtpemail: rzr.SmtpEmail
