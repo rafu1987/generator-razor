@@ -212,7 +212,7 @@ module.exports = class extends Generator {
         }],
         store: true
       }, {
-        when: answers => answers.Version.indexOf('8.7') !== -1,
+        when: answers => answers.Version.indexOf('8.7') !== -1 || answers.Version.indexOf('9.5') !== -1,
         type: 'list',
         name: 'Dark',
         message: 'Editor dark mode?',
@@ -225,7 +225,7 @@ module.exports = class extends Generator {
         }],
         store: true
       }, {
-        when: answers => answers.Version.indexOf('8.7') !== -1,
+        when: answers => answers.Version.indexOf('8.7') !== -1 || answers.Version.indexOf('9.5') !== -1,
         type: 'list',
         name: 'Cols',
         message: 'Bootstrap cols?',
