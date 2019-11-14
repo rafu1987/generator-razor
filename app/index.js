@@ -300,16 +300,9 @@ module.exports = class extends Generator {
     const yarnSettings = { 'dev': true, 'no-lockfile': true, 'modules-folder': 'typo3conf/ext/' }
 
     // Install razor
-    if (branch === 'razor9') {
-      this.yarnInstall([
-        'ssh://git@bitbucket.org/rafu1987/razor.git#' + branch,
-        'https://github.com/lochmueller/sourceopt.git'
-      ], yarnSettings)
-    } else {
-      this.yarnInstall([
-        'ssh://git@bitbucket.org/rafu1987/razor.git#' + branch
-      ], yarnSettings)
-    }
+    this.yarnInstall([
+      'ssh://git@bitbucket.org/rafu1987/razor.git#' + branch,
+    ], yarnSettings)
   }
 
   end () {
