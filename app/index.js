@@ -419,12 +419,14 @@ module.exports = class extends Generator {
   }
 
   _createDb (callback) {
+    console.log(rzr.Version)
+
+    let charset = 'utf8';
+    let collate = 'utf8_unicode_ci';
+
     if (rzr.Version.indexOf('9.5') !== -1) {
-      const charset = 'utf8mb4';
-      const collate = 'utf8mb4_unicode_ci';
-    } else {
-      const charset = 'utf8';
-      const collate = 'utf8_unicode_ci';
+      charset = 'utf8mb4';
+      collate = 'utf8mb4_unicode_ci';
     }
 
     // Connect to database
