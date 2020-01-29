@@ -317,18 +317,18 @@ module.exports = class extends Generator {
       json: true
     }, (error, response, body) => {
       if (!error && response.statusCode === 200) {
-        const releases8 = body['8']['releases']
         const releases9 = body['9']['releases']
+        const releases8 = body['8']['releases']
         const releases7 = body['7']['releases']
         const releases62 = body['6.2']['releases']
 
-        const releasesObj = t._mergeOptions(releases8, releases9, releases7, releases62)
+        const releasesObj = t._mergeOptions(releases9, releases8, releases7, releases62)
 
         const keys = Object.keys(releasesObj)
         const len = keys.length
         const arr = []
 
-        // Filter out only 8.7.x, 9.5.x, 7.6.x versions and 6.2.x versions
+        // Filter out only 9.5.x, 8.7.x, 7.6.x versions and 6.2.x versions
         for (let i = 0; i < len; i++) {
           if (keys[i].indexOf('8.7.') !== -1 || keys[i].indexOf('9.5.') !== -1 || keys[i].indexOf('7.6.') !== -1 || keys[i].indexOf('6.2.') !== -1) {
             arr.push({
@@ -419,6 +419,14 @@ module.exports = class extends Generator {
   }
 
   _createDb (callback) {
+    if (rzr.Version.indexOf('9.5') !== -1) {
+      const charset = 'utf8mb4';
+      const collate = 'utf8mb4_unicode_ci';
+    } else {
+      const charset = 'utf8';
+      const collate = 'utf8_unicode_ci';
+    }
+
     // Connect to database
     const connection = mysql.createConnection({
       host: rzr.DbHostname,
@@ -435,7 +443,7 @@ module.exports = class extends Generator {
     })
 
     // Create database table and user
-    connection.query('CREATE DATABASE `' + rzr.DbNew + '` CHARACTER SET utf8 COLLATE utf8_unicode_ci;')
+    connection.query('CREATE DATABASE `' + rzr.DbNew + '` CHARACTER SET ' + charset + ' COLLATE ' + collate + ';')
     connection.query('CREATE USER "' + rzr.DbNew + '"@"%" IDENTIFIED BY "' + rzr.DbNew + '";')
     connection.query('GRANT ALL PRIVILEGES ON `' + rzr.DbNew + '`.* TO "' + rzr.DbNew + '"@"%";')
 
