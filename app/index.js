@@ -39,7 +39,8 @@ module.exports = class extends Generator {
         type: 'list',
         name: 'Version',
         message: 'Choose your TYPO3 version',
-        choices: response
+        choices: response,
+        store: true
       }, {
         type: 'input',
         name: 'DbUsername',
@@ -156,7 +157,8 @@ module.exports = class extends Generator {
         }, {
           name: 'Yes',
           value: true
-        }]
+        }],
+        store: true
       }, {
         type: 'input',
         name: 'Author',
@@ -209,19 +211,6 @@ module.exports = class extends Generator {
         }, {
           name: 'No',
           value: false
-        }],
-        store: true
-      }, {
-        when: answers => answers.Version.indexOf('8.7') !== -1 || answers.Version.indexOf('9.5') !== -1,
-        type: 'list',
-        name: 'Dark',
-        message: 'Editor dark mode?',
-        choices: [{
-          name: 'No',
-          value: false
-        }, {
-          name: 'Yes',
-          value: true
         }],
         store: true
       }, {
@@ -525,7 +514,6 @@ module.exports = class extends Generator {
       email: rzr.Email,
       website: rzr.Website,
       copyright: rzr.Copyright,
-      dark: rzr.Dark,
       fontawesome: rzr.FontAwesome,
       cols: rzr.Cols,
       htaccess: rzr.Htaccess,
