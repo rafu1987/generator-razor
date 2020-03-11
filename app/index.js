@@ -408,8 +408,6 @@ module.exports = class extends Generator {
   }
 
   _createDb (callback) {
-    console.log(rzr.Version)
-
     let charset = 'utf8';
     let collate = 'utf8_unicode_ci';
 
