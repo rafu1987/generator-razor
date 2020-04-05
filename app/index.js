@@ -244,11 +244,7 @@ module.exports = class extends Generator {
     let version
     let hashMethod = 'md5'
 
-    if (rzr.Version.indexOf('6.2.') !== -1) {
-      version = '62'
-    } else if (rzr.Version.indexOf('7.6') !== -1) {
-      version = '76'
-    } else if (rzr.Version.indexOf('8.7') !== -1) {
+    if (rzr.Version.indexOf('8.7') !== -1) {
       version = '87'
     } else {
       version = '95'
@@ -275,11 +271,7 @@ module.exports = class extends Generator {
     // Branch
     let branch
 
-    if (rzr.Version.indexOf('6.2.') !== -1) {
-      branch = 'master'
-    } else if (rzr.Version.indexOf('7.6') !== -1) {
-      branch = 'razor7'
-    } else if (rzr.Version.indexOf('8.7') !== -1) {
+    if (rzr.Version.indexOf('8.7') !== -1) {
       branch = 'razor8'
     } else {
       branch = 'razor9'
@@ -290,7 +282,7 @@ module.exports = class extends Generator {
 
     // Install razor
     this.yarnInstall([
-      'ssh://git@bitbucket.org/rafu1987/razor.git#' + branch,
+      'ssh://git@github.com/rafu1987/razor.git#' + branch,
     ], yarnSettings)
   }
 
@@ -308,18 +300,16 @@ module.exports = class extends Generator {
       if (!error && response.statusCode === 200) {
         const releases9 = body['9']['releases']
         const releases8 = body['8']['releases']
-        const releases7 = body['7']['releases']
-        const releases62 = body['6.2']['releases']
 
-        const releasesObj = t._mergeOptions(releases9, releases8, releases7, releases62)
+        const releasesObj = t._mergeOptions(releases9, releases8)
 
         const keys = Object.keys(releasesObj)
         const len = keys.length
         const arr = []
 
-        // Filter out only 9.5.x, 8.7.x, 7.6.x versions and 6.2.x versions
+        // Filter out only 9.5.x, 8.7.x
         for (let i = 0; i < len; i++) {
-          if (keys[i].indexOf('8.7.') !== -1 || keys[i].indexOf('9.5.') !== -1 || keys[i].indexOf('7.6.') !== -1 || keys[i].indexOf('6.2.') !== -1) {
+          if (keys[i].indexOf('8.7.') !== -1 || keys[i].indexOf('9.5.') !== -1) {
             arr.push({
               name: keys[i],
               value: keys[i]
@@ -332,12 +322,11 @@ module.exports = class extends Generator {
     })
   }
 
-  _mergeOptions (obj1, obj2, obj3) {
+  _mergeOptions (obj1, obj2) {
     const obj4 = {}
 
     for (let attrname in obj1) { obj4[attrname] = obj1[attrname] }
     for (let attrname in obj2) { obj4[attrname] = obj2[attrname] }
-    for (let attrname in obj3) { obj4[attrname] = obj3[attrname] }
 
     return obj4
   }
