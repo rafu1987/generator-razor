@@ -214,7 +214,7 @@ module.exports = class extends Generator {
         }],
         store: true
       }, {
-        when: answers => answers.Version.indexOf('8.7') !== -1 || answers.Version.indexOf('9.5') !== -1,
+        when: answers => answers.Version.indexOf('8.7') !== -1 || answers.Version.indexOf('9.5') !== -1 || answers.Version.indexOf('10.4') !== -1,
         type: 'list',
         name: 'Cols',
         message: 'Bootstrap cols?',
@@ -246,8 +246,11 @@ module.exports = class extends Generator {
 
     if (rzr.Version.indexOf('8.7') !== -1) {
       version = '87'
-    } else {
+    } else if (rzr.Version.indexOf('9.5') !== -1) {
       version = '95'
+      hashMethod = 'argon2'
+    } else {
+      version = '104'
       hashMethod = 'argon2'
     }
 
@@ -273,6 +276,8 @@ module.exports = class extends Generator {
 
     if (rzr.Version.indexOf('8.7') !== -1) {
       branch = 'razor8'
+    } else if (rzr.Version.indexOf('9.5') !== -1) {
+      branch = 'razor9'
     } else {
       branch = 'razor9'
     }
@@ -284,6 +289,17 @@ module.exports = class extends Generator {
     this.yarnInstall([
       'ssh://git@github.com/rafu1987/razor.git#' + branch,
     ], yarnSettings)
+
+    // TYPO3 10? Remove sluggi dependency
+    // if (rzr.Version.indexOf('10.4') !== -1) {
+    //   fs.readFile('typo3conf/ext/razor/ext_emconf.php', 'utf8', (err, content) => {
+    //     const newContent = t._substituteMarker(content, '\'sluggi\' => \'\',', '', true)
+    //     fs.writeFile('typo3conf/ext/razor/ext_emconf.php', newContent, 'utf8', () => {})
+    //     if (err) {
+    //       console.error('error removing sluggi dependency for TYPO3 >= 10')
+    //     }
+    //   })
+    // }
   }
 
   end () {
