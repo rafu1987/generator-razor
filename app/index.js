@@ -315,9 +315,10 @@ module.exports = class extends Generator {
     }, (error, response, body) => {
       if (!error && response.statusCode === 200) {
         const releases9 = body['9']['releases']
+        const releases10 = body['10']['releases']
         const releases8 = body['8']['releases']
 
-        const releasesObj = t._mergeOptions(releases9, releases8)
+        const releasesObj = t._mergeOptions(releases9, releases10, releases8)
 
         const keys = Object.keys(releasesObj)
         const len = keys.length
@@ -325,7 +326,7 @@ module.exports = class extends Generator {
 
         // Filter out only 9.5.x, 8.7.x
         for (let i = 0; i < len; i++) {
-          if (keys[i].indexOf('8.7.') !== -1 || keys[i].indexOf('9.5.') !== -1) {
+          if (keys[i].indexOf('8.7.') !== -1 || keys[i].indexOf('9.5.') !== -1 || keys[i].indexOf('10.4.') !== -1) {
             arr.push({
               name: keys[i],
               value: keys[i]
@@ -338,11 +339,12 @@ module.exports = class extends Generator {
     })
   }
 
-  _mergeOptions (obj1, obj2) {
+  _mergeOptions (obj1, obj2, obj3) {
     const obj4 = {}
 
     for (let attrname in obj1) { obj4[attrname] = obj1[attrname] }
     for (let attrname in obj2) { obj4[attrname] = obj2[attrname] }
+    for (let attrname in obj3) { obj4[attrname] = obj3[attrname] }
 
     return obj4
   }
@@ -416,7 +418,7 @@ module.exports = class extends Generator {
     let charset = 'utf8';
     let collate = 'utf8_unicode_ci';
 
-    if (rzr.Version.indexOf('9.5') !== -1) {
+    if (rzr.Version.indexOf('9.5') !== -1 || rzr.Version.indexOf('10.4') !== -1) {
       charset = 'utf8mb4';
       collate = 'utf8mb4_unicode_ci';
     }
