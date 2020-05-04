@@ -101,8 +101,8 @@ module.exports = class extends Generator {
           name: 'smtp',
           value: 'smtp'
         }, {
-          name: 'mail',
-          value: 'mail'
+          name: 'sendmail',
+          value: 'sendmail'
         }],
         store: true
       }, {
@@ -303,8 +303,9 @@ module.exports = class extends Generator {
   }
 
   end () {
-    // Delete package.json when finished
+    // Delete package.json and .yarn-integrity files when finished
     fs.unlink('package.json', () => {})
+    fs.unlink('typo3conf/ext/.yarn-integrity', () => {})
   }
 
   _getSrc (t, url, callback) {
