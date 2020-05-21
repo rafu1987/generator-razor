@@ -99,7 +99,7 @@ return [
         ],
         'devIPmask' => '*',
         'displayErrors' => 1,
-        'encryptionKey' => '9dbde3d97fffbbc4842e6a47214fac7e332de6ca94ab6c9b4406890dfab7c4157c05be79571d3c342feb8fbd2c9e541d',
+        'encryptionKey' => '###ENCRYPTION_KEY###',
         'exceptionalErrors' => 20480,
         'features' => [
             'felogin.extbase' => true,

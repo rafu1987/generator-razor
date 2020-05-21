@@ -10,6 +10,7 @@ const request = require('request')
 const md5 = require('md5')
 const argon2 = require('argon2')
 const copydir = require('copy-dir')
+const crypto = require('crypto')
 const remote = require('yeoman-remote')
 
 let rzr
@@ -257,13 +258,13 @@ module.exports = class extends Generator {
     this._createSymlinks(this, path, () => {
       copydir(t.templatePath(version), t.destinationPath('./'), () => {
         t._localconf(t, hashMethod)
-        t._localSettings(t)
+        // t._localSettings(t)
 
-        t._createDb((response) => {
-          t._processSqlFile(t, hashMethod, response, () => {
-            t._setRazorConfig()
-          })
-        })
+        // t._createDb((response) => {
+        //   t._processSqlFile(t, hashMethod, response, () => {
+        //     t._setRazorConfig()
+        //   })
+        // })
       })
     })
   }
@@ -286,9 +287,9 @@ module.exports = class extends Generator {
     const yarnSettings = { 'dev': true, 'no-lockfile': true, 'modules-folder': 'typo3conf/ext/' }
 
     // Install razor
-    this.yarnInstall([
-      'ssh://git@github.com/rafu1987/razor.git#' + branch,
-    ], yarnSettings)
+    // this.yarnInstall([
+    //   'ssh://git@github.com/rafu1987/razor.git#' + branch,
+    // ], yarnSettings)
 
     // TYPO3 10? Remove sluggi dependency
     // if (rzr.Version.indexOf('10.4') !== -1) {
@@ -304,8 +305,8 @@ module.exports = class extends Generator {
 
   end () {
     // Delete package.json and .yarn-integrity files when finished
-    fs.unlink('package.json', () => {})
-    fs.unlink('typo3conf/ext/.yarn-integrity', () => {})
+    // fs.unlink('package.json', () => {})
+    // fs.unlink('typo3conf/ext/.yarn-integrity', () => {})
   }
 
   _getSrc (t, url, callback) {
@@ -369,6 +370,9 @@ module.exports = class extends Generator {
       let newContent = t._substituteMarker(content, '###DBNEW###', rzr.DbNew, true)
       newContent = t._substituteMarker(newContent, '###HOST###', rzr.DbHostname, true)
       newContent = t._substituteMarker(newContent, '###PROJECTNAME###', rzr.ProjectName, true)
+
+      const encryptionKey = crypto.randomBytes((96 + 1) / 2).toString('hex')
+      newContent = t._substituteMarker(newContent, '###ENCRYPTION_KEY###', encryptionKey, true)
 
       if (hashMethod === 'argon2') {
         const hash = argon2.hash(rzr.Pass)
