@@ -258,13 +258,13 @@ module.exports = class extends Generator {
     this._createSymlinks(this, path, () => {
       copydir(t.templatePath(version), t.destinationPath('./'), () => {
         t._localconf(t, hashMethod)
-        // t._localSettings(t)
+        t._localSettings(t)
 
-        // t._createDb((response) => {
-        //   t._processSqlFile(t, hashMethod, response, () => {
-        //     t._setRazorConfig()
-        //   })
-        // })
+        t._createDb((response) => {
+          t._processSqlFile(t, hashMethod, response, () => {
+            t._setRazorConfig()
+          })
+        })
       })
     })
   }
@@ -287,9 +287,9 @@ module.exports = class extends Generator {
     const yarnSettings = { 'dev': true, 'no-lockfile': true, 'modules-folder': 'typo3conf/ext/' }
 
     // Install razor
-    // this.yarnInstall([
-    //   'ssh://git@github.com/rafu1987/razor.git#' + branch,
-    // ], yarnSettings)
+    this.yarnInstall([
+      'ssh://git@github.com/rafu1987/razor.git#' + branch,
+    ], yarnSettings)
 
     // TYPO3 10? Remove sluggi dependency
     // if (rzr.Version.indexOf('10.4') !== -1) {
@@ -305,8 +305,8 @@ module.exports = class extends Generator {
 
   end () {
     // Delete package.json and .yarn-integrity files when finished
-    // fs.unlink('package.json', () => {})
-    // fs.unlink('typo3conf/ext/.yarn-integrity', () => {})
+    fs.unlink('package.json', () => {})
+    fs.unlink('typo3conf/ext/.yarn-integrity', () => {})
   }
 
   _getSrc (t, url, callback) {
