@@ -161,6 +161,18 @@ module.exports = class extends Generator {
         }],
         store: true
       }, {
+        type: 'list',
+        name: 'EnglishDefault',
+        message: 'Set English as default language?',
+        choices: [{
+          name: 'No',
+          value: false
+        }, {
+          name: 'Yes',
+          value: true
+        }],
+        store: true
+      }, {
         type: 'input',
         name: 'Author',
         message: 'Author name',
@@ -520,6 +532,7 @@ module.exports = class extends Generator {
       user: rzr.User,
       adminEmail: rzr.AdminEmail,
       english: rzr.English,
+      englishDefault: rzr.EnglishDefault,
       author: rzr.Author,
       email: rzr.Email,
       website: rzr.Website,
