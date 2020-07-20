@@ -23,15 +23,6 @@ return [
         'fluid_styled_content' => [
             'packagePath' => 'typo3/sysext/fluid_styled_content/',
         ],
-        'filelist' => [
-            'packagePath' => 'typo3/sysext/filelist/',
-        ],
-        'impexp' => [
-            'packagePath' => 'typo3/sysext/impexp/',
-        ],
-        'form' => [
-            'packagePath' => 'typo3/sysext/form/',
-        ],
         'install' => [
             'packagePath' => 'typo3/sysext/install/',
         ],
@@ -40,6 +31,12 @@ return [
         ],
         'backend' => [
             'packagePath' => 'typo3/sysext/backend/',
+        ],
+        'filelist' => [
+            'packagePath' => 'typo3/sysext/filelist/',
+        ],
+        'form' => [
+            'packagePath' => 'typo3/sysext/form/',
         ],
         'reports' => [
             'packagePath' => 'typo3/sysext/reports/',
@@ -65,14 +62,8 @@ return [
         'beuser' => [
             'packagePath' => 'typo3/sysext/beuser/',
         ],
-        'dashboard' => [
-            'packagePath' => 'typo3/sysext/dashboard/',
-        ],
         'extensionmanager' => [
             'packagePath' => 'typo3/sysext/extensionmanager/',
-        ],
-        'felogin' => [
-            'packagePath' => 'typo3/sysext/felogin/',
         ],
         'info' => [
             'packagePath' => 'typo3/sysext/info/',
