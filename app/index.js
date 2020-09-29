@@ -332,13 +332,13 @@ module.exports = class extends Generator {
         const releases10 = body['10']['releases']
         const releases8 = body['8']['releases']
 
-        const releasesObj = t._mergeOptions(releases9, releases10, releases8)
+        const releasesObj = t._mergeOptions(releases10, releases9, releases8)
 
         const keys = Object.keys(releasesObj)
         const len = keys.length
         const arr = []
 
-        // Filter out only 9.5.x, 8.7.x
+        // Filter out only 10.4.x, 9.5.x, 8.7.x
         for (let i = 0; i < len; i++) {
           if (keys[i].indexOf('8.7.') !== -1 || keys[i].indexOf('9.5.') !== -1 || keys[i].indexOf('10.4.') !== -1) {
             arr.push({
@@ -379,7 +379,7 @@ module.exports = class extends Generator {
 
   _localconf (t, hashMethod) {
     fs.readFile('typo3conf/LocalConfiguration.php', 'utf8', (err, content) => {
-      let newContent = t._substituteMarker(content, '###DBNEW###', rzr.DbNew, true)
+      let newContent = t._substituteMarker(content, '###DBNEW###', rzr.DbNew.toLowerCase(), true)
       newContent = t._substituteMarker(newContent, '###HOST###', rzr.DbHostname, true)
       newContent = t._substituteMarker(newContent, '###PROJECTNAME###', rzr.ProjectName, true)
 
@@ -455,13 +455,15 @@ module.exports = class extends Generator {
       }
     })
 
+    const dbNew = rzr.DbNew.toLowerCase()
+
     // Create database table and user
-    connection.query('CREATE DATABASE `' + rzr.DbNew + '` CHARACTER SET ' + charset + ' COLLATE ' + collate + ';')
-    connection.query('CREATE USER "' + rzr.DbNew + '"@"%" IDENTIFIED BY "' + rzr.DbNew + '";')
-    connection.query('GRANT ALL PRIVILEGES ON `' + rzr.DbNew + '`.* TO "' + rzr.DbNew + '"@"%";')
+    connection.query('CREATE DATABASE `' + dbNew + '` CHARACTER SET ' + charset + ' COLLATE ' + collate + ';')
+    connection.query('CREATE USER "' + dbNew + '"@"%" IDENTIFIED BY "' + dbNew + '";')
+    connection.query('GRANT ALL PRIVILEGES ON `' + dbNew + '`.* TO "' + dbNew + '"@"%";')
 
     // Connect to new db
-    connection.query('USE `' + rzr.DbNew + '`;')
+    connection.query('USE `' + dbNew + '`;')
 
     return callback(connection)
   }
