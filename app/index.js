@@ -292,7 +292,7 @@ module.exports = class extends Generator {
     } else if (rzr.Version.indexOf('9.5') !== -1) {
       branch = 'razor9'
     } else {
-      branch = 'razor9'
+      branch = 'razor10'
     }
 
     // yarn settings
