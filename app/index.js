@@ -227,6 +227,17 @@ module.exports = class extends Generator {
         }],
         store: true
       }, {
+        type: 'list',
+        name: 'Search',
+        message: 'Activate search?',
+        choices: [{
+          name: 'No',
+          value: true
+        }, {
+          name: 'Yes',
+          value: false
+        }]
+      }, {
         when: answers => answers.Version.indexOf('8.7') !== -1 || answers.Version.indexOf('9.5') !== -1 || answers.Version.indexOf('10.4') !== -1,
         type: 'list',
         name: 'Cols',
@@ -542,7 +553,8 @@ module.exports = class extends Generator {
       fontawesome: rzr.FontAwesome,
       cols: rzr.Cols,
       htaccess: rzr.Htaccess,
-      smtpemail: rzr.SmtpEmail
+      smtpemail: rzr.SmtpEmail,
+      search: rzr.Search
     }
 
     // Rename or delete?
