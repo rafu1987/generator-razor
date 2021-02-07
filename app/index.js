@@ -111,7 +111,7 @@ module.exports = class extends Generator {
         type: 'list',
         name: 'Encrypt',
         message: 'SMTP encrypt?',
-        default: 'true',
+        default: false,
         choices: [{
           name: 'true (TYPO3 10 - if port 465)',
           value: true
@@ -439,7 +439,7 @@ module.exports = class extends Generator {
       if (rzr.Encrypt === true || rzr.Encrypt === false) {
         encryptVariable = "'###SMTP_ENCRYPT###'"
       }
- 
+
       fs.readFile('typo3conf/Local.php', 'utf8', (err, content) => {
         let newContent = t._substituteMarker(content, '###TRANSPORT###', rzr.Transport, true)
         newContent = t._substituteMarker(newContent, encryptVariable, rzr.Encrypt, true)
