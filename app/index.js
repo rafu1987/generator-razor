@@ -108,10 +108,23 @@ module.exports = class extends Generator {
         store: true
       }, {
         when: answers => answers.Transport === 'smtp',
-        type: 'input',
+        type: 'list',
         name: 'Encrypt',
         message: 'SMTP encrypt?',
-        default: 'ssl',
+        default: 'true',
+        choices: [{
+          name: 'true (TYPO3 10 - if port 465)',
+          value: true
+        }, {
+          name: 'false (TYPO3 10 - if port 587)',
+          value: false
+        }, {
+          name: 'ssl (TYPO3 9)',
+          value: 'ssl'
+        }, {
+          name: 'tls (TYPO3 9)',
+          value: 'tls'
+        }],
         store: true
       }, {
         when: answers => answers.Transport === 'smtp',
@@ -422,9 +435,14 @@ module.exports = class extends Generator {
 
   _localSettings (t) {
     if (rzr.Transport === 'smtp') {
+      let encryptVariable = '###SMTP_ENCRYPT###'
+      if (rzr.Encrypt === true || rzr.Encrypt === false) {
+        encryptVariable = "'###SMTP_ENCRYPT###'"
+      }
+ 
       fs.readFile('typo3conf/Local.php', 'utf8', (err, content) => {
         let newContent = t._substituteMarker(content, '###TRANSPORT###', rzr.Transport, true)
-        newContent = t._substituteMarker(newContent, '###SMTP_ENCRYPT###', rzr.Encrypt, true)
+        newContent = t._substituteMarker(newContent, encryptVariable, rzr.Encrypt, true)
         newContent = t._substituteMarker(newContent, '###SMTP_PASS###', rzr.SmtpPass, true)
         newContent = t._substituteMarker(newContent, '###SMTP_SERVER###', rzr.SmtpServer, true)
         newContent = t._substituteMarker(newContent, '###SMTP_USER###', rzr.SmtpUser, true)
@@ -443,12 +461,12 @@ module.exports = class extends Generator {
   }
 
   _createDb (callback) {
-    let charset = 'utf8';
-    let collate = 'utf8_unicode_ci';
+    let charset = 'utf8'
+    let collate = 'utf8_unicode_ci'
 
     if (rzr.Version.indexOf('9.5') !== -1 || rzr.Version.indexOf('10.4') !== -1) {
-      charset = 'utf8mb4';
-      collate = 'utf8mb4_unicode_ci';
+      charset = 'utf8mb4'
+      collate = 'utf8mb4_unicode_ci'
     }
 
     // Connect to database
