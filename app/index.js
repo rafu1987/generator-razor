@@ -245,10 +245,10 @@ module.exports = class extends Generator {
         message: 'Activate search?',
         choices: [{
           name: 'No',
-          value: true
+          value: false
         }, {
           name: 'Yes',
-          value: false
+          value: true
         }]
       }, {
         when: answers => answers.Version.indexOf('8.7') !== -1 || answers.Version.indexOf('9.5') !== -1 || answers.Version.indexOf('10.4') !== -1,
