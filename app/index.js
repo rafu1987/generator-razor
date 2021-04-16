@@ -117,7 +117,7 @@ module.exports = class extends Generator {
         type: 'list',
         name: 'Encrypt',
         message: 'SMTP encrypt?',
-        default: false,
+        default: true,
         choices: [{
           name: 'true (TYPO3 10 - if port 465 or other)',
           value: true
