@@ -7,7 +7,6 @@ const mysql = require('mysql')
 const fs = require('fs')
 const pathExists = require('path-exists')
 const request = require('request')
-const md5 = require('md5')
 const argon2 = require('argon2')
 const copydir = require('copy-dir')
 const crypto = require('crypto')
@@ -251,16 +250,27 @@ module.exports = class extends Generator {
           value: true
         }]
       }, {
-        when: answers => answers.Version.indexOf('8.7') !== -1 || answers.Version.indexOf('9.5') !== -1 || answers.Version.indexOf('10.4') !== -1,
+        type: 'list',
+        name: 'SSL',
+        message: 'Activate SSL?',
+        choices: [{
+          name: 'Yes',
+          value: true
+        }, {
+          name: 'No',
+          value: false
+        }]
+      }, {
+        when: answers => answers.Version.indexOf('9.5') !== -1 || answers.Version.indexOf('10.4') !== -1,
         type: 'list',
         name: 'Cols',
         message: 'Bootstrap cols?',
         choices: [{
           name: '12',
-          value: '12'
+          value: 12
         }, {
           name: '24',
-          value: '24'
+          value: 24
         }],
         store: true
       }]
@@ -278,26 +288,18 @@ module.exports = class extends Generator {
     const path = rzr.SrcPath + '/typo3_src-' + rzr.Version
 
     // Version
-    let version
-    let hashMethod = 'md5'
-
-    if (rzr.Version.indexOf('8.7') !== -1) {
-      version = '87'
-    } else if (rzr.Version.indexOf('9.5') !== -1) {
+    let version = '104'
+    if (rzr.Version.indexOf('9.5') !== -1) {
       version = '95'
-      hashMethod = 'argon2'
-    } else {
-      version = '104'
-      hashMethod = 'argon2'
     }
 
     this._createSymlinks(this, path, () => {
       copydir(t.templatePath(version), t.destinationPath('./'), () => {
-        t._localconf(t, hashMethod)
+        t._localconf(t)
         t._localSettings(t)
 
         t._createDb((response) => {
-          t._processSqlFile(t, hashMethod, response, () => {
+          t._processSqlFile(t, response, () => {
             t._setRazorConfig()
           })
         })
@@ -309,34 +311,18 @@ module.exports = class extends Generator {
     rzr = this.props
 
     // Branch
-    let branch
-
-    if (rzr.Version.indexOf('8.7') !== -1) {
-      branch = 'razor8'
-    } else if (rzr.Version.indexOf('9.5') !== -1) {
+    let branch = 'razor10'
+    if (rzr.Version.indexOf('9.5') !== -1) {
       branch = 'razor9'
-    } else {
-      branch = 'razor10'
     }
 
     // yarn settings
-    const yarnSettings = { 'dev': true, 'no-lockfile': true, 'modules-folder': 'typo3conf/ext/' }
+    const yarnSettings = { dev: true, 'no-lockfile': true, 'modules-folder': 'typo3conf/ext/' }
 
     // Install razor
     this.yarnInstall([
-      'ssh://git@github.com/rafu1987/razor.git#' + branch,
+      'ssh://git@github.com/rafu1987/razor.git#' + branch
     ], yarnSettings)
-
-    // TYPO3 10? Remove sluggi dependency
-    // if (rzr.Version.indexOf('10.4') !== -1) {
-    //   fs.readFile('typo3conf/ext/razor/ext_emconf.php', 'utf8', (err, content) => {
-    //     const newContent = t._substituteMarker(content, '\'sluggi\' => \'\',', '', true)
-    //     fs.writeFile('typo3conf/ext/razor/ext_emconf.php', newContent, 'utf8', () => {})
-    //     if (err) {
-    //       console.error('error removing sluggi dependency for TYPO3 >= 10')
-    //     }
-    //   })
-    // }
   }
 
   end () {
@@ -354,17 +340,16 @@ module.exports = class extends Generator {
       if (!error && response.statusCode === 200) {
         const releases9 = body['9']['releases']
         const releases10 = body['10']['releases']
-        const releases8 = body['8']['releases']
 
-        const releasesObj = t._mergeOptions(releases10, releases9, releases8)
+        const releasesObj = t._mergeOptions(releases10, releases9)
 
         const keys = Object.keys(releasesObj)
         const len = keys.length
         const arr = []
 
-        // Filter out only 10.4.x, 9.5.x, 8.7.x
+        // Filter out only 10.4.x, 9.5.x
         for (let i = 0; i < len; i++) {
-          if (keys[i].indexOf('8.7.') !== -1 || keys[i].indexOf('9.5.') !== -1 || keys[i].indexOf('10.4.') !== -1) {
+          if (keys[i].indexOf('9.5.') !== -1 || keys[i].indexOf('10.4.') !== -1) {
             arr.push({
               name: keys[i],
               value: keys[i]
@@ -377,14 +362,13 @@ module.exports = class extends Generator {
     })
   }
 
-  _mergeOptions (obj1, obj2, obj3) {
-    const obj4 = {}
+  _mergeOptions (obj1, obj2) {
+    const obj3 = {}
 
-    for (let attrname in obj1) { obj4[attrname] = obj1[attrname] }
-    for (let attrname in obj2) { obj4[attrname] = obj2[attrname] }
-    for (let attrname in obj3) { obj4[attrname] = obj3[attrname] }
+    for (let attrname in obj1) { obj3[attrname] = obj1[attrname] }
+    for (let attrname in obj2) { obj3[attrname] = obj2[attrname] }
 
-    return obj4
+    return obj3
   }
 
   _createSymlinks (t, path, callback) {
@@ -401,7 +385,7 @@ module.exports = class extends Generator {
     return callback()
   }
 
-  _localconf (t, hashMethod) {
+  _localconf (t) {
     fs.readFile('typo3conf/LocalConfiguration.php', 'utf8', (err, content) => {
       let newContent = t._substituteMarker(content, '###DBNEW###', rzr.DbNew.toLowerCase(), true)
       newContent = t._substituteMarker(newContent, '###HOST###', rzr.DbHostname, true)
@@ -410,18 +394,12 @@ module.exports = class extends Generator {
       const encryptionKey = crypto.randomBytes((96 + 1) / 2).toString('hex')
       newContent = t._substituteMarker(newContent, '###ENCRYPTION_KEY###', encryptionKey, true)
 
-      if (hashMethod === 'argon2') {
-        const hash = argon2.hash(rzr.Pass)
-        hash.then(function (res) {
-          newContent = t._substituteMarker(newContent, '###PASS###', res, true)
-
-          t._localconfWrite(newContent)
-        })
-      } else {
-        newContent = t._substituteMarker(newContent, '###PASS###', md5(rzr.Pass), true)
+      const hash = argon2.hash(rzr.Pass)
+      hash.then(function (res) {
+        newContent = t._substituteMarker(newContent, '###PASS###', res, true)
 
         t._localconfWrite(newContent)
-      }
+      })
 
       if (err) {
         console.error('error setting localconf settings')
@@ -461,13 +439,8 @@ module.exports = class extends Generator {
   }
 
   _createDb (callback) {
-    let charset = 'utf8'
-    let collate = 'utf8_unicode_ci'
-
-    if (rzr.Version.indexOf('9.5') !== -1 || rzr.Version.indexOf('10.4') !== -1) {
-      charset = 'utf8mb4'
-      collate = 'utf8mb4_unicode_ci'
-    }
+    const charset = 'utf8mb4'
+    const collate = 'utf8mb4_unicode_ci'
 
     // Connect to database
     const connection = mysql.createConnection({
@@ -497,7 +470,7 @@ module.exports = class extends Generator {
     return callback(connection)
   }
 
-  _processSqlFile (t, hashMethod, connection, callback) {
+  _processSqlFile (t, connection, callback) {
     // Read sql file
     fs.readFile('./db.sql', 'utf8', (err, data) => {
       if (err) {
@@ -505,19 +478,12 @@ module.exports = class extends Generator {
       }
 
       let result = t._substituteMarker(data, '###ADMIN###', rzr.User, false)
-
-      if (hashMethod === 'argon2') {
-        const hash = argon2.hash(rzr.Pass)
-        hash.then(function (res) {
-          result = t._substituteMarker(result, '###PASS###', res, false)
-
-          t._sqlWrite(t, result, connection, callback)
-        })
-      } else {
-        result = t._substituteMarker(result, '###PASS###', md5(rzr.Pass), false)
+      const hash = argon2.hash(rzr.Pass)
+      hash.then(function (res) {
+        result = t._substituteMarker(result, '###PASS###', res, false)
 
         t._sqlWrite(t, result, connection, callback)
-      }
+      })
     })
   }
 
@@ -572,14 +538,22 @@ module.exports = class extends Generator {
       cols: rzr.Cols,
       htaccess: rzr.Htaccess,
       smtpemail: rzr.SmtpEmail,
-      search: rzr.Search
+      search: rzr.Search,
+      ssl: rzr.SSL
     }
 
     // Rename or delete?
     if (rzr.Htaccess) {
-      fs.rename('_.htaccess-dev', '.htaccess-dev', () => {})
+      if (rzr.SSL) {
+        fs.rename('_.htaccess-dev-ssl', '.htaccess-dev', () => {})
+        fs.unlink('_.htaccess-dev', () => {})
+      } else {
+        fs.rename('_.htaccess-dev', '.htaccess-dev', () => {})
+        fs.unlink('_.htaccess-dev-ssl', () => {})
+      }
     } else {
       fs.unlink('_.htaccess-dev', () => {})
+      fs.unlink('_.htaccess-dev-ssl', () => {})
     }
 
     fs.writeFile('razor.json', JSON.stringify(obj, null, 2), (err) => {
