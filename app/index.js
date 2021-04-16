@@ -252,14 +252,15 @@ module.exports = class extends Generator {
       }, {
         type: 'list',
         name: 'SSL',
-        message: 'Activate SSL?',
+        message: 'Activate SSL/https for dev?',
         choices: [{
           name: 'Yes',
           value: true
         }, {
           name: 'No',
           value: false
-        }]
+        }],
+        store: true
       }, {
         when: answers => answers.Version.indexOf('9.5') !== -1 || answers.Version.indexOf('10.4') !== -1,
         type: 'list',
