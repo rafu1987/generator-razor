@@ -107,12 +107,19 @@ module.exports = class extends Generator {
         store: true
       }, {
         when: answers => answers.Transport === 'smtp',
+        type: 'input',
+        name: 'SmtpServer',
+        message: 'SMTP server?',
+        default: 'localhost:25',
+        store: true
+      }, {
+        when: answers => answers.Transport === 'smtp',
         type: 'list',
         name: 'Encrypt',
         message: 'SMTP encrypt?',
         default: false,
         choices: [{
-          name: 'true (TYPO3 10 - if port 465)',
+          name: 'true (TYPO3 10 - if port 465 or other)',
           value: true
         }, {
           name: 'false (TYPO3 10 - if port 587)',
@@ -152,13 +159,6 @@ module.exports = class extends Generator {
         name: 'SmtpName',
         message: 'Sender name?',
         default: '',
-        store: true
-      }, {
-        when: answers => answers.Transport === 'smtp',
-        type: 'input',
-        name: 'SmtpServer',
-        message: 'SMTP server?',
-        default: 'localhost:25',
         store: true
       }, {
         type: 'list',
