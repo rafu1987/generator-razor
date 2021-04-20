@@ -98,6 +98,7 @@ return [
             ],
         ],
         'devIPmask' => '*',
+        'trustedHostsPattern' => '.*',
         'displayErrors' => 1,
         'encryptionKey' => '###ENCRYPTION_KEY###',
         'exceptionalErrors' => 20480,
