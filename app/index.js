@@ -4,7 +4,7 @@ const chalk = require('chalk')
 const yosay = require('yosay')
 const link = require('fs-symlink')
 const mysql = require('mysql')
-const fs = require('fs')
+const fs = require('fs-extra')
 const pathExists = require('path-exists')
 const request = require('request')
 const argon2 = require('argon2')
@@ -119,16 +119,16 @@ module.exports = class extends Generator {
         message: 'SMTP encrypt?',
         default: true,
         choices: [{
-          name: 'true (TYPO3 10 - if port 465 or other)',
+          name: 'true (TYPO3 >= 10 - if port 465 or other)',
           value: true
         }, {
-          name: 'false (TYPO3 10 - if port 587)',
+          name: 'false (TYPO3 >= 10 - if port 587)',
           value: false
         }, {
-          name: 'ssl (TYPO3 9)',
+          name: 'ssl (TYPO3 9.5.x)',
           value: 'ssl'
         }, {
-          name: 'tls (TYPO3 9)',
+          name: 'tls (TYPO3 9.5.x)',
           value: 'tls'
         }],
         store: true
@@ -262,16 +262,15 @@ module.exports = class extends Generator {
         }],
         store: true
       }, {
-        when: answers => answers.Version.indexOf('9.5') !== -1 || answers.Version.indexOf('10.4') !== -1,
         type: 'list',
         name: 'Cols',
-        message: 'Bootstrap cols?',
+        message: 'Bootstrap columns?',
         choices: [{
-          name: '12',
-          value: 12
-        }, {
           name: '24',
           value: 24
+        }, {
+          name: '12',
+          value: 12
         }],
         store: true
       }]
@@ -292,6 +291,8 @@ module.exports = class extends Generator {
     let version = '104'
     if (rzr.Version.indexOf('9.5') !== -1) {
       version = '95'
+    } else if (rzr.Version.indexOf('11.5') !== -1) {
+      version = '115'
     }
 
     this._createSymlinks(this, path, () => {
@@ -315,6 +316,8 @@ module.exports = class extends Generator {
     let branch = 'razor10'
     if (rzr.Version.indexOf('9.5') !== -1) {
       branch = 'razor9'
+    } else if (rzr.Version.indexOf('11.5') !== -1) {
+      branch = 'razor11'
     }
 
     // yarn settings
@@ -330,6 +333,11 @@ module.exports = class extends Generator {
     // Delete package.json and .yarn-integrity files when finished
     fs.unlink('package.json', () => {})
     fs.unlink('typo3conf/ext/.yarn-integrity', () => {})
+
+    // Copy razor extensions after install to typo3conf/ext/, starting with TYPO3 >= 11.5.x
+    if (rzr.Version.indexOf('11.5') !== -1) {
+      fs.copy('typo3conf/ext/razor/Initialisation/Extensions', 'typo3conf/ext')
+    }
   }
 
   _getSrc (t, url, callback) {
@@ -341,16 +349,17 @@ module.exports = class extends Generator {
       if (!error && response.statusCode === 200) {
         const releases9 = body['9']['releases']
         const releases10 = body['10']['releases']
+        const releases11 = body['11']['releases']
 
-        const releasesObj = t._mergeOptions(releases10, releases9)
+        const releasesObj = t._mergeOptions(releases10, releases11, releases9)
 
         const keys = Object.keys(releasesObj)
         const len = keys.length
         const arr = []
 
-        // Filter out only 10.4.x, 9.5.x
+        // Filter out only 11.5.x 10.4.x, 9.5.x
         for (let i = 0; i < len; i++) {
-          if (keys[i].indexOf('9.5.') !== -1 || keys[i].indexOf('10.4.') !== -1) {
+          if (keys[i].indexOf('9.5.') !== -1 || keys[i].indexOf('10.4.') !== -1 || keys[i].indexOf('11.5.') !== -1) {
             arr.push({
               name: keys[i],
               value: keys[i]
@@ -363,13 +372,14 @@ module.exports = class extends Generator {
     })
   }
 
-  _mergeOptions (obj1, obj2) {
-    const obj3 = {}
+  _mergeOptions (obj1, obj2, obj3) {
+    const obj4 = {}
 
-    for (let attrname in obj1) { obj3[attrname] = obj1[attrname] }
-    for (let attrname in obj2) { obj3[attrname] = obj2[attrname] }
+    for (let attrname in obj1) { obj4[attrname] = obj1[attrname] }
+    for (let attrname in obj2) { obj4[attrname] = obj2[attrname] }
+    for (let attrname in obj3) { obj4[attrname] = obj3[attrname] }
 
-    return obj3
+    return obj4
   }
 
   _createSymlinks (t, path, callback) {
