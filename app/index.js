@@ -351,7 +351,7 @@ module.exports = class extends Generator {
         const releases10 = body['10']['releases']
         const releases11 = body['11']['releases']
 
-        const releasesObj = t._mergeOptions(releases10, releases11, releases9)
+        const releasesObj = t._mergeOptions(releases11, releases10, releases9)
 
         const keys = Object.keys(releasesObj)
         const len = keys.length
