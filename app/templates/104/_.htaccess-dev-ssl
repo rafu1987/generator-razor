@@ -1,5 +1,5 @@
 <FilesMatch \.php$>
-  SetHandler proxy:fcgi://php73:9000
+  SetHandler proxy:fcgi://php74:9000
 </FilesMatch>
 
 # ----------------------------------------------------------------------

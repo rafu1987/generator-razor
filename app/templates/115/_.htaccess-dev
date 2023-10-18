@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 
 <FilesMatch \.php$>
-  SetHandler proxy:fcgi://php74:9000
+  SetHandler proxy:fcgi://php80:9000
 </FilesMatch>
 
 # ------------------------------------------------------------------------------
@@ -46,8 +46,7 @@ RewriteCond %{HTTP_USER_AGENT} "Mozilla.*Gecko.*Firefox/([1-9]|[1-2][0-9])[^0-9]
 RewriteCond %{HTTP_USER_AGENT} "^Firefox[\/\s]([1-9]|[1-2][0-9])[^0-9]" [NC,OR]
 RewriteCond %{HTTP_USER_AGENT} "AppleWebKit.*Version\/[1-8]\.[0-9\.]*\ Safari" [NC,OR]
 RewriteCond %{HTTP_USER_AGENT} "AppleWebKit.*Version\/[1-8]\.[0-9\.]*\ Mobile\/[A-z0-9]+\ Safari" [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} "(MSIE\ |Trident.+rv:)[1-9][1-9]" [NC]
-#RewriteCond %{HTTP_USER_AGENT} "MSIE ([6-9]|10)" [NC]
+RewriteCond %{HTTP_USER_AGENT} (MSIE|Trident) [NC]
 RewriteRule .* browser-support.html [L]
 
 # ----------------------------------------------------------------------
@@ -200,6 +199,7 @@ AddEncoding gzip .gzip
       application/rss+xml \
       application/schema+json \
       application/vnd.geo+json \
+      application/geo+json \
       application/vnd.ms-fontobject \
       application/x-font-ttf \
       application/x-javascript \
@@ -208,6 +208,8 @@ AddEncoding gzip .gzip
       application/xml \
       font/eot \
       font/opentype \
+      font/otf \
+      font/ttf \
       image/bmp \
       image/svg+xml \
       image/vnd.microsoft.icon \
@@ -248,6 +250,7 @@ AddEncoding gzip .gzip
   ExpiresByType application/ld+json                   "access plus 0 seconds"
   ExpiresByType application/schema+json               "access plus 0 seconds"
   ExpiresByType application/vnd.geo+json              "access plus 0 seconds"
+  ExpiresByType application/geo+json                  "access plus 0 seconds"
   ExpiresByType application/xml                       "access plus 0 seconds"
   ExpiresByType text/xml                              "access plus 0 seconds"
 
@@ -267,9 +270,13 @@ AddEncoding gzip .gzip
   ExpiresByType text/cache-manifest                   "access plus 0 seconds"
 
   ExpiresByType audio/ogg                             "access plus 1 month"
+  ExpiresByType image/apng                            "access plus 1 month"
+  ExpiresByType image/avif                            "access plus 1 month"
+  ExpiresByType image/avif-sequence                   "access plus 1 month"
   ExpiresByType image/bmp                             "access plus 1 year"
   ExpiresByType image/gif                             "access plus 1 year"
   ExpiresByType image/jpeg                            "access plus 1 year"
+  ExpiresByType image/jxl                             "access plus 1 month"
   ExpiresByType image/png                             "access plus 1 year"
   ExpiresByType image/svg+xml                         "access plus 1 month"
   ExpiresByType image/webp                            "access plus 1 month"
@@ -281,14 +288,18 @@ AddEncoding gzip .gzip
   ExpiresByType application/rdf+xml                   "access plus 1 hour"
   ExpiresByType application/rss+xml                   "access plus 1 hour"
 
+  ExpiresByType font/collection                       "access plus 1 month"
   ExpiresByType application/vnd.ms-fontobject         "access plus 1 month"
   ExpiresByType font/eot                              "access plus 1 month"
   ExpiresByType font/opentype                         "access plus 1 month"
+  ExpiresByType font/otf                              "access plus 1 month"
   ExpiresByType application/x-font-ttf                "access plus 1 month"
+  ExpiresByType font/ttf                              "access plus 1 month"
   ExpiresByType application/font-woff                 "access plus 1 month"
   ExpiresByType application/x-font-woff               "access plus 1 month"
   ExpiresByType font/woff                             "access plus 1 month"
   ExpiresByType application/font-woff2                "access plus 1 month"
+  ExpiresByType font/woff2                            "access plus 1 month"
 
   ExpiresByType text/x-cross-domain-policy            "access plus 1 week"
 
@@ -332,7 +343,10 @@ AddEncoding gzip .gzip
 
   AddType audio/mp4                                   f4a f4b m4a
   AddType audio/ogg                                   oga ogg opus
+  AddType image/avif                                  avif
+  AddType image/avif-sequence                         avifs
   AddType image/bmp                                   bmp
+  AddType image/jxl                                   jxl
   AddType image/webp                                  webp
   AddType video/mp4                                   f4v f4p m4v mp4
   AddType video/ogg                                   ogv
@@ -609,7 +623,6 @@ RewriteRule ^.*\.sfc$ %{ENV:CWD}index.php?eID=sfc_manifest [QSA,L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-l
-  RewriteCond %{REQUEST_URI} ^/typo3/.*$
   RewriteRule ^typo3/(.*)$ %{ENV:CWD}typo3/index.php [QSA,L]
 
   # If the file/symlink/directory does not exist => Redirect to index.php.

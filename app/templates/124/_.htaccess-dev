@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 
 <FilesMatch \.php$>
-  SetHandler proxy:fcgi://php80:9000
+  SetHandler proxy:fcgi://php81:9000
 </FilesMatch>
 
 # ------------------------------------------------------------------------------
@@ -117,12 +117,12 @@ RewriteRule .* browser-support.html [L]
 # Redirect from the `http://` to the `https://` version of the URL.
 # https://wiki.apache.org/httpd/RewriteHTTPToHTTPS
 
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteCond %{HTTPS} !=on
-  RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
-  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
-</IfModule>
+# <IfModule mod_rewrite.c>
+  # RewriteEngine On
+  # RewriteCond %{HTTPS} !=on
+  # RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+  # RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+# </IfModule>
 
 # ----------------------------------------------------------------------
 # | TYPO3                                                              |

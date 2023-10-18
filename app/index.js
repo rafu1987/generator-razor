@@ -293,12 +293,19 @@ module.exports = class extends Generator {
       version = '95'
     } else if (rzr.Version.indexOf('11.5') !== -1) {
       version = '115'
+    } else if (rzr.Version.indexOf('12.4') !== -1) {
+      version = '124'
     }
 
     this._createSymlinks(this, path, () => {
       copydir(t.templatePath(version), t.destinationPath('./'), () => {
-        t._localconf(t)
-        t._localSettings(t)
+        if (version === '124') {
+          t._localconf12(t)
+          t._local12Settings(t)
+        } else {
+          t._localconf(t)
+          t._localSettings(t)
+        }
 
         t._createDb((response) => {
           t._processSqlFile(t, response, () => {
@@ -318,6 +325,8 @@ module.exports = class extends Generator {
       branch = 'razor9'
     } else if (rzr.Version.indexOf('11.5') !== -1) {
       branch = 'razor11'
+    } else if (rzr.Version.indexOf('12.4') !== -1) {
+      branch = 'razor12-dev'
     }
 
     // yarn settings
@@ -335,7 +344,7 @@ module.exports = class extends Generator {
     fs.unlink('typo3conf/ext/.yarn-integrity', () => {})
 
     // Copy razor extensions after install to typo3conf/ext/, starting with TYPO3 >= 11.5.x
-    if (rzr.Version.indexOf('11.5') !== -1) {
+    if (rzr.Version.indexOf('11.5') !== -1 || rzr.Version.indexOf('12.4') !== -1) {
       fs.copy('typo3conf/ext/razor/Initialisation/Extensions', 'typo3conf/ext')
     }
   }
@@ -350,8 +359,9 @@ module.exports = class extends Generator {
         const releases9 = body['9']['releases']
         const releases10 = body['10']['releases']
         const releases11 = body['11']['releases']
+        const releases12 = body['12']['releases']
 
-        const releasesObj = t._mergeOptions(releases11, releases10, releases9)
+        const releasesObj = t._mergeOptions(releases12, releases11, releases10, releases9)
 
         const keys = Object.keys(releasesObj)
         const len = keys.length
@@ -359,7 +369,7 @@ module.exports = class extends Generator {
 
         // Filter out only 11.5.x 10.4.x, 9.5.x
         for (let i = 0; i < len; i++) {
-          if (keys[i].indexOf('9.5.') !== -1 || keys[i].indexOf('10.4.') !== -1 || keys[i].indexOf('11.5.') !== -1) {
+          if (keys[i].indexOf('9.5.') !== -1 || keys[i].indexOf('10.4.') !== -1 || keys[i].indexOf('11.5.') !== -1 || keys[i].indexOf('12.4.') !== -1) {
             arr.push({
               name: keys[i],
               value: keys[i]
@@ -372,14 +382,15 @@ module.exports = class extends Generator {
     })
   }
 
-  _mergeOptions (obj1, obj2, obj3) {
-    const obj4 = {}
+  _mergeOptions (obj1, obj2, obj3, obj4) {
+    const obj5 = {}
 
-    for (let attrname in obj1) { obj4[attrname] = obj1[attrname] }
-    for (let attrname in obj2) { obj4[attrname] = obj2[attrname] }
-    for (let attrname in obj3) { obj4[attrname] = obj3[attrname] }
+    for (let attrname in obj1) { obj5[attrname] = obj1[attrname] }
+    for (let attrname in obj2) { obj5[attrname] = obj2[attrname] }
+    for (let attrname in obj3) { obj5[attrname] = obj3[attrname] }
+    for (let attrname in obj4) { obj5[attrname] = obj4[attrname] }
 
-    return obj4
+    return obj5
   }
 
   _createSymlinks (t, path, callback) {
@@ -413,13 +424,39 @@ module.exports = class extends Generator {
       })
 
       if (err) {
-        console.error('error setting localconf settings')
+        console.error('error setting LocalConfiguration.php')
+      }
+    })
+  }
+
+  _localconf12 (t) {
+    fs.readFile('typo3conf/system/local.php', 'utf8', (err, content) => {
+      let newContent = t._substituteMarker(content, '###DBNEW###', rzr.DbNew.toLowerCase(), true)
+      newContent = t._substituteMarker(newContent, '###HOST###', rzr.DbHostname, true)
+      newContent = t._substituteMarker(newContent, '###PROJECTNAME###', rzr.ProjectName, true)
+
+      const encryptionKey = crypto.randomBytes((96 + 1) / 2).toString('hex')
+      newContent = t._substituteMarker(newContent, '###ENCRYPTION_KEY###', encryptionKey, true)
+
+      const hash = argon2.hash(rzr.Pass)
+      hash.then(function (res) {
+        newContent = t._substituteMarker(newContent, '###PASS###', res, true)
+
+        t._localconfWrite12(newContent)
+      })
+
+      if (err) {
+        console.error('error setting settings.php')
       }
     })
   }
 
   _localconfWrite (content) {
     fs.writeFile('typo3conf/LocalConfiguration.php', content, 'utf8', () => {})
+  }
+
+  _localconf12Write (content) {
+    fs.writeFile('typo3conf/system/settings.php', content, 'utf8', () => {})
   }
 
   _localSettings (t) {
@@ -446,6 +483,33 @@ module.exports = class extends Generator {
       })
     } else {
       fs.unlink('typo3conf/Local.php', () => {})
+    }
+  }
+
+  _local12Settings (t) {
+    if (rzr.Transport === 'smtp') {
+      let encryptVariable = '###SMTP_ENCRYPT###'
+      if (rzr.Encrypt === true || rzr.Encrypt === false) {
+        encryptVariable = "'###SMTP_ENCRYPT###'"
+      }
+
+      fs.readFile('typo3conf/system/local.php', 'utf8', (err, content) => {
+        let newContent = t._substituteMarker(content, '###TRANSPORT###', rzr.Transport, true)
+        newContent = t._substituteMarker(newContent, encryptVariable, rzr.Encrypt, true)
+        newContent = t._substituteMarker(newContent, '###SMTP_PASS###', rzr.SmtpPass, true)
+        newContent = t._substituteMarker(newContent, '###SMTP_SERVER###', rzr.SmtpServer, true)
+        newContent = t._substituteMarker(newContent, '###SMTP_USER###', rzr.SmtpUser, true)
+        newContent = t._substituteMarker(newContent, '###SMTP_EMAIL###', rzr.SmtpEmail, true)
+        newContent = t._substituteMarker(newContent, '###SMTP_NAME###', rzr.SmtpName, true)
+
+        fs.writeFile('typo3conf/system/local.php', newContent, 'utf8', () => {})
+
+        if (err) {
+          console.error('error setting local settings')
+        }
+      })
+    } else {
+      fs.unlink('typo3conf/system/local.php', () => {})
     }
   }
 
