@@ -543,6 +543,14 @@ RewriteRule ^.*\.sfc$ %{ENV:CWD}index.php?eID=sfc_manifest [QSA,L]
   ForceType text/html
   # AddType "text/html" .gz
 </FilesMatch>
+<FilesMatch "\.js\.gz$">
+  ForceType text/javascript
+  # AddType "text/javascript" .gzip
+</FilesMatch>
+<FilesMatch "\.css\.gz$">
+  ForceType text/css
+  # AddType "text/css" .gzip
+</FilesMatch>
 <FilesMatch "\.xml\.gz$">
   ForceType text/xml
   # AddType "text/xml" .gz
