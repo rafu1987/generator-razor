@@ -455,7 +455,7 @@ module.exports = class extends Generator {
     fs.writeFile('typo3conf/LocalConfiguration.php', content, 'utf8', () => {})
   }
 
-  _localconf12Write (content) {
+  _localconfWrite12 (content) {
     fs.writeFile('typo3conf/system/settings.php', content, 'utf8', () => {})
   }
 
