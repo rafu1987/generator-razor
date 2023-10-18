@@ -430,7 +430,7 @@ module.exports = class extends Generator {
   }
 
   _localconf12 (t) {
-    fs.readFile('typo3conf/system/local.php', 'utf8', (err, content) => {
+    fs.readFile('typo3conf/system/settings.php', 'utf8', (err, content) => {
       let newContent = t._substituteMarker(content, '###DBNEW###', rzr.DbNew.toLowerCase(), true)
       newContent = t._substituteMarker(newContent, '###HOST###', rzr.DbHostname, true)
       newContent = t._substituteMarker(newContent, '###PROJECTNAME###', rzr.ProjectName, true)
