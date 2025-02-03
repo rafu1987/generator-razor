@@ -1,0 +1,4 @@
+# placed in fileadmin/.htaccess on Apache 2.x webserver
+<IfModule mod_headers.c>
+  Header set Content-Security-Policy "default-src 'self'; script-src 'none'; style-src 'none'; object-src 'none';"
+</IfModule>

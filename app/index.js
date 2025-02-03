@@ -295,11 +295,13 @@ module.exports = class extends Generator {
       version = '115'
     } else if (rzr.Version.indexOf('12.4') !== -1) {
       version = '124'
+    } else if (rzr.Version.indexOf('13.4') !== -1) {
+      version = '134'
     }
 
     this._createSymlinks(this, path, () => {
       copydir(t.templatePath(version), t.destinationPath('./'), () => {
-        if (version === '124') {
+        if (version === '124' || version === '134') {
           t._localconf12(t)
           t._local12Settings(t)
         } else {
@@ -327,6 +329,8 @@ module.exports = class extends Generator {
       branch = 'razor11'
     } else if (rzr.Version.indexOf('12.4') !== -1) {
       branch = 'razor12-dev'
+    } else if (rzr.Version.indexOf('13.4') !== -1) {
+      branch = 'razor13-dev'
     }
 
     // yarn settings
@@ -344,7 +348,7 @@ module.exports = class extends Generator {
     fs.unlink('typo3conf/ext/.yarn-integrity', () => {})
 
     // Copy razor extensions after install to typo3conf/ext/, starting with TYPO3 >= 11.5.x
-    if (rzr.Version.indexOf('11.5') !== -1 || rzr.Version.indexOf('12.4') !== -1) {
+    if (rzr.Version.indexOf('11.5') !== -1 || rzr.Version.indexOf('12.4') !== -1 || rzr.Version.indexOf('13.4') !== -1) {
       fs.copy('typo3conf/ext/razor/Initialisation/Extensions', 'typo3conf/ext')
     }
   }
@@ -360,8 +364,9 @@ module.exports = class extends Generator {
         const releases10 = body['10']['releases']
         const releases11 = body['11']['releases']
         const releases12 = body['12']['releases']
+        const releases13 = body['13']['releases']
 
-        const releasesObj = t._mergeOptions(releases12, releases11, releases10, releases9)
+        const releasesObj = t._mergeOptions(releases13, releases12, releases11, releases10, releases9)
 
         const keys = Object.keys(releasesObj)
         const len = keys.length
@@ -369,7 +374,7 @@ module.exports = class extends Generator {
 
         // Filter out only 11.5.x 10.4.x, 9.5.x
         for (let i = 0; i < len; i++) {
-          if (keys[i].indexOf('9.5.') !== -1 || keys[i].indexOf('10.4.') !== -1 || keys[i].indexOf('11.5.') !== -1 || keys[i].indexOf('12.4.') !== -1) {
+          if (keys[i].indexOf('9.5.') !== -1 || keys[i].indexOf('10.4.') !== -1 || keys[i].indexOf('11.5.') !== -1 || keys[i].indexOf('12.4.') !== -1 || keys[i].indexOf('13.4.') !== -1) {
             arr.push({
               name: keys[i],
               value: keys[i]
