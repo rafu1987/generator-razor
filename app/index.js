@@ -288,12 +288,8 @@ module.exports = class extends Generator {
     const path = rzr.SrcPath + '/typo3_src-' + rzr.Version
 
     // Version
-    let version = '104'
-    if (rzr.Version.indexOf('9.5') !== -1) {
-      version = '95'
-    } else if (rzr.Version.indexOf('11.5') !== -1) {
-      version = '115'
-    } else if (rzr.Version.indexOf('12.4') !== -1) {
+    let version = '115'
+    if (rzr.Version.indexOf('12.4') !== -1) {
       version = '124'
     } else if (rzr.Version.indexOf('13.4') !== -1) {
       version = '134'
@@ -322,12 +318,8 @@ module.exports = class extends Generator {
     rzr = this.props
 
     // Branch
-    let branch = 'razor10'
-    if (rzr.Version.indexOf('9.5') !== -1) {
-      branch = 'razor9'
-    } else if (rzr.Version.indexOf('11.5') !== -1) {
-      branch = 'razor11'
-    } else if (rzr.Version.indexOf('12.4') !== -1) {
+    let branch = 'razor11'
+    if (rzr.Version.indexOf('12.4') !== -1) {
       branch = 'razor12-dev'
     } else if (rzr.Version.indexOf('13.4') !== -1) {
       branch = 'razor13-dev'
@@ -360,21 +352,19 @@ module.exports = class extends Generator {
       json: true
     }, (error, response, body) => {
       if (!error && response.statusCode === 200) {
-        const releases9 = body['9']['releases']
-        const releases10 = body['10']['releases']
         const releases11 = body['11']['releases']
         const releases12 = body['12']['releases']
         const releases13 = body['13']['releases']
 
-        const releasesObj = t._mergeOptions(releases13, releases12, releases11, releases10, releases9)
+        const releasesObj = t._mergeOptions(releases13, releases12, releases11)
 
         const keys = Object.keys(releasesObj)
         const len = keys.length
         const arr = []
 
-        // Filter out only 11.5.x 10.4.x, 9.5.x
+        // Filter out only 11.5.x 12.4.x, 13.4.x
         for (let i = 0; i < len; i++) {
-          if (keys[i].indexOf('9.5.') !== -1 || keys[i].indexOf('10.4.') !== -1 || keys[i].indexOf('11.5.') !== -1 || keys[i].indexOf('12.4.') !== -1 || keys[i].indexOf('13.4.') !== -1) {
+          if (keys[i].indexOf('11.5.') !== -1 || keys[i].indexOf('12.4.') !== -1 || keys[i].indexOf('13.4.') !== -1) {
             arr.push({
               name: keys[i],
               value: keys[i]
@@ -387,15 +377,14 @@ module.exports = class extends Generator {
     })
   }
 
-  _mergeOptions (obj1, obj2, obj3, obj4) {
-    const obj5 = {}
+  _mergeOptions (obj1, obj2, obj3) {
+    const obj4 = {}
 
-    for (let attrname in obj1) { obj5[attrname] = obj1[attrname] }
-    for (let attrname in obj2) { obj5[attrname] = obj2[attrname] }
-    for (let attrname in obj3) { obj5[attrname] = obj3[attrname] }
-    for (let attrname in obj4) { obj5[attrname] = obj4[attrname] }
+    for (let attrname in obj1) { obj4[attrname] = obj1[attrname] }
+    for (let attrname in obj2) { obj4[attrname] = obj2[attrname] }
+    for (let attrname in obj3) { obj4[attrname] = obj3[attrname] }
 
-    return obj5
+    return obj4
   }
 
   _createSymlinks (t, path, callback) {
