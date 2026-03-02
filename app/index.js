@@ -332,7 +332,7 @@ module.exports = class extends Generator {
     if (branch === 'razor13-dev') {
       this.yarnInstall([
         'ssh://git@github.com/rafu1987/razor.git#' + branch,
-        'https://github.com/FriendsOfTYPO3/content-blocks/archive/refs/tags/1.3.19.tar.gz',
+        'content_blocks@https://github.com/FriendsOfTYPO3/content-blocks/archive/refs/tags/1.3.19.tar.gz',
       ], yarnSettings)
     } else {
       this.yarnInstall([

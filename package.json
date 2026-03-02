@@ -1,6 +1,6 @@
 {
   "name": "generator-razor",
-  "version": "13.4.4",
+  "version": "13.4.5",
   "description": "Yeoman generator for razor TYPO3 distribution",
   "license": "MIT",
   "main": "app/index.js",
