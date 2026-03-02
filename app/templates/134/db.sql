@@ -1,15 +1,21 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql8
--- Erstellungszeit: 03. Feb 2025 um 12:18
--- Server-Version: 8.0.39
--- PHP-Version: 8.2.8
+-- Erstellungszeit: 02. Mrz 2026 um 13:15
+-- Server-Version: 8.0.43
+-- PHP-Version: 8.2.27
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Datenbank: `razor13test`
@@ -21,7 +27,6 @@ SET time_zone = "+00:00";
 -- Tabellenstruktur für Tabelle `backend_layout`
 --
 
-DROP TABLE IF EXISTS `backend_layout`;
 CREATE TABLE `backend_layout` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -43,32 +48,9 @@ CREATE TABLE `backend_layout` (
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `be_dashboards`
---
-
-DROP TABLE IF EXISTS `be_dashboards`;
-CREATE TABLE `be_dashboards` (
-  `uid` int UNSIGNED NOT NULL,
-  `pid` int UNSIGNED NOT NULL DEFAULT '0',
-  `tstamp` int UNSIGNED NOT NULL DEFAULT '0',
-  `crdate` int UNSIGNED NOT NULL DEFAULT '0',
-  `deleted` smallint UNSIGNED NOT NULL DEFAULT '0',
-  `hidden` smallint UNSIGNED NOT NULL DEFAULT '0',
-  `starttime` int UNSIGNED NOT NULL DEFAULT '0',
-  `endtime` int UNSIGNED NOT NULL DEFAULT '0',
-  `cruser_id` int UNSIGNED NOT NULL DEFAULT '0',
-  `widgets` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
-  `identifier` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
--- --------------------------------------------------------
-
---
 -- Tabellenstruktur für Tabelle `be_groups`
 --
 
-DROP TABLE IF EXISTS `be_groups`;
 CREATE TABLE `be_groups` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -93,8 +75,7 @@ CREATE TABLE `be_groups` (
   `mfa_providers` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
   `TSconfig` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
   `subgroup` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `category_perms` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
-  `availableWidgets` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL)
+  `category_perms` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 -- --------------------------------------------------------
@@ -103,7 +84,6 @@ CREATE TABLE `be_groups` (
 -- Tabellenstruktur für Tabelle `be_sessions`
 --
 
-DROP TABLE IF EXISTS `be_sessions`;
 CREATE TABLE `be_sessions` (
   `ses_id` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `ses_iplock` varchar(39) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -112,13 +92,19 @@ CREATE TABLE `be_sessions` (
   `ses_data` longblob DEFAULT (NULL)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
+--
+-- Daten für Tabelle `be_sessions`
+--
+
+INSERT INTO `be_sessions` (`ses_id`, `ses_iplock`, `ses_userid`, `ses_tstamp`, `ses_data`) VALUES
+('5610bf010c3982b10d5ce5c4d915218b54ac997acd0f7ec4303b18d0c847c6e5', '[DISABLED]', 1, 1772457128, 0x613a313a7b733a32363a22666f726d50726f74656374696f6e53657373696f6e546f6b656e223b733a36343a2230373833643561366663633664383965376337383437356635663431303638326336316133633333646662653061663534323065373765373334333533346536223b7d);
+
 -- --------------------------------------------------------
 
 --
 -- Tabellenstruktur für Tabelle `be_users`
 --
 
-DROP TABLE IF EXISTS `be_users`;
 CREATE TABLE `be_users` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -166,7 +152,6 @@ INSERT INTO `be_users` (`uid`, `pid`, `tstamp`, `crdate`, `deleted`, `disable`, 
 -- Tabellenstruktur für Tabelle `cache_hash`
 --
 
-DROP TABLE IF EXISTS `cache_hash`;
 CREATE TABLE `cache_hash` (
   `id` int UNSIGNED NOT NULL,
   `identifier` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -180,8 +165,32 @@ CREATE TABLE `cache_hash` (
 -- Tabellenstruktur für Tabelle `cache_hash_tags`
 --
 
-DROP TABLE IF EXISTS `cache_hash_tags`;
 CREATE TABLE `cache_hash_tags` (
+  `id` int UNSIGNED NOT NULL,
+  `identifier` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `tag` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `cache_imagesizes`
+--
+
+CREATE TABLE `cache_imagesizes` (
+  `id` int UNSIGNED NOT NULL,
+  `identifier` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `expires` int UNSIGNED NOT NULL DEFAULT '0',
+  `content` longblob DEFAULT (NULL)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `cache_imagesizes_tags`
+--
+
+CREATE TABLE `cache_imagesizes_tags` (
   `id` int UNSIGNED NOT NULL,
   `identifier` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `tag` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
@@ -193,7 +202,6 @@ CREATE TABLE `cache_hash_tags` (
 -- Tabellenstruktur für Tabelle `cache_pages`
 --
 
-DROP TABLE IF EXISTS `cache_pages`;
 CREATE TABLE `cache_pages` (
   `id` int UNSIGNED NOT NULL,
   `identifier` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -207,7 +215,6 @@ CREATE TABLE `cache_pages` (
 -- Tabellenstruktur für Tabelle `cache_pages_tags`
 --
 
-DROP TABLE IF EXISTS `cache_pages_tags`;
 CREATE TABLE `cache_pages_tags` (
   `id` int UNSIGNED NOT NULL,
   `identifier` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -220,7 +227,6 @@ CREATE TABLE `cache_pages_tags` (
 -- Tabellenstruktur für Tabelle `cache_rootline`
 --
 
-DROP TABLE IF EXISTS `cache_rootline`;
 CREATE TABLE `cache_rootline` (
   `id` int UNSIGNED NOT NULL,
   `identifier` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -234,7 +240,6 @@ CREATE TABLE `cache_rootline` (
 -- Tabellenstruktur für Tabelle `cache_rootline_tags`
 --
 
-DROP TABLE IF EXISTS `cache_rootline_tags`;
 CREATE TABLE `cache_rootline_tags` (
   `id` int UNSIGNED NOT NULL,
   `identifier` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -247,7 +252,6 @@ CREATE TABLE `cache_rootline_tags` (
 -- Tabellenstruktur für Tabelle `fe_groups`
 --
 
-DROP TABLE IF EXISTS `fe_groups`;
 CREATE TABLE `fe_groups` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -257,8 +261,7 @@ CREATE TABLE `fe_groups` (
   `hidden` smallint UNSIGNED NOT NULL DEFAULT '0',
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
   `title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `subgroup` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `felogin_redirectPid` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL)
+  `subgroup` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 -- --------------------------------------------------------
@@ -267,7 +270,6 @@ CREATE TABLE `fe_groups` (
 -- Tabellenstruktur für Tabelle `fe_sessions`
 --
 
-DROP TABLE IF EXISTS `fe_sessions`;
 CREATE TABLE `fe_sessions` (
   `ses_id` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `ses_iplock` varchar(39) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -283,7 +285,6 @@ CREATE TABLE `fe_sessions` (
 -- Tabellenstruktur für Tabelle `fe_users`
 --
 
-DROP TABLE IF EXISTS `fe_users`;
 CREATE TABLE `fe_users` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -298,7 +299,6 @@ CREATE TABLE `fe_users` (
   `is_online` int UNSIGNED NOT NULL DEFAULT '0',
   `mfa` mediumblob DEFAULT (NULL),
   `tx_extbase_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `felogin_forgotHash` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
   `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `usergroup` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
@@ -317,8 +317,7 @@ CREATE TABLE `fe_users` (
   `www` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `company` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `image` int UNSIGNED NOT NULL DEFAULT '0',
-  `lastlogin` bigint NOT NULL DEFAULT '0',
-  `felogin_redirectPid` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL)
+  `lastlogin` bigint NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 -- --------------------------------------------------------
@@ -327,7 +326,6 @@ CREATE TABLE `fe_users` (
 -- Tabellenstruktur für Tabelle `pages`
 --
 
-DROP TABLE IF EXISTS `pages`;
 CREATE TABLE `pages` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -359,7 +357,6 @@ CREATE TABLE `pages` (
   `shortcut` int UNSIGNED NOT NULL DEFAULT '0',
   `content_from_pid` int UNSIGNED NOT NULL DEFAULT '0',
   `mount_pid` int UNSIGNED NOT NULL DEFAULT '0',
-  `tx_impexp_origuid` int NOT NULL DEFAULT '0',
   `sitemap_priority` decimal(2,1) NOT NULL DEFAULT '0.5',
   `doktype` int UNSIGNED NOT NULL DEFAULT '0',
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -413,7 +410,6 @@ CREATE TABLE `pages` (
 -- Tabellenstruktur für Tabelle `sys_be_shortcuts`
 --
 
-DROP TABLE IF EXISTS `sys_be_shortcuts`;
 CREATE TABLE `sys_be_shortcuts` (
   `uid` int UNSIGNED NOT NULL,
   `userid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -430,7 +426,6 @@ CREATE TABLE `sys_be_shortcuts` (
 -- Tabellenstruktur für Tabelle `sys_category`
 --
 
-DROP TABLE IF EXISTS `sys_category`;
 CREATE TABLE `sys_category` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -461,7 +456,6 @@ CREATE TABLE `sys_category` (
 -- Tabellenstruktur für Tabelle `sys_category_record_mm`
 --
 
-DROP TABLE IF EXISTS `sys_category_record_mm`;
 CREATE TABLE `sys_category_record_mm` (
   `uid_local` int UNSIGNED NOT NULL DEFAULT '0',
   `uid_foreign` int UNSIGNED NOT NULL DEFAULT '0',
@@ -477,7 +471,6 @@ CREATE TABLE `sys_category_record_mm` (
 -- Tabellenstruktur für Tabelle `sys_csp_resolution`
 --
 
-DROP TABLE IF EXISTS `sys_csp_resolution`;
 CREATE TABLE `sys_csp_resolution` (
   `summary` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created` int UNSIGNED NOT NULL,
@@ -493,7 +486,6 @@ CREATE TABLE `sys_csp_resolution` (
 -- Tabellenstruktur für Tabelle `sys_file`
 --
 
-DROP TABLE IF EXISTS `sys_file`;
 CREATE TABLE `sys_file` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -510,7 +502,7 @@ CREATE TABLE `sys_file` (
   `storage` int UNSIGNED NOT NULL DEFAULT '0',
   `type` int UNSIGNED NOT NULL DEFAULT '0',
   `mime_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `size` int NOT NULL DEFAULT '0',
+  `size` bigint NOT NULL DEFAULT '0',
   `missing` smallint UNSIGNED NOT NULL DEFAULT '0',
   `metadata` int UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
@@ -521,7 +513,6 @@ CREATE TABLE `sys_file` (
 -- Tabellenstruktur für Tabelle `sys_filemounts`
 --
 
-DROP TABLE IF EXISTS `sys_filemounts`;
 CREATE TABLE `sys_filemounts` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -541,7 +532,6 @@ CREATE TABLE `sys_filemounts` (
 -- Tabellenstruktur für Tabelle `sys_file_collection`
 --
 
-DROP TABLE IF EXISTS `sys_file_collection`;
 CREATE TABLE `sys_file_collection` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -574,7 +564,6 @@ CREATE TABLE `sys_file_collection` (
 -- Tabellenstruktur für Tabelle `sys_file_metadata`
 --
 
-DROP TABLE IF EXISTS `sys_file_metadata`;
 CREATE TABLE `sys_file_metadata` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -603,7 +592,6 @@ CREATE TABLE `sys_file_metadata` (
 -- Tabellenstruktur für Tabelle `sys_file_processedfile`
 --
 
-DROP TABLE IF EXISTS `sys_file_processedfile`;
 CREATE TABLE `sys_file_processedfile` (
   `uid` int NOT NULL,
   `tstamp` int NOT NULL DEFAULT '0',
@@ -628,7 +616,6 @@ CREATE TABLE `sys_file_processedfile` (
 -- Tabellenstruktur für Tabelle `sys_file_reference`
 --
 
-DROP TABLE IF EXISTS `sys_file_reference`;
 CREATE TABLE `sys_file_reference` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -663,7 +650,6 @@ CREATE TABLE `sys_file_reference` (
 -- Tabellenstruktur für Tabelle `sys_file_storage`
 --
 
-DROP TABLE IF EXISTS `sys_file_storage`;
 CREATE TABLE `sys_file_storage` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -689,7 +675,6 @@ CREATE TABLE `sys_file_storage` (
 -- Tabellenstruktur für Tabelle `sys_history`
 --
 
-DROP TABLE IF EXISTS `sys_history`;
 CREATE TABLE `sys_history` (
   `uid` int UNSIGNED NOT NULL,
   `tstamp` int UNSIGNED NOT NULL DEFAULT '0',
@@ -710,7 +695,6 @@ CREATE TABLE `sys_history` (
 -- Tabellenstruktur für Tabelle `sys_http_report`
 --
 
-DROP TABLE IF EXISTS `sys_http_report`;
 CREATE TABLE `sys_http_report` (
   `uuid` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `status` smallint UNSIGNED NOT NULL DEFAULT '0',
@@ -737,7 +721,6 @@ INSERT INTO `sys_http_report` (`uuid`, `status`, `created`, `changed`, `type`, `
 -- Tabellenstruktur für Tabelle `sys_lockedrecords`
 --
 
-DROP TABLE IF EXISTS `sys_lockedrecords`;
 CREATE TABLE `sys_lockedrecords` (
   `uid` int UNSIGNED NOT NULL,
   `userid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -755,7 +738,6 @@ CREATE TABLE `sys_lockedrecords` (
 -- Tabellenstruktur für Tabelle `sys_log`
 --
 
-DROP TABLE IF EXISTS `sys_log`;
 CREATE TABLE `sys_log` (
   `uid` int UNSIGNED NOT NULL,
   `tstamp` int UNSIGNED NOT NULL DEFAULT '0',
@@ -773,7 +755,6 @@ CREATE TABLE `sys_log` (
   `log_data` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
   `event_pid` int NOT NULL DEFAULT '-1',
   `workspace` int NOT NULL DEFAULT '0',
-  `NEWid` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `request_id` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `time_micro` double NOT NULL DEFAULT '0',
   `component` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -782,13 +763,19 @@ CREATE TABLE `sys_log` (
   `data` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
+--
+-- Daten für Tabelle `sys_log`
+--
+
+INSERT INTO `sys_log` (`uid`, `tstamp`, `userid`, `action`, `recuid`, `tablename`, `recpid`, `error`, `details`, `type`, `channel`, `details_nr`, `IP`, `log_data`, `event_pid`, `workspace`, `request_id`, `time_micro`, `component`, `level`, `message`, `data`) VALUES
+(1, 1772457117, 1, 1, 0, '', 0, 0, 'User %s logged in from ###IP###', 255, 'user', 0, '172.30.0.28', '[\"gandayo\"]', -1, -99, '', 0, '', 'info', NULL, NULL);
+
 -- --------------------------------------------------------
 
 --
 -- Tabellenstruktur für Tabelle `sys_messenger_messages`
 --
 
-DROP TABLE IF EXISTS `sys_messenger_messages`;
 CREATE TABLE `sys_messenger_messages` (
   `id` int UNSIGNED NOT NULL,
   `body` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -805,7 +792,6 @@ CREATE TABLE `sys_messenger_messages` (
 -- Tabellenstruktur für Tabelle `sys_news`
 --
 
-DROP TABLE IF EXISTS `sys_news`;
 CREATE TABLE `sys_news` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -825,7 +811,6 @@ CREATE TABLE `sys_news` (
 -- Tabellenstruktur für Tabelle `sys_note`
 --
 
-DROP TABLE IF EXISTS `sys_note`;
 CREATE TABLE `sys_note` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -847,7 +832,6 @@ CREATE TABLE `sys_note` (
 -- Tabellenstruktur für Tabelle `sys_redirect`
 --
 
-DROP TABLE IF EXISTS `sys_redirect`;
 CREATE TABLE `sys_redirect` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -880,9 +864,8 @@ CREATE TABLE `sys_redirect` (
 -- Tabellenstruktur für Tabelle `sys_refindex`
 --
 
-DROP TABLE IF EXISTS `sys_refindex`;
 CREATE TABLE `sys_refindex` (
-  `hash` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `hash` varchar(32) CHARACTER SET ascii COLLATE ascii_bin NOT NULL DEFAULT '',
   `tablename` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `recuid` int UNSIGNED NOT NULL DEFAULT '0',
   `field` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -912,7 +895,6 @@ CREATE TABLE `sys_refindex` (
 -- Tabellenstruktur für Tabelle `sys_registry`
 --
 
-DROP TABLE IF EXISTS `sys_registry`;
 CREATE TABLE `sys_registry` (
   `uid` int UNSIGNED NOT NULL,
   `entry_namespace` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -936,7 +918,8 @@ INSERT INTO `sys_registry` (`uid`, `entry_namespace`, `entry_key`, `entry_value`
 (9, 'installUpdate', 'TYPO3\\CMS\\Install\\Updates\\SysLogSerializationUpdate', 0x693a313b),
 (10, 'installUpdate', 'TYPO3\\CMS\\Install\\Updates\\SysTemplateNoWorkspaceMigration', 0x693a313b),
 (11, 'installUpdate', 'TYPO3\\CMS\\Extensionmanager\\Updates\\FeLoginModeExtractionUpdate', 0x693a313b),
-(12, 'installUpdateRows', 'rowUpdatersDone', 0x613a313a7b693a303b733a36393a225459504f335c434d535c496e7374616c6c5c557064617465735c526f77557064617465725c5379735265646972656374526f6f74506167654d6f76654d6967726174696f6e223b7d);
+(12, 'installUpdateRows', 'rowUpdatersDone', 0x613a313a7b693a303b733a36393a225459504f335c434d535c496e7374616c6c5c557064617465735c526f77557064617465725c5379735265646972656374526f6f74506167654d6f76654d6967726174696f6e223b7d),
+(13, 'core', 'formProtectionSessionToken:1', 0x733a36343a2230373833643561366663633664383965376337383437356635663431303638326336316133633333646662653061663534323065373765373334333533346536223b);
 
 -- --------------------------------------------------------
 
@@ -944,7 +927,6 @@ INSERT INTO `sys_registry` (`uid`, `entry_namespace`, `entry_key`, `entry_value`
 -- Tabellenstruktur für Tabelle `sys_template`
 --
 
-DROP TABLE IF EXISTS `sys_template`;
 CREATE TABLE `sys_template` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -956,7 +938,6 @@ CREATE TABLE `sys_template` (
   `endtime` int UNSIGNED NOT NULL DEFAULT '0',
   `sorting` int NOT NULL DEFAULT '0',
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
-  `tx_impexp_origuid` int NOT NULL DEFAULT '0',
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `root` smallint UNSIGNED NOT NULL DEFAULT '0',
   `clear` smallint UNSIGNED NOT NULL DEFAULT '0',
@@ -974,7 +955,6 @@ CREATE TABLE `sys_template` (
 -- Tabellenstruktur für Tabelle `tt_content`
 --
 
-DROP TABLE IF EXISTS `tt_content`;
 CREATE TABLE `tt_content` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -1000,7 +980,6 @@ CREATE TABLE `tt_content` (
   `frame_class` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'default',
   `colPos` int UNSIGNED NOT NULL DEFAULT '0',
   `table_caption` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `tx_impexp_origuid` int NOT NULL DEFAULT '0',
   `CType` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `categories` int UNSIGNED NOT NULL DEFAULT '0',
   `layout` int UNSIGNED NOT NULL DEFAULT '0',
@@ -1053,7 +1032,6 @@ CREATE TABLE `tt_content` (
 -- Tabellenstruktur für Tabelle `tx_extensionmanager_domain_model_extension`
 --
 
-DROP TABLE IF EXISTS `tx_extensionmanager_domain_model_extension`;
 CREATE TABLE `tx_extensionmanager_domain_model_extension` (
   `uid` int UNSIGNED NOT NULL,
   `pid` int UNSIGNED NOT NULL DEFAULT '0',
@@ -1083,25 +1061,6 @@ CREATE TABLE `tx_extensionmanager_domain_model_extension` (
   `review_state` int NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
--- --------------------------------------------------------
-
---
--- Tabellenstruktur für Tabelle `tx_impexp_presets`
---
-
-DROP TABLE IF EXISTS `tx_impexp_presets`;
-CREATE TABLE `tx_impexp_presets` (
-  `uid` int UNSIGNED NOT NULL,
-  `pid` int UNSIGNED NOT NULL DEFAULT '0',
-  `tstamp` int UNSIGNED NOT NULL DEFAULT '0',
-  `crdate` int UNSIGNED NOT NULL DEFAULT '0',
-  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `public` smallint NOT NULL DEFAULT '0',
-  `item_uid` int NOT NULL DEFAULT '0',
-  `user_uid` int UNSIGNED NOT NULL DEFAULT '0',
-  `preset_data` blob DEFAULT (NULL)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
 --
 -- Indizes der exportierten Tabellen
 --
@@ -1113,14 +1072,6 @@ ALTER TABLE `backend_layout`
   ADD PRIMARY KEY (`uid`),
   ADD KEY `parent` (`pid`,`deleted`,`hidden`),
   ADD KEY `t3ver_oid` (`t3ver_oid`,`t3ver_wsid`);
-
---
--- Indizes für die Tabelle `be_dashboards`
---
-ALTER TABLE `be_dashboards`
-  ADD PRIMARY KEY (`uid`),
-  ADD KEY `identifier` (`identifier`),
-  ADD KEY `parent` (`pid`,`deleted`,`hidden`);
 
 --
 -- Indizes für die Tabelle `be_groups`
@@ -1155,6 +1106,21 @@ ALTER TABLE `cache_hash`
 -- Indizes für die Tabelle `cache_hash_tags`
 --
 ALTER TABLE `cache_hash_tags`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `cache_id` (`identifier`(191)),
+  ADD KEY `cache_tag` (`tag`(191));
+
+--
+-- Indizes für die Tabelle `cache_imagesizes`
+--
+ALTER TABLE `cache_imagesizes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `cache_id` (`identifier`(180),`expires`);
+
+--
+-- Indizes für die Tabelle `cache_imagesizes_tags`
+--
+ALTER TABLE `cache_imagesizes_tags`
   ADD PRIMARY KEY (`id`),
   ADD KEY `cache_id` (`identifier`(191)),
   ADD KEY `cache_tag` (`tag`(191));
@@ -1201,7 +1167,7 @@ ALTER TABLE `fe_groups`
 --
 ALTER TABLE `fe_sessions`
   ADD PRIMARY KEY (`ses_id`),
-  ADD KEY `ses_tstamp` (`ses_tstamp`);
+  ADD KEY `ses_tstamp` (`ses_tstamp`,`ses_userid`);
 
 --
 -- Indizes für die Tabelle `fe_users`
@@ -1210,8 +1176,7 @@ ALTER TABLE `fe_users`
   ADD PRIMARY KEY (`uid`),
   ADD KEY `parent` (`pid`,`username`(100)),
   ADD KEY `username` (`username`(100)),
-  ADD KEY `is_online` (`is_online`),
-  ADD KEY `felogin_forgotHash` (`felogin_forgotHash`);
+  ADD KEY `is_online` (`is_online`);
 
 --
 -- Indizes für die Tabelle `pages`
@@ -1401,7 +1366,8 @@ ALTER TABLE `sys_refindex`
   ADD PRIMARY KEY (`hash`),
   ADD KEY `lookup_rec` (`tablename`,`recuid`,`field`,`workspace`,`ref_t3ver_state`,`ref_hidden`,`ref_starttime`,`ref_endtime`),
   ADD KEY `lookup_ref` (`ref_table`,`ref_uid`,`tablename`,`workspace`,`t3ver_state`,`hidden`,`starttime`,`endtime`),
-  ADD KEY `lookup_string` (`ref_string`(191));
+  ADD KEY `lookup_string` (`ref_string`(191)),
+  ADD KEY `idx_softref_key` (`softref_key`,`ref_uid`);
 
 --
 -- Indizes für die Tabelle `sys_registry`
@@ -1440,14 +1406,6 @@ ALTER TABLE `tx_extensionmanager_domain_model_extension`
   ADD KEY `parent` (`pid`);
 
 --
--- Indizes für die Tabelle `tx_impexp_presets`
---
-ALTER TABLE `tx_impexp_presets`
-  ADD PRIMARY KEY (`uid`),
-  ADD KEY `lookup` (`item_uid`),
-  ADD KEY `parent` (`pid`);
-
---
 -- AUTO_INCREMENT für exportierte Tabellen
 --
 
@@ -1455,12 +1413,6 @@ ALTER TABLE `tx_impexp_presets`
 -- AUTO_INCREMENT für Tabelle `backend_layout`
 --
 ALTER TABLE `backend_layout`
-  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT für Tabelle `be_dashboards`
---
-ALTER TABLE `be_dashboards`
   MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
@@ -1485,6 +1437,18 @@ ALTER TABLE `cache_hash`
 -- AUTO_INCREMENT für Tabelle `cache_hash_tags`
 --
 ALTER TABLE `cache_hash_tags`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `cache_imagesizes`
+--
+ALTER TABLE `cache_imagesizes`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `cache_imagesizes_tags`
+--
+ALTER TABLE `cache_imagesizes_tags`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
@@ -1599,7 +1563,7 @@ ALTER TABLE `sys_lockedrecords`
 -- AUTO_INCREMENT für Tabelle `sys_log`
 --
 ALTER TABLE `sys_log`
-  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT für Tabelle `sys_messenger_messages`
@@ -1629,7 +1593,7 @@ ALTER TABLE `sys_redirect`
 -- AUTO_INCREMENT für Tabelle `sys_registry`
 --
 ALTER TABLE `sys_registry`
-  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT für Tabelle `sys_template`
@@ -1648,10 +1612,8 @@ ALTER TABLE `tt_content`
 --
 ALTER TABLE `tx_extensionmanager_domain_model_extension`
   MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT für Tabelle `tx_impexp_presets`
---
-ALTER TABLE `tx_impexp_presets`
-  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT;
 COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
