@@ -328,10 +328,17 @@ module.exports = class extends Generator {
     // yarn settings
     const yarnSettings = { dev: true, 'no-lockfile': true, 'modules-folder': 'typo3conf/ext/' }
 
-    // Install razor
-    this.yarnInstall([
-      'ssh://git@github.com/rafu1987/razor.git#' + branch
-    ], yarnSettings)
+    // TYPO13 bug with content_blocks 1.3.19 install from TER
+    if (branch === 'razor13-dev') {
+      this.yarnInstall([
+        'ssh://git@github.com/rafu1987/razor.git#' + branch,
+        'https://github.com/FriendsOfTYPO3/content-blocks/archive/refs/tags/1.3.19.tar.gz',
+      ], yarnSettings)
+    } else {
+      this.yarnInstall([
+        'ssh://git@github.com/rafu1987/razor.git#' + branch
+      ], yarnSettings)
+    }
   }
 
   end () {
