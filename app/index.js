@@ -288,11 +288,11 @@ module.exports = class extends Generator {
     const path = rzr.SrcPath + '/typo3_src-' + rzr.Version
 
     // Version
-    let version = '115'
-    if (rzr.Version.indexOf('12.4') !== -1) {
-      version = '124'
-    } else if (rzr.Version.indexOf('13.4') !== -1) {
+    let version = '124'
+    if (rzr.Version.indexOf('13.4') !== -1) {
       version = '134'
+    } else if (rzr.Version.indexOf('14.3') !== -1) {
+      version = '143'
     }
 
     this._createSymlinks(this, path, () => {
@@ -318,11 +318,11 @@ module.exports = class extends Generator {
     rzr = this.props
 
     // Branch
-    let branch = 'razor11'
-    if (rzr.Version.indexOf('12.4') !== -1) {
-      branch = 'razor12-dev'
-    } else if (rzr.Version.indexOf('13.4') !== -1) {
+    let branch = 'razor12-dev'
+    if (rzr.Version.indexOf('13.4') !== -1) {
       branch = 'razor13-dev'
+    } else if (rzr.Version.indexOf('14.3') !== -1) {
+      branch = 'razor14-dev'
     }
 
     // yarn settings
@@ -362,9 +362,9 @@ module.exports = class extends Generator {
         const len = keys.length
         const arr = []
 
-        // Filter out only 11.5.x 12.4.x, 13.4.x
+        // Filter out only 12.4.x 13.4.x, 14.3.x
         for (let i = 0; i < len; i++) {
-          if (keys[i].indexOf('11.5.') !== -1 || keys[i].indexOf('12.4.') !== -1 || keys[i].indexOf('13.4.') !== -1) {
+          if (keys[i].indexOf('12.4.') !== -1 || keys[i].indexOf('13.4.') !== -1 || keys[i].indexOf('14.3.') !== -1) {
             arr.push({
               name: keys[i],
               value: keys[i]
