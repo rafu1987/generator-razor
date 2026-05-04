@@ -339,8 +339,8 @@ module.exports = class extends Generator {
     fs.unlink('package.json', () => {})
     fs.unlink('typo3conf/ext/.yarn-integrity', () => {})
 
-    // Copy razor extensions after install to typo3conf/ext/, starting with TYPO3 >= 11.5.x
-    if (rzr.Version.indexOf('11.5') !== -1 || rzr.Version.indexOf('12.4') !== -1 || rzr.Version.indexOf('13.4') !== -1) {
+    // Copy razor extensions after install to typo3conf/ext/, starting with TYPO3 >= 12.4.x
+    if (rzr.Version.indexOf('12.4') !== -1 || rzr.Version.indexOf('13.4') !== -1 || rzr.Version.indexOf('14.3') !== -1) {
       fs.copy('typo3conf/ext/razor/Initialisation/Extensions', 'typo3conf/ext')
     }
   }
@@ -352,11 +352,11 @@ module.exports = class extends Generator {
       json: true
     }, (error, response, body) => {
       if (!error && response.statusCode === 200) {
-        const releases11 = body['11']['releases']
         const releases12 = body['12']['releases']
         const releases13 = body['13']['releases']
+        const releases14 = body['14']['releases']
 
-        const releasesObj = t._mergeOptions(releases13, releases12, releases11)
+        const releasesObj = t._mergeOptions(releases14, releases13, releases12)
 
         const keys = Object.keys(releasesObj)
         const len = keys.length
