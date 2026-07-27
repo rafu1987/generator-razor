@@ -1,6 +1,6 @@
 {
   "name": "generator-razor",
-  "version": "13.4.134",
+  "version": "14.0.0",
   "description": "Yeoman generator for razor TYPO3 distribution",
   "license": "MIT",
   "main": "app/index.js",
@@ -13,7 +13,12 @@
     "email": "rafu1987@gmail.com",
     "url": "https://github.com/rafu1987"
   },
-  "scripts": {},
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test:syntax": "node --check app/index.js"
+  },
   "files": [
     "app"
   ],
@@ -23,17 +28,12 @@
     "razor"
   ],
   "dependencies": {
-    "argon2": "0.27.2",
-    "chalk": "^4.1.0",
-    "copy-dir": "^1.3.0",
-    "fs-extra": "^10.0.0",
-    "fs-symlink": "^1.2.1",
-    "mysql": "^2.18.1",
-    "npm": "^7.10.0",
-    "path-exists": "^4.0.0",
-    "request": "^2.88.2",
-    "yeoman-generator": "^4.10.0",
-    "yeoman-remote": "^1.0.1",
+    "argon2": "^0.44.0",
+    "chalk": "^4.1.2",
+    "fs-extra": "^11.3.6",
+    "mysql2": "^3.23.1",
+    "tar": "^7.5.16",
+    "yeoman-generator": "^4.13.0",
     "yosay": "^2.0.2"
   },
   "devDependencies": {}
