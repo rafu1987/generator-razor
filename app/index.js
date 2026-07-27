@@ -1,21 +1,19 @@
-'use strict'
+import Generator from 'yeoman-generator'
+import chalk from 'chalk'
+import mysql from 'mysql2/promise'
+import fs from 'fs-extra'
+import argon2 from 'argon2'
+import * as tar from 'tar'
 
-const Generator = require('yeoman-generator')
-const chalk = require('chalk')
-const yosay = require('yosay')
-const mysql = require('mysql2/promise')
-const fs = require('fs-extra')
-const argon2 = require('argon2')
-const tar = require('tar')
+import crypto from 'node:crypto'
+import path from 'node:path'
+import os from 'node:os'
+import process from 'node:process'
+import { spawn } from 'node:child_process'
+import { Readable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
 
-const crypto = require('crypto')
-const path = require('path')
-const os = require('os')
-const { spawn } = require('child_process')
-const { Readable } = require('stream')
-const { pipeline } = require('stream/promises')
-
-module.exports = class extends Generator {
+export default class extends Generator {
   constructor (args, options) {
     super(args, options)
 
@@ -23,13 +21,18 @@ module.exports = class extends Generator {
   }
 
   async prompting () {
-    this.log(
-      yosay(
-        'Welcome to the official TYPO3 ' +
-        chalk.red('razor') +
-        ' generator!'
-      )
-    )
+    const orange = chalk.hex('#ff8700').bold
+
+    this.log(orange(`
+    ██████╗  █████╗ ███████╗ ██████╗ ██████╗
+    ██╔══██╗██╔══██╗╚══███╔╝██╔═══██╗██╔══██╗
+    ██████╔╝███████║  ███╔╝ ██║   ██║██████╔╝
+    ██╔══██╗██╔══██║ ███╔╝  ██║   ██║██╔══██╗
+    ██║  ██║██║  ██║███████╗╚██████╔╝██║  ██║
+    ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝
+    `))
+
+    this.log(chalk.bold('TYPO3 Generator'))
 
     const releases = await this._getTypo3Releases()
 
@@ -311,6 +314,7 @@ module.exports = class extends Generator {
 
   async writing () {
     const templateVersion = this._getTemplateVersion()
+
     const sourcePath = path.resolve(
       this.destinationRoot(),
       this.props.SrcPath,
@@ -351,7 +355,10 @@ module.exports = class extends Generator {
   }
 
   async end () {
-    await fs.remove(this.destinationPath('package.json'))
+    await fs.remove(
+      this.destinationPath('package.json')
+    )
+
     await fs.remove(
       this.destinationPath('typo3conf/ext/.yarn-integrity')
     )
@@ -395,13 +402,15 @@ module.exports = class extends Generator {
 
       throw new Error(
         `Could not connect to ${url}.${cause}`,
-        { cause: error }
+        {
+          cause: error
+        }
       )
     }
 
     if (!response.ok) {
       throw new Error(
-        `Could not retrieve TYPO3 releases: ` +
+        'Could not retrieve TYPO3 releases: ' +
         `${response.status} ${response.statusText}`
       )
     }
@@ -413,7 +422,9 @@ module.exports = class extends Generator {
     } catch (error) {
       throw new Error(
         `The TYPO3 release API returned invalid JSON from ${response.url}.`,
-        { cause: error }
+        {
+          cause: error
+        }
       )
     }
 
@@ -492,7 +503,10 @@ module.exports = class extends Generator {
 
   async _ensureTypo3Source (sourcePath) {
     if (await fs.pathExists(sourcePath)) {
-      this.log(`Using existing TYPO3 source: ${sourcePath}`)
+      this.log(
+        `Using existing TYPO3 source: ${sourcePath}`
+      )
+
       return
     }
 
@@ -531,16 +545,36 @@ module.exports = class extends Generator {
 
     if (!await fs.pathExists(sourcePath)) {
       throw new Error(
-        `TYPO3 archive was extracted, but the expected directory ` +
+        'TYPO3 archive was extracted, but the expected directory ' +
         `was not found: ${sourcePath}`
       )
     }
   }
 
   async _downloadFile (url, destination) {
-    const response = await fetch(url, {
-      redirect: 'follow'
-    })
+    let response
+
+    try {
+      response = await fetch(url, {
+        headers: {
+          accept: 'application/gzip, application/octet-stream',
+          'user-agent': 'generator-razor'
+        },
+        redirect: 'follow',
+        signal: AbortSignal.timeout(120000)
+      })
+    } catch (error) {
+      const cause = error.cause
+        ? ` ${error.cause.code ?? ''}: ${error.cause.message ?? error.cause}`
+        : ''
+
+      throw new Error(
+        `Could not connect to ${url}.${cause}`,
+        {
+          cause: error
+        }
+      )
+    }
 
     if (!response.ok) {
       throw new Error(
@@ -555,12 +589,22 @@ module.exports = class extends Generator {
       )
     }
 
-    await fs.ensureDir(path.dirname(destination))
+    await fs.ensureDir(
+      path.dirname(destination)
+    )
 
-    const fileStream = fs.createWriteStream(destination)
-    const responseStream = Readable.fromWeb(response.body)
+    const fileStream = fs.createWriteStream(
+      destination
+    )
 
-    await pipeline(responseStream, fileStream)
+    const responseStream = Readable.fromWeb(
+      response.body
+    )
+
+    await pipeline(
+      responseStream,
+      fileStream
+    )
   }
 
   async _createSymlinks (sourcePath) {
@@ -581,12 +625,13 @@ module.exports = class extends Generator {
     for (const link of links) {
       if (!await fs.pathExists(link.source)) {
         throw new Error(
-          `Cannot create symlink because the source does not exist: ` +
+          'Cannot create symlink because the source does not exist: ' +
           link.source
         )
       }
 
       await fs.remove(link.destination)
+
       await fs.ensureSymlink(
         link.source,
         link.destination,
@@ -600,7 +645,10 @@ module.exports = class extends Generator {
       'typo3conf/system/settings.php'
     )
 
-    let content = await fs.readFile(settingsPath, 'utf8')
+    let content = await fs.readFile(
+      settingsPath,
+      'utf8'
+    )
 
     content = this._substituteMarker(
       content,
@@ -630,7 +678,9 @@ module.exports = class extends Generator {
       encryptionKey
     )
 
-    const passwordHash = await argon2.hash(this.props.Pass)
+    const passwordHash = await argon2.hash(
+      this.props.Pass
+    )
 
     content = this._substituteMarker(
       content,
@@ -638,7 +688,11 @@ module.exports = class extends Generator {
       passwordHash
     )
 
-    await fs.writeFile(settingsPath, content, 'utf8')
+    await fs.writeFile(
+      settingsPath,
+      content,
+      'utf8'
+    )
   }
 
   async _writeLocalSettings () {
@@ -651,7 +705,10 @@ module.exports = class extends Generator {
       return
     }
 
-    let content = await fs.readFile(localSettingsPath, 'utf8')
+    let content = await fs.readFile(
+      localSettingsPath,
+      'utf8'
+    )
 
     let encryptionMarker = '###SMTP_ENCRYPT###'
 
@@ -680,7 +737,11 @@ module.exports = class extends Generator {
       )
     }
 
-    await fs.writeFile(localSettingsPath, content, 'utf8')
+    await fs.writeFile(
+      localSettingsPath,
+      content,
+      'utf8'
+    )
   }
 
   async _chmodWritableDirectories () {
@@ -702,11 +763,17 @@ module.exports = class extends Generator {
       return
     }
 
-    await fs.chmod(directory, 0o2775)
+    await fs.chmod(
+      directory,
+      0o2775
+    )
 
-    const entries = await fs.readdir(directory, {
-      withFileTypes: true
-    })
+    const entries = await fs.readdir(
+      directory,
+      {
+        withFileTypes: true
+      }
+    )
 
     for (const entry of entries) {
       if (entry.isDirectory()) {
@@ -737,9 +804,17 @@ module.exports = class extends Generator {
     )
 
     try {
-      const escapedDatabase = connection.escapeId(databaseName)
-      const escapedUsername = connection.escape(databaseName)
-      const escapedPassword = connection.escape(databaseName)
+      const escapedDatabase = connection.escapeId(
+        databaseName
+      )
+
+      const escapedUsername = connection.escape(
+        databaseName
+      )
+
+      const escapedPassword = connection.escape(
+        databaseName
+      )
 
       await connection.query(
         `CREATE DATABASE ${escapedDatabase} ` +
@@ -757,10 +832,18 @@ module.exports = class extends Generator {
         `TO ${escapedUsername}@'%'`
       )
 
-      await connection.query(`USE ${escapedDatabase}`)
+      await connection.query(
+        `USE ${escapedDatabase}`
+      )
 
-      const sqlPath = this.destinationPath('db.sql')
-      let sql = await fs.readFile(sqlPath, 'utf8')
+      const sqlPath = this.destinationPath(
+        'db.sql'
+      )
+
+      let sql = await fs.readFile(
+        sqlPath,
+        'utf8'
+      )
 
       sql = this._substituteMarker(
         sql,
@@ -768,7 +851,9 @@ module.exports = class extends Generator {
         this.props.User
       )
 
-      const passwordHash = await argon2.hash(this.props.Pass)
+      const passwordHash = await argon2.hash(
+        this.props.Pass
+      )
 
       sql = this._substituteMarker(
         sql,
@@ -777,6 +862,7 @@ module.exports = class extends Generator {
       )
 
       await connection.query(sql)
+
       await fs.remove(sqlPath)
     } finally {
       await connection.end()
@@ -784,7 +870,9 @@ module.exports = class extends Generator {
   }
 
   _substituteMarker (content, marker, replacement) {
-    return String(content).split(marker).join(String(replacement))
+    return String(content)
+      .split(marker)
+      .join(String(replacement))
   }
 
   async _setRazorConfig () {
@@ -855,18 +943,33 @@ module.exports = class extends Generator {
 
   async _runCommand (command, argumentsList) {
     await new Promise((resolve, reject) => {
-      const child = spawn(command, argumentsList, {
-        cwd: this.destinationRoot(),
-        env: process.env,
-        stdio: 'inherit'
-      })
+      const child = spawn(
+        command,
+        argumentsList,
+        {
+          cwd: this.destinationRoot(),
+          env: process.env,
+          stdio: 'inherit'
+        }
+      )
+
+      let settled = false
 
       child.once('error', error => {
+        if (settled) {
+          return
+        }
+
+        settled = true
+
         if (error.code === 'ENOENT') {
           reject(
             new Error(
               `Could not execute "${command}". ` +
-              'Make sure it is installed and available in PATH.'
+              'Make sure it is installed and available in PATH.',
+              {
+                cause: error
+              }
             )
           )
 
@@ -877,6 +980,12 @@ module.exports = class extends Generator {
       })
 
       child.once('close', code => {
+        if (settled) {
+          return
+        }
+
+        settled = true
+
         if (code === 0) {
           resolve()
           return

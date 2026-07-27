@@ -13,8 +13,9 @@
     "email": "rafu1987@gmail.com",
     "url": "https://github.com/rafu1987"
   },
+  "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "test:syntax": "node --check app/index.js"
@@ -28,13 +29,11 @@
     "razor"
   ],
   "dependencies": {
-    "argon2": "^0.44.0",
-    "chalk": "^4.1.2",
-    "fs-extra": "^11.3.6",
+    "argon2": "^0.45.1",
+    "chalk": "^6.0.0",
+    "fs-extra": "^11.4.0",
     "mysql2": "^3.23.1",
-    "tar": "^7.5.16",
-    "yeoman-generator": "^4.13.0",
-    "yosay": "^2.0.2"
-  },
-  "devDependencies": {}
+    "tar": "^7.5.22",
+    "yeoman-generator": "^8.2.2"
+  }
 }
