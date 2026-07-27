@@ -11,6 +11,7 @@ const argon2 = require('argon2')
 const copydir = require('copy-dir')
 const crypto = require('crypto')
 const remote = require('yeoman-remote')
+const path = require('path')
 
 let rzr
 
@@ -296,27 +297,22 @@ module.exports = class extends Generator {
     }
 
     this._createSymlinks(this, path, () => {
-      copydir(t.templatePath(version), t.destinationPath('./'), () => {
+      const destination = t.destinationPath('./')
+
+      copydir(t.templatePath(version), destination, () => {
         t._localconf(t)
         t._localSettings(t)
 
         const writableDirectories = [
           'fileadmin',
-          'fileadmin/user_upload',
-          'fileadmin/_processed_',
-          'fileadmin/_recycler_',
-          'fileadmin/_temp_',
           'typo3temp',
-          'typo3conf',
-          'typo3conf/ext'
+          'typo3conf'
         ]
 
         writableDirectories.forEach((directory) => {
-          const directoryPath = path.join(destination, directory)
-
-          if (fs.existsSync(directoryPath)) {
-            fs.chmodSync(directoryPath, 0o2775)
-          }
+          t.chmodDirectoriesRecursive(
+            path.join(destination, directory)
+          )
         })
 
         t._createDb((response) => {
@@ -325,6 +321,22 @@ module.exports = class extends Generator {
           })
         })
       })
+    })
+  }
+
+  chmodDirectoriesRecursive (directory) {
+    if (!fs.existsSync(directory)) {
+      return
+    }
+
+    fs.chmodSync(directory, 0o2775)
+
+    fs.readdirSync(directory, { withFileTypes: true }).forEach((entry) => {
+      if (entry.isDirectory()) {
+        this.chmodDirectoriesRecursive(
+          path.join(directory, entry.name)
+        )
+      }
     })
   }
 

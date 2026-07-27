@@ -1,10 +1,13 @@
 {
   "name": "generator-razor",
-  "version": "13.4.12",
+  "version": "13.4.13",
   "description": "Yeoman generator for razor TYPO3 distribution",
   "license": "MIT",
   "main": "app/index.js",
-  "repository": "rafu1987/generator-razor",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rafu1987/generator-razor.git"
+  },
   "author": {
     "name": "Raphael Zschorsch",
     "email": "rafu1987@gmail.com",
