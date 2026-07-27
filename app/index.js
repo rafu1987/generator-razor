@@ -297,13 +297,27 @@ module.exports = class extends Generator {
 
     this._createSymlinks(this, path, () => {
       copydir(t.templatePath(version), t.destinationPath('./'), () => {
-        if (version === '124' || version === '134') {
-          t._localconf12(t)
-          t._local12Settings(t)
-        } else {
-          t._localconf(t)
-          t._localSettings(t)
-        }
+        t._localconf(t)
+        t._localSettings(t)
+
+        const writableDirectories = [
+          'fileadmin',
+          'fileadmin/user_upload',
+          'fileadmin/_processed_',
+          'fileadmin/_recycler_',
+          'fileadmin/_temp_',
+          'typo3temp',
+          'typo3conf',
+          'typo3conf/ext'
+        ]
+
+        writableDirectories.forEach((directory) => {
+          const directoryPath = path.join(destination, directory)
+
+          if (fs.existsSync(directoryPath)) {
+            fs.chmodSync(directoryPath, 0o2775)
+          }
+        })
 
         t._createDb((response) => {
           t._processSqlFile(t, response, () => {
@@ -402,7 +416,7 @@ module.exports = class extends Generator {
   }
 
   _localconf (t) {
-    fs.readFile('typo3conf/LocalConfiguration.php', 'utf8', (err, content) => {
+    fs.readFile('typo3conf/system/settings.php', 'utf8', (err, content) => {
       let newContent = t._substituteMarker(content, '###DBNEW###', rzr.DbNew.toLowerCase(), true)
       newContent = t._substituteMarker(newContent, '###HOST###', rzr.DbHostname, true)
       newContent = t._substituteMarker(newContent, '###PROJECTNAME###', rzr.ProjectName, true)
@@ -418,69 +432,16 @@ module.exports = class extends Generator {
       })
 
       if (err) {
-        console.error('error setting LocalConfiguration.php')
-      }
-    })
-  }
-
-  _localconf12 (t) {
-    fs.readFile('typo3conf/system/settings.php', 'utf8', (err, content) => {
-      let newContent = t._substituteMarker(content, '###DBNEW###', rzr.DbNew.toLowerCase(), true)
-      newContent = t._substituteMarker(newContent, '###HOST###', rzr.DbHostname, true)
-      newContent = t._substituteMarker(newContent, '###PROJECTNAME###', rzr.ProjectName, true)
-
-      const encryptionKey = crypto.randomBytes((96 + 1) / 2).toString('hex')
-      newContent = t._substituteMarker(newContent, '###ENCRYPTION_KEY###', encryptionKey, true)
-
-      const hash = argon2.hash(rzr.Pass)
-      hash.then(function (res) {
-        newContent = t._substituteMarker(newContent, '###PASS###', res, true)
-
-        t._localconfWrite12(newContent)
-      })
-
-      if (err) {
         console.error('error setting settings.php')
       }
     })
   }
 
   _localconfWrite (content) {
-    fs.writeFile('typo3conf/LocalConfiguration.php', content, 'utf8', () => {})
-  }
-
-  _localconfWrite12 (content) {
     fs.writeFile('typo3conf/system/settings.php', content, 'utf8', () => {})
   }
 
   _localSettings (t) {
-    if (rzr.Transport === 'smtp') {
-      let encryptVariable = '###SMTP_ENCRYPT###'
-      if (rzr.Encrypt === true || rzr.Encrypt === false) {
-        encryptVariable = "'###SMTP_ENCRYPT###'"
-      }
-
-      fs.readFile('typo3conf/Local.php', 'utf8', (err, content) => {
-        let newContent = t._substituteMarker(content, '###TRANSPORT###', rzr.Transport, true)
-        newContent = t._substituteMarker(newContent, encryptVariable, rzr.Encrypt, true)
-        newContent = t._substituteMarker(newContent, '###SMTP_PASS###', rzr.SmtpPass, true)
-        newContent = t._substituteMarker(newContent, '###SMTP_SERVER###', rzr.SmtpServer, true)
-        newContent = t._substituteMarker(newContent, '###SMTP_USER###', rzr.SmtpUser, true)
-        newContent = t._substituteMarker(newContent, '###SMTP_EMAIL###', rzr.SmtpEmail, true)
-        newContent = t._substituteMarker(newContent, '###SMTP_NAME###', rzr.SmtpName, true)
-
-        fs.writeFile('typo3conf/Local.php', newContent, 'utf8', () => {})
-
-        if (err) {
-          console.error('error setting local settings')
-        }
-      })
-    } else {
-      fs.unlink('typo3conf/Local.php', () => {})
-    }
-  }
-
-  _local12Settings (t) {
     if (rzr.Transport === 'smtp') {
       let encryptVariable = '###SMTP_ENCRYPT###'
       if (rzr.Encrypt === true || rzr.Encrypt === false) {
