@@ -286,7 +286,7 @@ module.exports = class extends Generator {
   writing () {
     const t = this
     rzr = this.props
-    const path = rzr.SrcPath + '/typo3_src-' + rzr.Version
+    const srcPath = rzr.SrcPath + '/typo3_src-' + rzr.Version
 
     // Version
     let version = '124'
@@ -296,7 +296,7 @@ module.exports = class extends Generator {
       version = '143'
     }
 
-    this._createSymlinks(this, path, () => {
+    this._createSymlinks(this, srcPath, () => {
       const destination = t.destinationPath('./')
 
       copydir(t.templatePath(version), destination, () => {
