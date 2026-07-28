@@ -21,8 +21,8 @@ export default class extends Generator {
   }
 
   async prompting () {
-    const orange = chalk.hex('#ff8700').bold
-    const petrol = chalk.hex('#006792')
+    const orange = chalk.ansi256(208)
+    const petrol = chalk.ansi256(24)
 
     this.log(orange(`
     ██████╗  █████╗ ███████╗ ██████╗ ██████╗
@@ -399,9 +399,10 @@ export default class extends Generator {
     }
 
     await this._fixProjectGroup()
+    await this._fixWritableDirectoryPermissions()
 
-    const orange = chalk.hex('#ff8700').bold
-    const petrol = chalk.hex('#006792')
+    const orange = chalk.ansi256(208)
+    const petrol = chalk.ansi256(24)
 
     this.log(orange(`
     ██████╗  ██████╗ ███╗   ██╗███████╗
@@ -451,6 +452,40 @@ export default class extends Generator {
     }
 
     await processPath(destination)
+  }
+
+  async _fixWritableDirectoryPermissions() {
+    const writableDirectories = [
+      'fileadmin',
+      'typo3temp',
+      'typo3conf'
+    ]
+
+    for (const directory of writableDirectories) {
+      await this._chmodDirectoriesRecursive(
+        this.destinationPath(directory)
+      )
+    }
+  }
+
+  async _chmodDirectoriesRecursive(directory) {
+    if (!await fs.pathExists(directory)) {
+      return
+    }
+
+    await fs.chmod(directory, 0o2775)
+
+    const entries = await fs.readdir(directory, {
+      withFileTypes: true
+    })
+
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        await this._chmodDirectoriesRecursive(
+          path.join(directory, entry.name)
+        )
+      }
+    }
   }
 
   async _getTypo3Releases () {
@@ -748,12 +783,11 @@ export default class extends Generator {
       encryptionKey
     )
 
-    const passwordHash = await argon2.hash(
-      this.props.Pass,
-      {
-        type: argon2.argon2i
-      }
-    )
+    const passwordHash = await argon2.hash(this.props.Pass, {
+      type: this._getTemplateVersion() === '143'
+        ? argon2.argon2id
+        : argon2.argon2i
+    })
 
     content = this._substituteMarker(
       content,
@@ -887,12 +921,11 @@ export default class extends Generator {
         this.props.User
       )
 
-      const passwordHash = await argon2.hash(
-        this.props.Pass,
-        {
-          type: argon2.argon2i
-        }
-      )
+      const passwordHash = await argon2.hash(this.props.Pass, {
+        type: this._getTemplateVersion() === '143'
+          ? argon2.argon2id
+          : argon2.argon2i
+      })
 
       sql = this._substituteMarker(
         sql,
