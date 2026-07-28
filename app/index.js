@@ -68,7 +68,7 @@ export default class extends Generator {
       default: 'root',
       store: true
     }, {
-      type: 'password',
+      type: 'input',
       name: 'DbPassword',
       message: 'Database password?',
       default: 'root',
@@ -125,7 +125,7 @@ export default class extends Generator {
       default: 'admin',
       store: true
     }, {
-      type: 'password',
+      type: 'input',
       name: 'Pass',
       message: 'TYPO3 install tool & admin user password?',
       default: 'joh316'
@@ -183,7 +183,7 @@ export default class extends Generator {
       store: true
     }, {
       when: answers => answers.Transport === 'smtp',
-      type: 'password',
+      type: 'input',
       name: 'SmtpPass',
       message: 'SMTP password?',
       default: '',
@@ -797,10 +797,13 @@ export default class extends Generator {
 
     const connectionOptions = {
       host: this.props.DbHostname,
-      port: Number(this.props.DbPort),
       user: this.props.DbUsername,
       password: this.props.DbPassword,
       multipleStatements: true
+    }
+
+    if (this.props.DbPort) {
+      connectionOptions.port = Number(this.props.DbPort)
     }
 
     if (this.props.DbSocket) {
