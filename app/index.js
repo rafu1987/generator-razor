@@ -1010,6 +1010,19 @@ export default class extends Generator {
     return `${packageName}@https://github.com/${owner}/${repository}/archive/refs/tags/${release.tag_name}.tar.gz`
   }
 
+  async _setFileGroup (filePath, group) {
+    if (!await fs.pathExists(filePath)) {
+      throw new Error(
+        `Cannot change group because the file does not exist: ${filePath}`
+      )
+    }
+
+    await this._runCommand('chgrp', [
+      group,
+      filePath
+    ])
+  }
+
   async _runCommand (command, argumentsList) {
     await new Promise((resolve, reject) => {
       const child = spawn(
