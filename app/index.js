@@ -702,7 +702,10 @@ export default class extends Generator {
     )
 
     const passwordHash = await argon2.hash(
-      this.props.Pass
+      this.props.Pass,
+      {
+        type: argon2.argon2i
+      }
     )
 
     content = this._substituteMarker(
@@ -878,7 +881,10 @@ export default class extends Generator {
       )
 
       const passwordHash = await argon2.hash(
-        this.props.Pass
+        this.props.Pass,
+        {
+          type: argon2.argon2i
+        }
       )
 
       sql = this._substituteMarker(
