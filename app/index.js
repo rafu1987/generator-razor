@@ -22,6 +22,7 @@ export default class extends Generator {
 
   async prompting () {
     const orange = chalk.hex('#ff8700').bold
+    const petrol = chalk.hex('#006792')
 
     this.log(orange(`
     ██████╗  █████╗ ███████╗ ██████╗ ██████╗
@@ -32,7 +33,14 @@ export default class extends Generator {
     ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝
     `))
 
-    this.log(chalk.bold('TYPO3 Generator'))
+    this.log(petrol(`
+      ________  ______  ____ _____                                     __            
+     /_  __/\\ \\/ / __ \\/ __ \\__  /   ____ ____  ____  ___  _________ _/ /_____  _____
+      / /    \\  / /_/ / / / //_ <   / __ \`/ _ \\/ __ \\/ _ \\/ ___/ __ \`/ __/ __ \\/ ___/
+     / /     / / ____/ /_/ /__/ /  / /_/ /  __/ / / /  __/ /  / /_/ / /_/ /_/ / /    
+    /_/     /_/_/    \\____/____/   \\__, /\\___/_/ /_/\\___/_/   \\__,_/\\__/\\____/_/     
+                                  /____/                                             
+    `))
 
     const releases = await this._getTypo3Releases()
 
