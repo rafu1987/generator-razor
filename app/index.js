@@ -382,9 +382,14 @@ export default class extends Generator {
       )
 
       if (await fs.pathExists(extensionsSource)) {
-        await this._copyWithInheritedGroup(
+        await fs.copy(
           extensionsSource,
-          this.destinationPath('typo3conf/ext')
+          this.destinationPath('typo3conf/ext'),
+          {
+            overwrite: true,
+            errorOnExist: false,
+            dereference: false
+          }
         )
       }
     }
@@ -412,7 +417,7 @@ export default class extends Generator {
     if (sourceStats.isDirectory()) {
       await fs.ensureDir(destination)
 
-      // Set setgid before creating anything inside this directory.
+      // Files created afterwards inherit this directory's group.
       await fs.chmod(destination, 0o2775)
 
       const entries = await fs.readdir(
@@ -432,22 +437,31 @@ export default class extends Generator {
       return
     }
 
+    await fs.ensureDir(path.dirname(destination))
+
     if (sourceStats.isSymbolicLink()) {
       const linkTarget = await fs.readlink(source)
 
       await fs.remove(destination)
-      await fs.ensureSymlink(linkTarget, destination)
+
+      // Preserve the relative link exactly as it exists in the template.
+      await fs.symlink(
+        linkTarget,
+        destination
+      )
 
       return
     }
 
-    await fs.ensureDir(path.dirname(destination))
+    // copyFile() would otherwise overwrite an existing inode and retain
+    // its previous group. Removing it first forces group inheritance.
+    await fs.remove(destination)
 
-    // The parent directory already has setgid, so a newly created file
-    // inherits its group.
-    await fs.copyFile(source, destination)
+    await fs.copyFile(
+      source,
+      destination
+    )
 
-    // Preserve the original file permissions without changing ownership.
     await fs.chmod(
       destination,
       sourceStats.mode & 0o777
