@@ -109,8 +109,8 @@ return [
             'unifiedPageTranslationHandling' => true,
             'yamlImportsFollowDeclarationOrder' => true,
         ],
-        'fileCreateMask' => 0664,
-        'folderCreateMask' => 2775,
+        'fileCreateMask' => '0664',
+        'folderCreateMask' => '2775',
         'sitename' => '###PROJECTNAME###',
         'systemMaintainers' => [
             1,
