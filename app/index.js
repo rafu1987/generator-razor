@@ -308,6 +308,17 @@ export default class extends Generator {
     }]
 
     this.props = await this.prompt(prompts)
+
+    const promptValues = Object.fromEntries(
+      prompts
+        .filter(({ store }) => store)
+        .filter(({ name }) => this.props[name] !== undefined)
+        .map(({ name }) => [name, this.props[name]])
+    )
+
+    this._globalConfig.set('promptValues', promptValues)
+
+    await this.fs.commit()
   }
 
   async writing () {
