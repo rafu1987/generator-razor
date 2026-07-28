@@ -83,7 +83,6 @@ export default class extends Generator {
       type: 'input',
       name: 'DbPort',
       message: 'Database port?',
-      default: 3306,
       store: true,
       validate: value => {
         const port = Number(value)
@@ -350,7 +349,15 @@ export default class extends Generator {
 
   async install () {
     const branch = this._getRazorBranch()
-    const packageName = `ssh://git@github.com/rafu1987/razor.git#${branch}`
+
+    const razorPackage =
+      `ssh://git@github.com/rafu1987/razor.git#${branch}`
+
+    const picturePackage = await this._getLatestGithubReleasePackage(
+      'b13',
+      'picture',
+      'picture'
+    )
 
     await this._runCommand('yarn', [
       'add',
@@ -358,7 +365,8 @@ export default class extends Generator {
       '--no-lockfile',
       '--modules-folder',
       'typo3conf/ext/',
-      packageName
+      razorPackage,
+      picturePackage
     ])
   }
 
@@ -387,6 +395,25 @@ export default class extends Generator {
         )
       }
     }
+
+    const orange = chalk.hex('#ff8700').bold
+        const petrol = chalk.hex('#006792')
+
+        this.log(orange(`
+        ██████╗  ██████╗ ███╗   ██╗███████╗
+        ██╔══██╗██╔═══██╗████╗  ██║██╔════╝
+        ██║  ██║██║   ██║██╔██╗ ██║█████╗
+        ██║  ██║██║   ██║██║╚██╗██║██╔══╝
+        ██████╔╝╚██████╔╝██║ ╚████║███████╗
+        ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚══════╝
+        `))
+
+        this.log(petrol(
+          `    ${this.props.ProjectName} was generated successfully.\n`
+        ))
+      }
+
+      async
   }
 
   async _getTypo3Releases () {
@@ -950,6 +977,46 @@ export default class extends Generator {
         spaces: 2
       }
     )
+  }
+
+  async _getLatestGithubReleasePackage (owner, repository, packageName) {
+    const url =
+      `https://api.github.com/repos/${owner}/${repository}/releases/latest`
+
+    let response
+
+    try {
+      response = await fetch(url, {
+        headers: {
+          accept: 'application/vnd.github+json',
+          'user-agent': 'generator-razor'
+        },
+        redirect: 'follow',
+        signal: AbortSignal.timeout(30000)
+      })
+    } catch (error) {
+      throw new Error(
+        `Could not retrieve the latest release of ${owner}/${repository}.`,
+        { cause: error }
+      )
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        `Could not retrieve the latest release of ${owner}/${repository}: ` +
+        `${response.status} ${response.statusText}`
+      )
+    }
+
+    const release = await response.json()
+
+    if (!release.tag_name) {
+      throw new Error(
+        `${owner}/${repository} has no published release.`
+      )
+    }
+
+    return `${packageName}@https://github.com/${owner}/${repository}/archive/refs/tags/${release.tag_name}.tar.gz`
   }
 
   async _runCommand (command, argumentsList) {
