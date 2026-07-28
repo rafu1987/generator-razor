@@ -333,9 +333,13 @@ export default class extends Generator {
     await this._ensureTypo3Source(sourcePath)
     await this._createSymlinks(sourcePath)
 
-    await this._copyWithInheritedGroup(
+    await fs.copy(
       this.templatePath(templateVersion),
-      this.destinationPath()
+      this.destinationPath(),
+      {
+        overwrite: true,
+        errorOnExist: false
+      }
     )
 
     await this._writeSystemSettings()
@@ -394,6 +398,8 @@ export default class extends Generator {
       }
     }
 
+    await this._fixProjectGroup()
+
     const orange = chalk.hex('#ff8700').bold
     const petrol = chalk.hex('#006792')
 
@@ -411,61 +417,40 @@ export default class extends Generator {
     ))
   }
 
-  async _copyWithInheritedGroup (source, destination) {
-    const sourceStats = await fs.lstat(source)
+  async _fixProjectGroup () {
+    const destination = this.destinationPath()
+    const destinationStats = await fs.stat(destination)
+    const targetGid = destinationStats.gid
 
-    if (sourceStats.isDirectory()) {
-      await fs.ensureDir(destination)
+    const processPath = async filePath => {
+      const stats = await fs.lstat(filePath)
 
-      // Files created afterwards inherit this directory's group.
-      await fs.chmod(destination, 0o2775)
-
-      const entries = await fs.readdir(
-        source,
-        {
-          withFileTypes: true
-        }
-      )
-
-      for (const entry of entries) {
-        await this._copyWithInheritedGroup(
-          path.join(source, entry.name),
-          path.join(destination, entry.name)
-        )
+      if (stats.isSymbolicLink()) {
+        await fs.lchown(filePath, stats.uid, targetGid)
+        return
       }
 
-      return
-    }
+      await fs.chown(filePath, stats.uid, targetGid)
 
-    await fs.ensureDir(path.dirname(destination))
+      if (!stats.isDirectory()) {
+        return
+      }
 
-    if (sourceStats.isSymbolicLink()) {
-      const linkTarget = await fs.readlink(source)
-
-      await fs.remove(destination)
-
-      // Preserve the relative link exactly as it exists in the template.
-      await fs.symlink(
-        linkTarget,
-        destination
+      await fs.chmod(
+        filePath,
+        stats.mode | 0o2070
       )
 
-      return
+      const entries = await fs.readdir(filePath)
+
+      for (const entry of entries) {
+        await processPath(
+          path.join(filePath, entry)
+        )
+      }
     }
 
-    // copyFile() would otherwise overwrite an existing inode and retain
-    // its previous group. Removing it first forces group inheritance.
-    await fs.remove(destination)
-
-    await fs.copyFile(
-      source,
-      destination
-    )
-
-    await fs.chmod(
-      destination,
-      sourceStats.mode & 0o777
-    )
+    await processPath(destination)
   }
 
   async _getTypo3Releases () {
