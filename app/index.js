@@ -307,44 +307,7 @@ export default class extends Generator {
       store: true
     }]
 
-    const storedPromptNames = prompts
-      .filter(prompt => prompt.store === true)
-      .map(prompt => prompt.name)
-
-    for (const prompt of prompts) {
-      if (
-        prompt.store === true &&
-        this.config.get(prompt.name) !== undefined
-      ) {
-        prompt.default = this.config.get(prompt.name)
-      }
-    }
-
     this.props = await this.prompt(prompts)
-
-    for (const name of storedPromptNames) {
-      this.config.set(name, this.props[name])
-    }
-
-    await this.config.save()
-
-    if (
-      typeof this.props.Pass !== 'string' ||
-      this.props.Pass.length === 0
-    ) {
-      throw new Error('TYPO3 password is empty.')
-    }
-
-    this.passwordHash = await argon2.hash(
-      this.props.Pass,
-      {
-        type: argon2.argon2id
-      }
-    )
-
-    if (!await argon2.verify(this.passwordHash, this.props.Pass)) {
-      throw new Error('Generated TYPO3 password hash is invalid.')
-    }
   }
 
   async writing () {
@@ -738,10 +701,17 @@ export default class extends Generator {
       encryptionKey
     )
 
+    const passwordHash = await argon2.hash(
+      this.props.Pass,
+      {
+        type: argon2.argon2i
+      }
+    )
+
     content = this._substituteMarker(
       content,
       '###PASS###',
-      this.passwordHash
+      passwordHash
     )
 
     await fs.writeFile(
@@ -910,10 +880,17 @@ export default class extends Generator {
         this.props.User
       )
 
+      const passwordHash = await argon2.hash(
+        this.props.Pass,
+        {
+          type: argon2.argon2i
+        }
+      )
+
       sql = this._substituteMarker(
         sql,
         '###PASS###',
-        this.passwordHash
+        passwordHash
       )
 
       await connection.query(sql)

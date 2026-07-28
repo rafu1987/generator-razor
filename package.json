@@ -1,6 +1,6 @@
 {
   "name": "generator-razor",
-  "version": "14.0.9",
+  "version": "14.0.10",
   "description": "Yeoman generator for razor TYPO3 distribution",
   "license": "MIT",
   "main": "app/index.js",
@@ -29,7 +29,7 @@
     "razor"
   ],
   "dependencies": {
-    "argon2": "^0.45.1",
+    "argon2": "^0.44.0",
     "chalk": "^6.0.0",
     "fs-extra": "^11.4.0",
     "mysql2": "^3.23.1",
