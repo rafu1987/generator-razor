@@ -83,16 +83,7 @@ export default class extends Generator {
       type: 'input',
       name: 'DbPort',
       message: 'Database port?',
-      store: true,
-      validate: value => {
-        const port = Number(value)
-
-        if (Number.isInteger(port) && port >= 1 && port <= 65535) {
-          return true
-        }
-
-        return 'Enter a valid TCP port.'
-      }
+      store: true
     }, {
       type: 'select',
       name: 'DbSocket',
@@ -640,28 +631,26 @@ export default class extends Generator {
   }
 
   async _createSymlinks (sourcePath) {
+    const typo3SrcLink = this.destinationPath('typo3_src')
+
     const links = [{
-      source: sourcePath,
-      destination: this.destinationPath('typo3_src'),
+      source: path.relative(
+        this.destinationRoot(),
+        sourcePath
+      ),
+      destination: typo3SrcLink,
       type: 'dir'
     }, {
-      source: path.join(sourcePath, 'typo3'),
+      source: 'typo3_src/typo3',
       destination: this.destinationPath('typo3'),
       type: 'dir'
     }, {
-      source: path.join(sourcePath, 'index.php'),
+      source: 'typo3_src/index.php',
       destination: this.destinationPath('index.php'),
       type: 'file'
     }]
 
     for (const link of links) {
-      if (!await fs.pathExists(link.source)) {
-        throw new Error(
-          'Cannot create symlink because the source does not exist: ' +
-          link.source
-        )
-      }
-
       await fs.remove(link.destination)
 
       await fs.ensureSymlink(
