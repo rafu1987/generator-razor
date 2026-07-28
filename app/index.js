@@ -333,18 +333,13 @@ export default class extends Generator {
     await this._ensureTypo3Source(sourcePath)
     await this._createSymlinks(sourcePath)
 
-    await fs.copy(
+    await this._copyWithInheritedGroup(
       this.templatePath(templateVersion),
-      this.destinationPath(),
-      {
-        overwrite: true,
-        errorOnExist: false
-      }
+      this.destinationPath()
     )
 
     await this._writeSystemSettings()
     await this._writeLocalSettings()
-    await this._chmodWritableDirectories()
     await this._createDatabaseAndImportSql()
     await this._setRazorConfig()
   }
@@ -387,18 +382,12 @@ export default class extends Generator {
       )
 
       if (await fs.pathExists(extensionsSource)) {
-        await fs.copy(
+        await this._copyWithInheritedGroup(
           extensionsSource,
-          this.destinationPath('typo3conf/ext'),
-          {
-            overwrite: true,
-            errorOnExist: false
-          }
+          this.destinationPath('typo3conf/ext')
         )
       }
     }
-
-    await this._fixPackageStatesPermissions()
 
     const orange = chalk.hex('#ff8700').bold
     const petrol = chalk.hex('#006792')
@@ -415,6 +404,54 @@ export default class extends Generator {
     this.log(petrol(
       `    ${this.props.ProjectName} was generated successfully.\n`
     ))
+  }
+
+  async _copyWithInheritedGroup (source, destination) {
+    const sourceStats = await fs.lstat(source)
+
+    if (sourceStats.isDirectory()) {
+      await fs.ensureDir(destination)
+
+      // Set setgid before creating anything inside this directory.
+      await fs.chmod(destination, 0o2775)
+
+      const entries = await fs.readdir(
+        source,
+        {
+          withFileTypes: true
+        }
+      )
+
+      for (const entry of entries) {
+        await this._copyWithInheritedGroup(
+          path.join(source, entry.name),
+          path.join(destination, entry.name)
+        )
+      }
+
+      return
+    }
+
+    if (sourceStats.isSymbolicLink()) {
+      const linkTarget = await fs.readlink(source)
+
+      await fs.remove(destination)
+      await fs.ensureSymlink(linkTarget, destination)
+
+      return
+    }
+
+    await fs.ensureDir(path.dirname(destination))
+
+    // The parent directory already has setgid, so a newly created file
+    // inherits its group.
+    await fs.copyFile(source, destination)
+
+    // Preserve the original file permissions without changing ownership.
+    await fs.chmod(
+      destination,
+      sourceStats.mode & 0o777
+    )
   }
 
   async _getTypo3Releases () {
@@ -781,46 +818,6 @@ export default class extends Generator {
     )
   }
 
-  async _chmodWritableDirectories () {
-    const writableDirectories = [
-      'fileadmin',
-      'typo3temp',
-      'typo3conf'
-    ]
-
-    for (const directory of writableDirectories) {
-      await this._chmodDirectoriesRecursive(
-        this.destinationPath(directory)
-      )
-    }
-  }
-
-  async _chmodDirectoriesRecursive (directory) {
-    if (!await fs.pathExists(directory)) {
-      return
-    }
-
-    await fs.chmod(
-      directory,
-      0o2775
-    )
-
-    const entries = await fs.readdir(
-      directory,
-      {
-        withFileTypes: true
-      }
-    )
-
-    for (const entry of entries) {
-      if (entry.isDirectory()) {
-        await this._chmodDirectoriesRecursive(
-          path.join(directory, entry.name)
-        )
-      }
-    }
-  }
-
   async _createDatabaseAndImportSql () {
     const databaseName = this.props.DbNew.toLowerCase()
 
@@ -1022,21 +1019,6 @@ export default class extends Generator {
     }
 
     return `${packageName}@https://github.com/${owner}/${repository}/archive/refs/tags/${release.tag_name}.tar.gz`
-  }
-
-  async _fixPackageStatesPermissions () {
-    const file = this.destinationPath(
-      'typo3conf/PackageStates.php'
-    )
-
-    if (!await fs.pathExists(file)) {
-      return
-    }
-
-    await this._runCommand('chgrp', [
-      'developers',
-      file
-    ])
   }
 
   async _runCommand (command, argumentsList) {
