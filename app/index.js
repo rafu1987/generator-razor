@@ -387,6 +387,11 @@ export default class extends Generator {
       }
     }
 
+    await this._setFileGroup(
+      this.destinationPath('typo3conf/PackageStates.php'),
+      'developers'
+    )
+
     const orange = chalk.hex('#ff8700').bold
     const petrol = chalk.hex('#006792')
 
