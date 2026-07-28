@@ -387,10 +387,7 @@ export default class extends Generator {
       }
     }
 
-    await this._setFileGroup(
-      this.destinationPath('typo3conf/PackageStates.php'),
-      'developers'
-    )
+    await this._fixPackageStatesPermissions()
 
     const orange = chalk.hex('#ff8700').bold
     const petrol = chalk.hex('#006792')
@@ -1010,16 +1007,18 @@ export default class extends Generator {
     return `${packageName}@https://github.com/${owner}/${repository}/archive/refs/tags/${release.tag_name}.tar.gz`
   }
 
-  async _setFileGroup (filePath, group) {
-    if (!await fs.pathExists(filePath)) {
-      throw new Error(
-        `Cannot change group because the file does not exist: ${filePath}`
-      )
+  async _fixPackageStatesPermissions () {
+    const file = this.destinationPath(
+      'typo3conf/PackageStates.php'
+    )
+
+    if (!await fs.pathExists(file)) {
+      return
     }
 
     await this._runCommand('chgrp', [
-      group,
-      filePath
+      'developers',
+      file
     ])
   }
 
