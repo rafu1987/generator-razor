@@ -397,23 +397,20 @@ export default class extends Generator {
     }
 
     const orange = chalk.hex('#ff8700').bold
-        const petrol = chalk.hex('#006792')
+    const petrol = chalk.hex('#006792')
 
-        this.log(orange(`
-        ██████╗  ██████╗ ███╗   ██╗███████╗
-        ██╔══██╗██╔═══██╗████╗  ██║██╔════╝
-        ██║  ██║██║   ██║██╔██╗ ██║█████╗
-        ██║  ██║██║   ██║██║╚██╗██║██╔══╝
-        ██████╔╝╚██████╔╝██║ ╚████║███████╗
-        ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚══════╝
-        `))
+    this.log(orange(`
+    ██████╗  ██████╗ ███╗   ██╗███████╗
+    ██╔══██╗██╔═══██╗████╗  ██║██╔════╝
+    ██║  ██║██║   ██║██╔██╗ ██║█████╗
+    ██║  ██║██║   ██║██║╚██╗██║██╔══╝
+    ██████╔╝╚██████╔╝██║ ╚████║███████╗
+    ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚══════╝
+    `))
 
-        this.log(petrol(
-          `    ${this.props.ProjectName} was generated successfully.\n`
-        ))
-      }
-
-      async
+    this.log(petrol(
+      `    ${this.props.ProjectName} was generated successfully.\n`
+    ))
   }
 
   async _getTypo3Releases () {
