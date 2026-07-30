@@ -305,6 +305,17 @@ export default class extends Generator {
         value: 12
       }],
       store: true
+    }, {
+      type: 'select',
+      name: 'Picture',
+      message: 'Download TYPO3 picture extension?',
+      choices: [{
+        name: 'No',
+        value: false
+      }, {
+        name: 'Yes',
+        value: true
+      }]
     }]
 
     this.props = await this.prompt(prompts)
@@ -351,14 +362,19 @@ export default class extends Generator {
   async install () {
     const branch = this._getRazorBranch()
 
-    const razorPackage =
+    const packages = [
       `ssh://git@github.com/rafu1987/razor.git#${branch}`
+    ]
 
-    const picturePackage = await this._getLatestGithubReleasePackage(
-      'b13',
-      'picture',
-      'picture'
-    )
+    if (this.props.Picture) {
+      const picturePackage = await this._getLatestGithubReleasePackage(
+        'b13',
+        'picture',
+        'picture'
+      )
+
+      packages.push(picturePackage)
+    }
 
     await this._runCommand('yarn', [
       'add',
@@ -366,8 +382,7 @@ export default class extends Generator {
       '--no-lockfile',
       '--modules-folder',
       'typo3conf/ext/',
-      razorPackage,
-      picturePackage
+      ...packages
     ])
   }
 
