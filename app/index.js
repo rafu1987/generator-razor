@@ -182,7 +182,7 @@ export default class extends Generator {
       when: answers => answers.Transport === 'smtp',
       type: 'input',
       name: 'SmtpEmail',
-      message: 'Sender email?',
+      message: 'Sender Email?',
       default: '',
       store: true
     }, {
@@ -225,7 +225,7 @@ export default class extends Generator {
     }, {
       type: 'input',
       name: 'Email',
-      message: 'Author eMail',
+      message: 'Author Email',
       default: 'john@doe.com',
       store: true
     }, {
