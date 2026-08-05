@@ -68,6 +68,12 @@ return [
         'info' => [
             'packagePath' => 'typo3/sysext/info/',
         ],
+        'linkvalidator' => [
+            'packagePath' => 'typo3/sysext/linkvalidator/',
+        ],
+        'recycler' => [
+            'packagePath' => 'typo3/sysext/recycler/',
+        ],
         'lowlevel' => [
             'packagePath' => 'typo3/sysext/lowlevel/',
         ],

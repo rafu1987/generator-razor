@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql8
--- Erstellungszeit: 05. Aug 2026 um 11:29
+-- Erstellungszeit: 05. Aug 2026 um 11:35
 -- Server-Version: 8.0.43
 -- PHP-Version: 8.2.27
 
@@ -12,7 +12,7 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 --
--- Datenbank: `razor14`
+-- Datenbank: `foobar`
 --
 
 -- --------------------------------------------------------
@@ -93,7 +93,7 @@ CREATE TABLE `be_sessions` (
 
 INSERT INTO `be_sessions` (`ses_id`, `ses_iplock`, `ses_userid`, `ses_tstamp`, `ses_data`) VALUES
 ('16f953d8fd450e7ca3aafc1e9551d00777d47e7543272ebca85acc4a559c2b70', '[DISABLED]', 1, 1785926472, 0x613a313a7b733a32363a22666f726d50726f74656374696f6e53657373696f6e546f6b656e223b733a36343a2266636632363032656238656636363334363637396465313362323562616338343639646534383334313964613161623835376230623030373838396564346431223b7d),
-('e630480bce33ee650bc5a24cd063d923926dd187c92f9a0fa2f28c83dae6b0df', '[DISABLED]', 1, 1785929333, 0x613a313a7b733a32363a22666f726d50726f74656374696f6e53657373696f6e546f6b656e223b733a36343a2234363061353935326231613266356436666131653734343966623632313864643631613937373666616230303036393964656135346664303435356136653366223b7d);
+('c671b2e85e8e7c3c7de2e1535bcdfd90576c0bd4dd739819fc27a5253ca7536f', '[DISABLED]', 1, 1785929664, 0x613a313a7b733a32363a22666f726d50726f74656374696f6e53657373696f6e546f6b656e223b733a36343a2265626666366166663763363334653231353836323934326135616461623364643765303732353934636665623634303737356231623434333265366439616163223b7d);
 
 -- --------------------------------------------------------
 
@@ -142,7 +142,7 @@ CREATE TABLE `be_users` (
 --
 
 INSERT INTO `be_users` (`uid`, `pid`, `tstamp`, `crdate`, `deleted`, `disable`, `starttime`, `endtime`, `description`, `uc`, `user_settings`, `workspace_id`, `mfa`, `password_reset_token`, `username`, `password`, `usergroup`, `avatar`, `db_mountpoints`, `file_mountpoints`, `email`, `realName`, `admin`, `options`, `file_permissions`, `workspace_perms`, `lang`, `userMods`, `allowed_languages`, `TSconfig`, `tsconfig_includes`, `lastlogin`, `category_perms`) VALUES
-(1, 0, 1777893645, 1777893645, 0, 0, 0, 0, NULL, 0x613a353a7b733a31303a226d6f64756c6544617461223b613a313a7b733a32383a2264617368626f6172642f63757272656e745f64617368626f6172642f223b733a34303a2233333537313933383438363361616635343365316637666538613066643032333862316639643665223b7d733a31343a22656d61696c4d6541744c6f67696e223b693a303b733a383a227469746c654c656e223b693a35303b733a32303a22656469745f646f634d6f64756c6555706c6f6164223b733a313a2231223b733a31353a226d6f64756c6553657373696f6e4944223b613a313a7b733a32383a2264617368626f6172642f63757272656e745f64617368626f6172642f223b733a34303a2239333261356562376565653864396233363565353966316335366138383935393266653633633661223b7d7d, '{\"titleLen\": 50, \"emailMeAtLogin\": 0, \"edit_docModuleUpload\": \"1\"}', 0, NULL, '', '###USER###', '###PASS###', '', 0, NULL, '', '', '', 1, 3, NULL, 1, 'en', NULL, '', NULL, '', 1785929283, NULL);
+(1, 0, 1777893645, 1777893645, 0, 0, 0, 0, NULL, 0x613a353a7b733a31303a226d6f64756c6544617461223b613a323a7b733a32383a2264617368626f6172642f63757272656e745f64617368626f6172642f223b733a34303a2233333537313933383438363361616635343365316637666538613066643032333862316639643665223b733a32333a226261636b656e645f757365725f6d616e6167656d656e74223b613a303a7b7d7d733a31343a22656d61696c4d6541744c6f67696e223b693a303b733a383a227469746c654c656e223b693a35303b733a32303a22656469745f646f634d6f64756c6555706c6f6164223b733a313a2231223b733a31353a226d6f64756c6553657373696f6e4944223b613a323a7b733a32383a2264617368626f6172642f63757272656e745f64617368626f6172642f223b733a34303a2239333261356562376565653864396233363565353966316335366138383935393266653633633661223b733a32333a226261636b656e645f757365725f6d616e6167656d656e74223b733a34303a2263393731656265373132316438313438353332623432653234623639313635383865333033383163223b7d7d, '{\"titleLen\": 50, \"emailMeAtLogin\": 0, \"edit_docModuleUpload\": \"1\"}', 0, NULL, '', '###ADMIN###', '###PASS###', '', 0, NULL, '', '', '', 1, 3, NULL, 1, 'en', NULL, '', NULL, '', 1785929614, NULL);
 
 -- --------------------------------------------------------
 
@@ -791,7 +791,9 @@ CREATE TABLE `sys_log` (
 INSERT INTO `sys_log` (`uid`, `tstamp`, `userid`, `action`, `recuid`, `tablename`, `recpid`, `error`, `details`, `type`, `channel`, `IP`, `log_data`, `event_pid`, `workspace`, `request_id`, `time_micro`, `component`, `level`, `message`, `data`) VALUES
 (1, 1777893662, 1, 1, 0, '', 0, 0, 'User %s logged in from ###IP###', 255, 'user', '', '[\"raphael\"]', -1, -99, '', 0, '', 'info', NULL, NULL),
 (2, 1785926452, 1, 1, 0, '', 0, 0, 'User %s logged in from ###IP###', 255, 'user', '', '[\"gandayo\"]', -1, -99, '', 0, '', 'info', NULL, NULL),
-(3, 1785929283, 1, 1, 0, '', 0, 0, 'User %s logged in from ###IP###', 255, 'user', '', '[\"gandayo\"]', -1, -99, '', 0, '', 'info', NULL, NULL);
+(3, 1785929614, 1, 1, 0, '', 0, 0, 'User %s logged in from ###IP###', 255, 'user', '', '[\"gandayo\"]', -1, -99, '', 0, '', 'info', NULL, NULL),
+(4, 1785929623, 1, 0, 0, '', 0, 2, 'Core: Exception handler (WEB): Uncaught TYPO3 Exception: #1146: An exception occurred while executing a query: Table \'foobar.cache_pagesection\' doesn\'t exist | Doctrine\\DBAL\\Exception\\TableNotFoundException thrown in file /www/typo3_src/typo3_src-14.3.5/vendor/doctrine/dbal/src/Driver/API/MySQL/ExceptionConverter.php in line 51. Requested URL: https://foobar.dev.gandayo.com/typo3/module/extensions/Action/toggleExtensionInstallationState?token=--AnonymizedToken--291dd40332382bb0bc496ccd&extensionKey=linkvalidator&format=json', 5, 'php', '172.30.0.28', '', -1, 0, '', 0, '', 'error', NULL, NULL),
+(5, 1785929636, 1, 0, 0, '', 0, 2, 'Core: Exception handler (WEB): Uncaught TYPO3 Exception: #1146: An exception occurred while executing a query: Table \'foobar.cache_pagesection\' doesn\'t exist | Doctrine\\DBAL\\Exception\\TableNotFoundException thrown in file /www/typo3_src/typo3_src-14.3.5/vendor/doctrine/dbal/src/Driver/API/MySQL/ExceptionConverter.php in line 51. Requested URL: https://foobar.dev.gandayo.com/typo3/module/extensions/Action/toggleExtensionInstallationState?token=--AnonymizedToken--291dd40332382bb0bc496ccd&extensionKey=recycler&format=json', 5, 'php', '172.30.0.28', '', -1, 0, '', 0, '', 'error', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -944,9 +946,7 @@ INSERT INTO `sys_registry` (`uid`, `entry_namespace`, `entry_key`, `entry_value`
 (10, 'installUpdate', 'TYPO3\\CMS\\Form\\Upgrades\\FileFormsToDatabaseUpgradeWizard', 0x693a313b),
 (11, 'installUpdate', 'TYPO3\\CMS\\SysNote\\Migration\\SysNoteDashboardWidgetDatabaseMigration', 0x693a313b),
 (12, 'installUpdateRows', 'rowUpdatersDone', 0x613a303a7b7d),
-(13, 'core', 'formProtectionSessionToken:1', 0x733a36343a2234363061353935326231613266356436666131653734343966623632313864643631613937373666616230303036393964656135346664303435356136653366223b),
-(14, 'extensionDataImport', 'linkvalidator:ext_tables_static+adt.sql', 0x733a303a22223b),
-(15, 'extensionDataImport', 'recycler:ext_tables_static+adt.sql', 0x733a303a22223b);
+(13, 'core', 'formProtectionSessionToken:1', 0x733a36343a2265626666366166663763363334653231353836323934326135616461623364643765303732353934636665623634303737356231623434333265366439616163223b);
 
 -- --------------------------------------------------------
 
@@ -1641,7 +1641,7 @@ ALTER TABLE `sys_lockedrecords`
 -- AUTO_INCREMENT für Tabelle `sys_log`
 --
 ALTER TABLE `sys_log`
-  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT für Tabelle `sys_messenger_messages`
@@ -1671,7 +1671,7 @@ ALTER TABLE `sys_redirect`
 -- AUTO_INCREMENT für Tabelle `sys_registry`
 --
 ALTER TABLE `sys_registry`
-  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT für Tabelle `sys_template`
