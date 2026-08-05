@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql8
--- Erstellungszeit: 04. Mai 2026 um 11:22
+-- Erstellungszeit: 05. Aug 2026 um 11:29
 -- Server-Version: 8.0.43
 -- PHP-Version: 8.2.27
 
@@ -12,7 +12,7 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 --
--- Datenbank: `razor14test`
+-- Datenbank: `razor14`
 --
 
 -- --------------------------------------------------------
@@ -38,34 +38,6 @@ CREATE TABLE `backend_layout` (
   `config` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
   `icon` int UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
--- --------------------------------------------------------
-
---
--- Tabellenstruktur für Tabelle `be_dashboards`
---
-
-CREATE TABLE `be_dashboards` (
-  `uid` int UNSIGNED NOT NULL,
-  `pid` int UNSIGNED NOT NULL DEFAULT '0',
-  `tstamp` int UNSIGNED NOT NULL DEFAULT '0',
-  `crdate` int UNSIGNED NOT NULL DEFAULT '0',
-  `deleted` smallint UNSIGNED NOT NULL DEFAULT '0',
-  `hidden` smallint UNSIGNED NOT NULL DEFAULT '0',
-  `starttime` int UNSIGNED NOT NULL DEFAULT '0',
-  `endtime` int UNSIGNED NOT NULL DEFAULT '0',
-  `cruser_id` int UNSIGNED NOT NULL DEFAULT '0',
-  `widgets` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
-  `identifier` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
---
--- Daten für Tabelle `be_dashboards`
---
-
-INSERT INTO `be_dashboards` (`uid`, `pid`, `tstamp`, `crdate`, `deleted`, `hidden`, `starttime`, `endtime`, `cruser_id`, `widgets`, `identifier`, `title`) VALUES
-(1, 0, 1777893663, 1777893663, 0, 0, 0, 0, 1, '{\"ef960f7f0ca94ff469ae796e1b11435c4267ceb6\":{\"identifier\":\"t3information\"},\"ed210ceef10aa40324808ff490c66f71967098e1\":{\"identifier\":\"docGettingStarted\"}}', '335719384863aaf543e1f7fe8a0fd0238b1f9d6e', 'My dashboard');
 
 -- --------------------------------------------------------
 
@@ -98,8 +70,7 @@ CREATE TABLE `be_groups` (
   `TSconfig` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
   `tsconfig_includes` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
   `subgroup` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `category_perms` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
-  `availableWidgets` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL)
+  `category_perms` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 -- --------------------------------------------------------
@@ -121,7 +92,8 @@ CREATE TABLE `be_sessions` (
 --
 
 INSERT INTO `be_sessions` (`ses_id`, `ses_iplock`, `ses_userid`, `ses_tstamp`, `ses_data`) VALUES
-('a38b257d2c9b18516a0fa6a35eb11c5b1027f10aad05bfa8ba3c937f34d82f7b', '[DISABLED]', 1, 1777893663, 0x613a313a7b733a32363a22666f726d50726f74656374696f6e53657373696f6e546f6b656e223b733a36343a2235393663653130646435393963616234623264326161383130366661643739396561386432333133306363336534643633373435323435376663393732653633223b7d);
+('16f953d8fd450e7ca3aafc1e9551d00777d47e7543272ebca85acc4a559c2b70', '[DISABLED]', 1, 1785926472, 0x613a313a7b733a32363a22666f726d50726f74656374696f6e53657373696f6e546f6b656e223b733a36343a2266636632363032656238656636363334363637396465313362323562616338343639646534383334313964613161623835376230623030373838396564346431223b7d),
+('e630480bce33ee650bc5a24cd063d923926dd187c92f9a0fa2f28c83dae6b0df', '[DISABLED]', 1, 1785929333, 0x613a313a7b733a32363a22666f726d50726f74656374696f6e53657373696f6e546f6b656e223b733a36343a2234363061353935326231613266356436666131653734343966623632313864643631613937373666616230303036393964656135346664303435356136653366223b7d);
 
 -- --------------------------------------------------------
 
@@ -170,7 +142,7 @@ CREATE TABLE `be_users` (
 --
 
 INSERT INTO `be_users` (`uid`, `pid`, `tstamp`, `crdate`, `deleted`, `disable`, `starttime`, `endtime`, `description`, `uc`, `user_settings`, `workspace_id`, `mfa`, `password_reset_token`, `username`, `password`, `usergroup`, `avatar`, `db_mountpoints`, `file_mountpoints`, `email`, `realName`, `admin`, `options`, `file_permissions`, `workspace_perms`, `lang`, `userMods`, `allowed_languages`, `TSconfig`, `tsconfig_includes`, `lastlogin`, `category_perms`) VALUES
-(1, 0, 1777893645, 1777893645, 0, 0, 0, 0, NULL, 0x613a353a7b733a31303a226d6f64756c6544617461223b613a313a7b733a32383a2264617368626f6172642f63757272656e745f64617368626f6172642f223b733a34303a2233333537313933383438363361616635343365316637666538613066643032333862316639643665223b7d733a31343a22656d61696c4d6541744c6f67696e223b693a303b733a383a227469746c654c656e223b693a35303b733a32303a22656469745f646f634d6f64756c6555706c6f6164223b733a313a2231223b733a31353a226d6f64756c6553657373696f6e4944223b613a313a7b733a32383a2264617368626f6172642f63757272656e745f64617368626f6172642f223b733a34303a2239333261356562376565653864396233363565353966316335366138383935393266653633633661223b7d7d, '{\"titleLen\": 50, \"emailMeAtLogin\": 0, \"edit_docModuleUpload\": \"1\"}', 0, NULL, '', '###ADMIN###', '###PASS###', '', 0, NULL, '', '', '', 1, 3, NULL, 1, 'en', NULL, '', NULL, '', 1777893662, NULL);
+(1, 0, 1777893645, 1777893645, 0, 0, 0, 0, NULL, 0x613a353a7b733a31303a226d6f64756c6544617461223b613a313a7b733a32383a2264617368626f6172642f63757272656e745f64617368626f6172642f223b733a34303a2233333537313933383438363361616635343365316637666538613066643032333862316639643665223b7d733a31343a22656d61696c4d6541744c6f67696e223b693a303b733a383a227469746c654c656e223b693a35303b733a32303a22656469745f646f634d6f64756c6555706c6f6164223b733a313a2231223b733a31353a226d6f64756c6553657373696f6e4944223b613a313a7b733a32383a2264617368626f6172642f63757272656e745f64617368626f6172642f223b733a34303a2239333261356562376565653864396233363565353966316335366138383935393266653633633661223b7d7d, '{\"titleLen\": 50, \"emailMeAtLogin\": 0, \"edit_docModuleUpload\": \"1\"}', 0, NULL, '', '###USER###', '###PASS###', '', 0, NULL, '', '', '', 1, 3, NULL, 1, 'en', NULL, '', NULL, '', 1785929283, NULL);
 
 -- --------------------------------------------------------
 
@@ -192,6 +164,31 @@ CREATE TABLE `cache_hash` (
 --
 
 CREATE TABLE `cache_hash_tags` (
+  `id` int UNSIGNED NOT NULL,
+  `identifier` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `tag` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `cache_imagesizes`
+--
+
+CREATE TABLE `cache_imagesizes` (
+  `id` int UNSIGNED NOT NULL,
+  `identifier` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `expires` int UNSIGNED NOT NULL DEFAULT '0',
+  `content` longblob DEFAULT (NULL)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `cache_imagesizes_tags`
+--
+
+CREATE TABLE `cache_imagesizes_tags` (
   `id` int UNSIGNED NOT NULL,
   `identifier` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `tag` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
@@ -262,8 +259,7 @@ CREATE TABLE `fe_groups` (
   `hidden` smallint UNSIGNED NOT NULL DEFAULT '0',
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
   `title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `subgroup` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `felogin_redirectPid` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL)
+  `subgroup` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 -- --------------------------------------------------------
@@ -301,7 +297,6 @@ CREATE TABLE `fe_users` (
   `uc` blob DEFAULT (NULL),
   `is_online` int UNSIGNED NOT NULL DEFAULT '0',
   `mfa` mediumblob DEFAULT (NULL),
-  `felogin_forgotHash` varchar(160) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
   `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `usergroup` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
@@ -320,8 +315,7 @@ CREATE TABLE `fe_users` (
   `www` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `company` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `image` int UNSIGNED NOT NULL DEFAULT '0',
-  `lastlogin` bigint NOT NULL DEFAULT '0',
-  `felogin_redirectPid` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL)
+  `lastlogin` bigint NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 -- --------------------------------------------------------
@@ -378,7 +372,6 @@ CREATE TABLE `pages` (
   `shortcut` int UNSIGNED NOT NULL DEFAULT '0',
   `content_from_pid` int UNSIGNED NOT NULL DEFAULT '0',
   `mount_pid` int UNSIGNED NOT NULL DEFAULT '0',
-  `tx_impexp_origuid` int NOT NULL DEFAULT '0',
   `sitemap_priority` decimal(2,1) NOT NULL DEFAULT '0.5',
   `doktype` int UNSIGNED NOT NULL DEFAULT '1',
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -423,8 +416,7 @@ CREATE TABLE `pages` (
   `twitter_title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `twitter_description` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
   `twitter_image` int UNSIGNED NOT NULL DEFAULT '0',
-  `twitter_card` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `tx_themecamino_logo` int UNSIGNED NOT NULL DEFAULT '0'
+  `twitter_card` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 -- --------------------------------------------------------
@@ -797,7 +789,9 @@ CREATE TABLE `sys_log` (
 --
 
 INSERT INTO `sys_log` (`uid`, `tstamp`, `userid`, `action`, `recuid`, `tablename`, `recpid`, `error`, `details`, `type`, `channel`, `IP`, `log_data`, `event_pid`, `workspace`, `request_id`, `time_micro`, `component`, `level`, `message`, `data`) VALUES
-(1, 1777893662, 1, 1, 0, '', 0, 0, 'User %s logged in from ###IP###', 255, 'user', '', '[\"raphael\"]', -1, -99, '', 0, '', 'info', NULL, NULL);
+(1, 1777893662, 1, 1, 0, '', 0, 0, 'User %s logged in from ###IP###', 255, 'user', '', '[\"raphael\"]', -1, -99, '', 0, '', 'info', NULL, NULL),
+(2, 1785926452, 1, 1, 0, '', 0, 0, 'User %s logged in from ###IP###', 255, 'user', '', '[\"gandayo\"]', -1, -99, '', 0, '', 'info', NULL, NULL),
+(3, 1785929283, 1, 1, 0, '', 0, 0, 'User %s logged in from ###IP###', 255, 'user', '', '[\"gandayo\"]', -1, -99, '', 0, '', 'info', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -950,7 +944,9 @@ INSERT INTO `sys_registry` (`uid`, `entry_namespace`, `entry_key`, `entry_value`
 (10, 'installUpdate', 'TYPO3\\CMS\\Form\\Upgrades\\FileFormsToDatabaseUpgradeWizard', 0x693a313b),
 (11, 'installUpdate', 'TYPO3\\CMS\\SysNote\\Migration\\SysNoteDashboardWidgetDatabaseMigration', 0x693a313b),
 (12, 'installUpdateRows', 'rowUpdatersDone', 0x613a303a7b7d),
-(13, 'core', 'formProtectionSessionToken:1', 0x733a36343a2235393663653130646435393963616234623264326161383130366661643739396561386432333133306363336534643633373435323435376663393732653633223b);
+(13, 'core', 'formProtectionSessionToken:1', 0x733a36343a2234363061353935326231613266356436666131653734343966623632313864643631613937373666616230303036393964656135346664303435356136653366223b),
+(14, 'extensionDataImport', 'linkvalidator:ext_tables_static+adt.sql', 0x733a303a22223b),
+(15, 'extensionDataImport', 'recycler:ext_tables_static+adt.sql', 0x733a303a22223b);
 
 -- --------------------------------------------------------
 
@@ -969,7 +965,6 @@ CREATE TABLE `sys_template` (
   `endtime` int UNSIGNED NOT NULL DEFAULT '0',
   `sorting` int NOT NULL DEFAULT '0',
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
-  `tx_impexp_origuid` int NOT NULL DEFAULT '0',
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `root` smallint UNSIGNED NOT NULL DEFAULT '0',
   `clear` smallint UNSIGNED NOT NULL DEFAULT '0',
@@ -1012,7 +1007,6 @@ CREATE TABLE `tt_content` (
   `frame_class` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'default',
   `colPos` int UNSIGNED NOT NULL DEFAULT '0',
   `table_caption` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `tx_impexp_origuid` int NOT NULL DEFAULT '0',
   `CType` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'text',
   `categories` int UNSIGNED NOT NULL DEFAULT '0',
   `layout` int UNSIGNED NOT NULL DEFAULT '0',
@@ -1055,13 +1049,7 @@ CREATE TABLE `tt_content` (
   `filelink_sorting_direction` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `target` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `uploads_description` smallint UNSIGNED NOT NULL DEFAULT '0',
-  `uploads_type` int UNSIGNED NOT NULL DEFAULT '0',
-  `tx_themecamino_list_elements` int UNSIGNED NOT NULL DEFAULT '0',
-  `tx_themecamino_link` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT (_utf8mb4''),
-  `tx_themecamino_link_label` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `tx_themecamino_link_config` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `tx_themecamino_link_icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `tx_themecamino_header_style` int UNSIGNED NOT NULL DEFAULT '0'
+  `uploads_type` int UNSIGNED NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 -- --------------------------------------------------------
@@ -1102,56 +1090,24 @@ CREATE TABLE `tx_extensionmanager_domain_model_extension` (
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `tx_impexp_presets`
+-- Tabellenstruktur für Tabelle `tx_linkvalidator_link`
 --
 
-CREATE TABLE `tx_impexp_presets` (
-  `uid` int UNSIGNED NOT NULL,
-  `pid` int UNSIGNED NOT NULL DEFAULT '0',
-  `tstamp` int UNSIGNED NOT NULL DEFAULT '0',
-  `crdate` int UNSIGNED NOT NULL DEFAULT '0',
-  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `public` smallint NOT NULL DEFAULT '0',
-  `item_uid` int NOT NULL DEFAULT '0',
-  `user_uid` int UNSIGNED NOT NULL DEFAULT '0',
-  `preset_data` blob DEFAULT (NULL)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
--- --------------------------------------------------------
-
---
--- Tabellenstruktur für Tabelle `tx_themecamino_list_item`
---
-
-CREATE TABLE `tx_themecamino_list_item` (
-  `uid` int UNSIGNED NOT NULL,
-  `pid` int UNSIGNED NOT NULL DEFAULT '0',
-  `tstamp` int UNSIGNED NOT NULL DEFAULT '0',
-  `crdate` int UNSIGNED NOT NULL DEFAULT '0',
-  `deleted` smallint UNSIGNED NOT NULL DEFAULT '0',
-  `hidden` smallint UNSIGNED NOT NULL DEFAULT '0',
-  `sorting_foreign` int NOT NULL DEFAULT '0',
-  `sys_language_uid` int NOT NULL DEFAULT '0',
-  `l10n_parent` int UNSIGNED NOT NULL DEFAULT '0',
-  `l10n_source` int UNSIGNED NOT NULL DEFAULT '0',
-  `l10n_state` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
-  `l10n_diffsource` mediumblob DEFAULT (NULL),
-  `t3ver_oid` int UNSIGNED NOT NULL DEFAULT '0',
-  `t3ver_wsid` int UNSIGNED NOT NULL DEFAULT '0',
-  `t3ver_state` smallint NOT NULL DEFAULT '0',
-  `t3ver_stage` int NOT NULL DEFAULT '0',
-  `uid_foreign` int UNSIGNED NOT NULL DEFAULT '0',
-  `tablename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `fieldname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `category` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `date` bigint DEFAULT NULL,
-  `header` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `images` int UNSIGNED NOT NULL DEFAULT '0',
-  `link` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT (_utf8mb4''),
-  `link_config` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `link_icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `link_label` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `text` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL)
+CREATE TABLE `tx_linkvalidator_link` (
+  `uid` int NOT NULL,
+  `record_uid` int NOT NULL DEFAULT '0',
+  `record_pid` int NOT NULL DEFAULT '0',
+  `language` int NOT NULL DEFAULT '-1',
+  `headline` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `field` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `table_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `element_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `link_title` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
+  `url` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
+  `url_response` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
+  `last_check` int NOT NULL DEFAULT '0',
+  `link_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `needs_recheck` int NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 --
@@ -1165,14 +1121,6 @@ ALTER TABLE `backend_layout`
   ADD PRIMARY KEY (`uid`),
   ADD KEY `parent` (`pid`,`deleted`,`hidden`),
   ADD KEY `t3ver_oid` (`t3ver_oid`,`t3ver_wsid`);
-
---
--- Indizes für die Tabelle `be_dashboards`
---
-ALTER TABLE `be_dashboards`
-  ADD PRIMARY KEY (`uid`),
-  ADD KEY `identifier` (`identifier`),
-  ADD KEY `parent` (`pid`,`deleted`,`hidden`);
 
 --
 -- Indizes für die Tabelle `be_groups`
@@ -1207,6 +1155,21 @@ ALTER TABLE `cache_hash`
 -- Indizes für die Tabelle `cache_hash_tags`
 --
 ALTER TABLE `cache_hash_tags`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `cache_id` (`identifier`(191)),
+  ADD KEY `cache_tag` (`tag`(191));
+
+--
+-- Indizes für die Tabelle `cache_imagesizes`
+--
+ALTER TABLE `cache_imagesizes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `cache_id` (`identifier`(180),`expires`);
+
+--
+-- Indizes für die Tabelle `cache_imagesizes_tags`
+--
+ALTER TABLE `cache_imagesizes_tags`
   ADD PRIMARY KEY (`id`),
   ADD KEY `cache_id` (`identifier`(191)),
   ADD KEY `cache_tag` (`tag`(191));
@@ -1262,8 +1225,7 @@ ALTER TABLE `fe_users`
   ADD PRIMARY KEY (`uid`),
   ADD KEY `parent` (`pid`,`username`(100)),
   ADD KEY `username` (`username`(100)),
-  ADD KEY `is_online` (`is_online`),
-  ADD KEY `felogin_forgotHash` (`felogin_forgotHash`);
+  ADD KEY `is_online` (`is_online`);
 
 --
 -- Indizes für die Tabelle `form_definition`
@@ -1510,22 +1472,10 @@ ALTER TABLE `tx_extensionmanager_domain_model_extension`
   ADD KEY `index_currentversions` (`current_version`,`review_state`);
 
 --
--- Indizes für die Tabelle `tx_impexp_presets`
+-- Indizes für die Tabelle `tx_linkvalidator_link`
 --
-ALTER TABLE `tx_impexp_presets`
-  ADD PRIMARY KEY (`uid`),
-  ADD KEY `lookup` (`item_uid`),
-  ADD KEY `parent` (`pid`);
-
---
--- Indizes für die Tabelle `tx_themecamino_list_item`
---
-ALTER TABLE `tx_themecamino_list_item`
-  ADD PRIMARY KEY (`uid`),
-  ADD KEY `parent` (`pid`,`deleted`,`hidden`),
-  ADD KEY `language_identifier` (`l10n_parent`,`sys_language_uid`),
-  ADD KEY `translation_source` (`l10n_source`),
-  ADD KEY `t3ver_oid` (`t3ver_oid`,`t3ver_wsid`);
+ALTER TABLE `tx_linkvalidator_link`
+  ADD PRIMARY KEY (`uid`);
 
 --
 -- AUTO_INCREMENT für exportierte Tabellen
@@ -1536,12 +1486,6 @@ ALTER TABLE `tx_themecamino_list_item`
 --
 ALTER TABLE `backend_layout`
   MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT für Tabelle `be_dashboards`
---
-ALTER TABLE `be_dashboards`
-  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT für Tabelle `be_groups`
@@ -1565,6 +1509,18 @@ ALTER TABLE `cache_hash`
 -- AUTO_INCREMENT für Tabelle `cache_hash_tags`
 --
 ALTER TABLE `cache_hash_tags`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `cache_imagesizes`
+--
+ALTER TABLE `cache_imagesizes`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT für Tabelle `cache_imagesizes_tags`
+--
+ALTER TABLE `cache_imagesizes_tags`
   MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
@@ -1685,7 +1641,7 @@ ALTER TABLE `sys_lockedrecords`
 -- AUTO_INCREMENT für Tabelle `sys_log`
 --
 ALTER TABLE `sys_log`
-  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT für Tabelle `sys_messenger_messages`
@@ -1715,7 +1671,7 @@ ALTER TABLE `sys_redirect`
 -- AUTO_INCREMENT für Tabelle `sys_registry`
 --
 ALTER TABLE `sys_registry`
-  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT für Tabelle `sys_template`
@@ -1736,14 +1692,8 @@ ALTER TABLE `tx_extensionmanager_domain_model_extension`
   MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT für Tabelle `tx_impexp_presets`
+-- AUTO_INCREMENT für Tabelle `tx_linkvalidator_link`
 --
-ALTER TABLE `tx_impexp_presets`
-  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT für Tabelle `tx_themecamino_list_item`
---
-ALTER TABLE `tx_themecamino_list_item`
-  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE `tx_linkvalidator_link`
+  MODIFY `uid` int NOT NULL AUTO_INCREMENT;
 COMMIT;
