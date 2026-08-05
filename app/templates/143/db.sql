@@ -784,17 +784,6 @@ CREATE TABLE `sys_log` (
   `data` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
---
--- Daten für Tabelle `sys_log`
---
-
-INSERT INTO `sys_log` (`uid`, `tstamp`, `userid`, `action`, `recuid`, `tablename`, `recpid`, `error`, `details`, `type`, `channel`, `IP`, `log_data`, `event_pid`, `workspace`, `request_id`, `time_micro`, `component`, `level`, `message`, `data`) VALUES
-(1, 1777893662, 1, 1, 0, '', 0, 0, 'User %s logged in from ###IP###', 255, 'user', '', '[\"raphael\"]', -1, -99, '', 0, '', 'info', NULL, NULL),
-(2, 1785926452, 1, 1, 0, '', 0, 0, 'User %s logged in from ###IP###', 255, 'user', '', '[\"gandayo\"]', -1, -99, '', 0, '', 'info', NULL, NULL),
-(3, 1785929614, 1, 1, 0, '', 0, 0, 'User %s logged in from ###IP###', 255, 'user', '', '[\"gandayo\"]', -1, -99, '', 0, '', 'info', NULL, NULL),
-(4, 1785929623, 1, 0, 0, '', 0, 2, 'Core: Exception handler (WEB): Uncaught TYPO3 Exception: #1146: An exception occurred while executing a query: Table \'foobar.cache_pagesection\' doesn\'t exist | Doctrine\\DBAL\\Exception\\TableNotFoundException thrown in file /www/typo3_src/typo3_src-14.3.5/vendor/doctrine/dbal/src/Driver/API/MySQL/ExceptionConverter.php in line 51. Requested URL: https://foobar.dev.gandayo.com/typo3/module/extensions/Action/toggleExtensionInstallationState?token=--AnonymizedToken--291dd40332382bb0bc496ccd&extensionKey=linkvalidator&format=json', 5, 'php', '172.30.0.28', '', -1, 0, '', 0, '', 'error', NULL, NULL),
-(5, 1785929636, 1, 0, 0, '', 0, 2, 'Core: Exception handler (WEB): Uncaught TYPO3 Exception: #1146: An exception occurred while executing a query: Table \'foobar.cache_pagesection\' doesn\'t exist | Doctrine\\DBAL\\Exception\\TableNotFoundException thrown in file /www/typo3_src/typo3_src-14.3.5/vendor/doctrine/dbal/src/Driver/API/MySQL/ExceptionConverter.php in line 51. Requested URL: https://foobar.dev.gandayo.com/typo3/module/extensions/Action/toggleExtensionInstallationState?token=--AnonymizedToken--291dd40332382bb0bc496ccd&extensionKey=recycler&format=json', 5, 'php', '172.30.0.28', '', -1, 0, '', 0, '', 'error', NULL, NULL);
-
 -- --------------------------------------------------------
 
 --
