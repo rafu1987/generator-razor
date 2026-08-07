@@ -609,7 +609,7 @@ export default class extends Generator {
     /*
     * Hand over to the Razor installer.
     */
-    this.log('→ Starting Razor installer...')
+    this.log('→ Starting razor installer...')
 
     await this._runCommand(
       'bash',

@@ -26,7 +26,7 @@ use TYPO3\CMS\Extensionmanager\Service\ExtensionManagementService;
 
 #[AsCommand(
     name: 'razorkickstart:prepare',
-    description: 'Downloads all required Razor dependencies'
+    description: 'Downloads all required razor dependencies'
 )]
 final class PrepareCommand extends Command
 {
@@ -62,7 +62,7 @@ final class PrepareCommand extends Command
 
         if ($result === false) {
             $io->error([
-                'Razor dependencies could not be resolved.',
+                'razor dependencies could not be resolved.',
                 print_r(
                     $this->extensionManagementService->getDependencyErrors(),
                     true
@@ -73,7 +73,7 @@ final class PrepareCommand extends Command
         }
 
         $io->success(
-            'Razor dependencies successfully prepared.'
+            'razor dependencies successfully prepared.'
         );
 
         return Command::SUCCESS;

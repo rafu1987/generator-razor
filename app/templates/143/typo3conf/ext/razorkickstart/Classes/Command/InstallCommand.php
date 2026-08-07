@@ -29,7 +29,7 @@ use TYPO3\CMS\Extensionmanager\Service\ExtensionManagementService;
 
 #[AsCommand(
     name: 'razorkickstart:install',
-    description: 'Activates the complete Razor framework'
+    description: 'Activates the complete razor framework'
 )]
 final class InstallCommand extends Command
 {
@@ -47,7 +47,7 @@ final class InstallCommand extends Command
     ): int {
         $io = new SymfonyStyle($input, $output);
 
-        $io->writeln('Preparing Razor package states...');
+        $io->writeln('Preparing razor package states...');
 
         /*
          * Resolve the complete installation queue again.
@@ -64,7 +64,7 @@ final class InstallCommand extends Command
 
         if ($dependencyErrors !== []) {
             $io->error([
-                'Razor dependencies could not be resolved.',
+                'razor dependencies could not be resolved.',
                 print_r($dependencyErrors, true),
             ]);
 
@@ -79,7 +79,7 @@ final class InstallCommand extends Command
             || !$this->downloadQueue->isQueueEmpty('update')
         ) {
             $io->error(
-                'Razor dependencies are not completely prepared.'
+                'razor dependencies are not completely prepared.'
             );
 
             return Command::FAILURE;
@@ -90,7 +90,7 @@ final class InstallCommand extends Command
 
         if ($installQueue === []) {
             $io->error(
-                'No Razor extensions were found in the installation queue.'
+                'No razor extensions were found in the installation queue.'
             );
 
             return Command::FAILURE;
@@ -130,7 +130,7 @@ final class InstallCommand extends Command
         ClassLoadingInformation::dumpClassLoadingInformation();
 
         $io->success(
-            'Razor package states successfully prepared.'
+            'razor package states successfully prepared.'
         );
 
         return Command::SUCCESS;
