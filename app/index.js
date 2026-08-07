@@ -446,25 +446,31 @@ export default class extends Generator {
 
     await this.spawnCommand(
       typo3,
-      ['razor-bootstrap:ter:update'],
+      ['razorbootstrap:ter:update'],
       {
         cwd: this.destinationRoot()
       }
     )
 
-    this.log('→ Removing razor bootstrap...')
+    this.log('→ Installing razor...')
+
+    await this.spawnCommand(
+      typo3,
+      ['razorbootstrap:extension:install', 'razor'],
+      {
+        cwd
+      }
+    )
+
+    this.log('→ Deactivating Razor bootstrap...')
 
     await this.spawnCommand(
       typo3,
       ['extension:deactivate', 'razorbootstrap'],
       {
-        cwd: this.destinationRoot()
+        cwd
       }
     )
-
-    /*
-    * Remove temporary bootstrap extension and cached DI container
-    */
 
     await fs.remove(
       this.destinationPath('typo3conf/ext/razorbootstrap')
@@ -474,23 +480,13 @@ export default class extends Generator {
       this.destinationPath('typo3temp/var/cache')
     )
 
-    this.log('→ Activating razor...')
-
-    await this.spawnCommand(
-      typo3,
-      ['extension:activate', 'razor'],
-      {
-        cwd: this.destinationRoot()
-      }
-    )
-
     this.log('→ Flushing TYPO3 caches...')
 
     await this.spawnCommand(
       typo3,
       ['cache:flush'],
       {
-        cwd: this.destinationRoot()
+        cwd
       }
     )
 
