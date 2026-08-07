@@ -428,6 +428,82 @@ export default class extends Generator {
     await this._fixProjectGroup()
     await this._fixWritableDirectoryPermissions()
 
+    const typo3 = this.destinationPath(
+      'typo3/sysext/core/bin/typo3'
+    )
+
+    this.log('→ Activating razor bootstrap...')
+
+    await this.spawnCommand(
+      typo3,
+      ['extension:activate', 'razorbootstrap'],
+      {
+        cwd: this.destinationRoot()
+      }
+    )
+
+    this.log('→ Updating TER extension list...')
+
+    await this.spawnCommand(
+      typo3,
+      ['razorbootstrap:ter:update'],
+      {
+        cwd: this.destinationRoot()
+      }
+    )
+
+    this.log('→ Removing razor bootstrap...')
+
+    await this.spawnCommand(
+      typo3,
+      ['extension:deactivate', 'razorbootstrap'],
+      {
+        cwd: this.destinationRoot()
+      }
+    )
+
+    await fs.remove(
+      this.destinationPath('typo3conf/ext/razorbootstrap')
+    )
+
+    this.log('→ Flushing TYPO3 caches...')
+
+    await this.spawnCommand(
+      typo3,
+      ['cache:flush'],
+      {
+        cwd: this.destinationRoot()
+      }
+    )
+
+    this.log('→ Activating razor...')
+
+    await this.spawnCommand(
+      typo3,
+      ['extension:activate', 'razor'],
+      {
+        cwd: this.destinationRoot()
+      }
+    )
+
+    const razorScript = this.destinationPath('razor.sh')
+
+    if (!await fs.pathExists(razorScript)) {
+      throw new Error(
+        'razor.sh was not created during razor installation.'
+      )
+    }
+
+    this.log('→ Starting razor installer...')
+
+    await this.spawnCommand(
+      'bash',
+      ['./razor.sh'],
+      {
+        cwd: this.destinationRoot()
+      }
+    )
+
     const orange = chalk.ansi256(208)
     const petrol = chalk.ansi256(24)
 
