@@ -2,6 +2,19 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the TYPO3 CMS project.
+ *
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
+ *
+ * The TYPO3 project - inspiring people to share!
+ */
+
 namespace RZ\Razorkickstart\Command;
 
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -9,6 +22,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use TYPO3\CMS\Core\Core\ClassLoadingInformation;
 use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Extensionmanager\Domain\Model\DownloadQueue;
 use TYPO3\CMS\Extensionmanager\Service\ExtensionManagementService;
@@ -36,11 +50,10 @@ final class InstallCommand extends Command
         $io->writeln('Preparing Razor package states...');
 
         /*
+         * Resolve the complete installation queue again.
+         *
          * All TER dependencies have already been downloaded by
          * razorkickstart:prepare.
-         *
-         * Resolve the complete installation queue again now that
-         * every extension is physically available.
          */
         $this->extensionManagementService->markExtensionForInstallation(
             'razorbootstrap'
@@ -84,23 +97,37 @@ final class InstallCommand extends Command
         }
 
         /*
-         * IMPORTANT:
+         * Only update PackageStates.php.
          *
-         * Do NOT use InstallUtility or PackageActivationService here.
-         *
-         * activatePackage() only updates PackageStates.php and does
-         * not immediately rebuild TCA. The actual TYPO3 setup happens
-         * in a fresh process afterwards.
+         * Do not use PackageActivationService here because it would
+         * immediately rebuild DI/TCA in the current process.
          */
         foreach (array_keys($installQueue) as $extensionKey) {
             $io->writeln(
-                sprintf('Activating package %s...', $extensionKey)
+                sprintf(
+                    'Activating package %s...',
+                    $extensionKey
+                )
             );
 
             $this->packageManager->activatePackage(
                 $extensionKey
             );
         }
+
+        /*
+         * Important for TYPO3 Classic mode:
+         *
+         * activatePackage() registers class-loading information only
+         * transiently for this process. Persist the complete class map
+         * and PSR-4 configuration so the next TYPO3 process knows all
+         * newly activated extensions.
+         */
+        $io->writeln(
+            'Rebuilding TYPO3 class loading information...'
+        );
+
+        ClassLoadingInformation::dumpClassLoadingInformation();
 
         $io->success(
             'Razor package states successfully prepared.'
