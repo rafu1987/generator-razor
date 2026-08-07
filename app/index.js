@@ -429,7 +429,7 @@ export default class extends Generator {
     }
 
     /*
-    * Restore temporary extensions from the generator templates.
+    * Restore temporary extensions from generator templates.
     *
     * Yarn and Razor's Initialisation/Extensions may have modified
     * typo3conf/ext before this point.
@@ -497,7 +497,7 @@ export default class extends Generator {
     * Activate Razor Kickstart.
     *
     * This extension has no external dependencies and provides
-    * the TER update and Razor installation commands.
+    * the TER update and installation commands.
     */
     this.log('→ Activating razor kickstart...')
 
@@ -507,7 +507,7 @@ export default class extends Generator {
     )
 
     /*
-    * Update TER.
+    * Update TER extension list.
     */
     this.log('→ Updating TER extension list...')
 
@@ -517,7 +517,9 @@ export default class extends Generator {
     )
 
     /*
-    * Download all dependencies without activating them.
+    * Resolve and download all missing TER dependencies.
+    *
+    * Nothing is activated by this command.
     */
     this.log('→ Preparing razor dependencies...')
 
@@ -527,29 +529,12 @@ export default class extends Generator {
     )
 
     /*
-    * IMPORTANT:
+    * Activate all Razor packages in PackageStates.php.
     *
-    * Start installation from a fresh TYPO3 bootstrap so newly downloaded
-    * extensions are available to dependency injection.
+    * This command must only update package states. It must not
+    * perform TCA loading or extension setup in this process.
     */
-    this.log('→ Preparing TYPO3 for razor installation...')
-
-    await fs.remove(
-      this.destinationPath('typo3temp/var/cache')
-    )
-
-    await this._runCommand(
-      typo3,
-      ['cache:flush']
-    )
-
-    /*
-    * This is a NEW PHP process.
-    *
-    * Container, News, Content Blocks, etc. now physically existed before
-    * TYPO3 booted and can therefore participate in DI compilation.
-    */
-    this.log('→ Installing razor framework...')
+    this.log('→ Activating razor packages...')
 
     await this._runCommand(
       typo3,
@@ -557,8 +542,34 @@ export default class extends Generator {
     )
 
     /*
-    * Razor's InstallService should have created razor.sh
-    * during dependency installation / activation.
+    * All dependencies now exist physically and are active in
+    * PackageStates.php.
+    *
+    * Remove the old DI/cache state before starting TYPO3 again.
+    */
+    this.log('→ Preparing TYPO3 for razor setup...')
+
+    await fs.remove(
+      this.destinationPath('typo3temp/var/cache')
+    )
+
+    /*
+    * Fresh TYPO3 process.
+    *
+    * All Razor dependencies are already active when TYPO3 boots,
+    * so their services can participate in DI compilation before
+    * extension initialization and TCA loading starts.
+    */
+    this.log('→ Setting up razor framework...')
+
+    await this._runCommand(
+      typo3,
+      ['extension:setup']
+    )
+
+    /*
+    * Razor's InstallService should have run during extension setup
+    * and created razor.sh.
     */
     const razorScript = this.destinationPath(
       'razor.sh'
@@ -596,8 +607,8 @@ export default class extends Generator {
     }
 
     /*
-    * Clear package / DI caches after removing the temporary
-    * extensions.
+    * Clear package / DI caches once more after removing the
+    * temporary extensions.
     */
     this.log('→ Flushing TYPO3 caches...')
 
