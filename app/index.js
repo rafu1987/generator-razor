@@ -607,21 +607,6 @@ export default class extends Generator {
     }
 
     /*
-    * Clear package / DI caches once more after removing the
-    * temporary extensions.
-    */
-    this.log('→ Flushing TYPO3 caches...')
-
-    await fs.remove(
-      this.destinationPath('typo3temp/var/cache')
-    )
-
-    await this._runCommand(
-      typo3,
-      ['cache:flush']
-    )
-
-    /*
     * Hand over to the Razor installer.
     */
     this.log('→ Starting Razor installer...')
