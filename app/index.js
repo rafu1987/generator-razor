@@ -436,31 +436,34 @@ export default class extends Generator {
 
     this.log('→ Activating razor bootstrap...')
 
-    this.spawnCommandSync(
+    this.spawnSync(
       typo3,
       ['extension:activate', 'razorbootstrap'],
       {
-        cwd
+        cwd,
+        stdio: 'inherit'
       }
     )
 
     this.log('→ Updating TER extension list...')
 
-    this.spawnCommandSync(
+    this.spawnSync(
       typo3,
       ['razorbootstrap:ter:update'],
       {
-        cwd
+        cwd,
+        stdio: 'inherit'
       }
     )
 
     this.log('→ Removing razor bootstrap...')
 
-    this.spawnCommandSync(
+    this.spawnSync(
       typo3,
       ['extension:deactivate', 'razorbootstrap'],
       {
-        cwd
+        cwd,
+        stdio: 'inherit'
       }
     )
 
@@ -474,21 +477,23 @@ export default class extends Generator {
       this.destinationPath('typo3temp/var/cache')
     )
 
-    this.spawnCommandSync(
+    this.spawnSync(
       typo3,
       ['cache:flush'],
       {
-        cwd
+        cwd,
+        stdio: 'inherit'
       }
     )
 
     this.log('→ Activating razor...')
 
-    this.spawnCommandSync(
+    this.spawnSync(
       typo3,
       ['extension:activate', 'razor'],
       {
-        cwd
+        cwd,
+        stdio: 'inherit'
       }
     )
 
