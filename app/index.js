@@ -407,6 +407,9 @@ export default class extends Generator {
       this.destinationPath('typo3conf/ext/.yarn-integrity')
     )
 
+    /*
+    * Copy Razor extensions provided by the Razor repository.
+    */
     if (this._usesModernTypo3Structure()) {
       const extensionsSource = this.destinationPath(
         'typo3conf/ext/razor/Initialisation/Extensions'
@@ -426,10 +429,10 @@ export default class extends Generator {
     }
 
     /*
-    * Restore temporary extensions from generator templates.
+    * Restore temporary extensions from the generator templates.
     *
-    * They are copied here because Yarn and Razor's
-    * Initialisation/Extensions may have modified typo3conf/ext.
+    * Yarn and Razor's Initialisation/Extensions may have modified
+    * typo3conf/ext before this point.
     */
     const templateVersion = this._getTemplateVersion()
 
@@ -478,10 +481,6 @@ export default class extends Generator {
 
     /*
     * Start TYPO3 with completely fresh caches.
-    *
-    * Important before activating the first temporary extension,
-    * otherwise stale configuration may still reference caches
-    * removed in newer TYPO3 versions.
     */
     this.log('→ Preparing TYPO3 caches...')
 
@@ -495,15 +494,22 @@ export default class extends Generator {
     )
 
     /*
-    * Razor Kickstart
+    * Activate Razor Kickstart.
+    *
+    * This extension has no external dependencies and provides
+    * the TER update and Razor installation commands.
     */
-    this.log('→ Activating Razor kickstart...')
+    this.log('→ Activating razor kickstart...')
 
     await this._runCommand(
       typo3,
       ['extension:activate', 'razorkickstart']
     )
 
+    /*
+    * Update the TER extension list before resolving any
+    * Razor dependencies.
+    */
     this.log('→ Updating TER extension list...')
 
     await this._runCommand(
@@ -512,29 +518,44 @@ export default class extends Generator {
     )
 
     /*
-    * Razor Bootstrap
+    * Install the complete Razor framework through
+    * ExtensionManagementService.
     *
-    * Now that the TER extension list is current, TYPO3 can safely
-    * resolve and download Razor's dependencies.
+    * This resolves and installs Razor's TER dependencies,
+    * Razor itself, the Razor extensions and Razor Bootstrap.
     */
-    this.log('→ Activating Razor bootstrap...')
+    this.log('→ Installing razor framework...')
 
     await this._runCommand(
       typo3,
-      ['extension:activate', 'razorbootstrap']
+      ['razorkickstart:install']
     )
 
     /*
-    * Remove temporary extensions.
+    * Razor's InstallService should have created razor.sh
+    * during dependency installation / activation.
     */
-    this.log('→ Removing Razor bootstrap...')
+    const razorScript = this.destinationPath(
+      'razor.sh'
+    )
+
+    if (!await fs.pathExists(razorScript)) {
+      throw new Error(
+        'razor.sh was not created during Razor installation.'
+      )
+    }
+
+    /*
+    * Remove temporary helper extensions.
+    */
+    this.log('→ Removing razor bootstrap...')
 
     await this._runCommand(
       typo3,
       ['extension:deactivate', 'razorbootstrap']
     )
 
-    this.log('→ Removing Razor kickstart...')
+    this.log('→ Removing razor kickstart...')
 
     await this._runCommand(
       typo3,
@@ -550,8 +571,8 @@ export default class extends Generator {
     }
 
     /*
-    * Clear stale package / DI caches after removing the
-    * temporary extensions.
+    * Clear package / DI caches after removing the temporary
+    * extensions.
     */
     this.log('→ Flushing TYPO3 caches...')
 
@@ -563,28 +584,6 @@ export default class extends Generator {
       typo3,
       ['cache:flush']
     )
-
-    /*
-    * Activate Razor.
-    *
-    * Razor's InstallService should create razor.sh.
-    */
-    this.log('→ Activating Razor...')
-
-    await this._runCommand(
-      typo3,
-      ['extension:activate', 'razor']
-    )
-
-    const razorScript = this.destinationPath(
-      'razor.sh'
-    )
-
-    if (!await fs.pathExists(razorScript)) {
-      throw new Error(
-        'razor.sh was not created during Razor installation.'
-      )
-    }
 
     /*
     * Hand over to the Razor installer.
