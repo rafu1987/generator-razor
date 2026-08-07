@@ -217,6 +217,18 @@ export default class extends Generator {
       }],
       store: true
     }, {
+      type: 'select',
+      name: 'SwitchFreeMode',
+      message: 'Switch connected mode to free mode?',
+      choices: [{
+        name: 'No',
+        value: false
+      }, {
+        name: 'Yes',
+        value: true
+      }],
+      store: true
+    }, {
       type: 'input',
       name: 'Author',
       message: 'Author name',
@@ -969,6 +981,7 @@ export default class extends Generator {
       adminEmail: this.props.AdminEmail,
       english: this.props.English,
       englishDefault: this.props.EnglishDefault,
+      switchFreeMode: this.props.SwitchFreeMode,
       author: this.props.Author,
       email: this.props.Email,
       website: this.props.Website,
