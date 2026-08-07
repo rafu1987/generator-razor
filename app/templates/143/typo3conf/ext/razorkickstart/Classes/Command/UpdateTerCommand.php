@@ -15,7 +15,7 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace RZ\Razorbootstrap\Command;
+namespace RZ\Razorkickstart\Command;
 
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -27,7 +27,7 @@ use TYPO3\CMS\Extensionmanager\Exception\ExtensionManagerException;
 use TYPO3\CMS\Extensionmanager\Remote\RemoteRegistry;
 
 #[AsCommand(
-    name: 'razorbootstrap:ter:update',
+    name: 'razorkickstart:ter:update',
     description: 'Updates the TYPO3 Extension Repository extension list'
 )]
 #[AsNonSchedulableCommand]

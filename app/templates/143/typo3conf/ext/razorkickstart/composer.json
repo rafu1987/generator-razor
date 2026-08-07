@@ -1,0 +1,31 @@
+{
+	"name": "rafu1987/razorkickstart",
+	"type": "typo3-cms-extension",
+	"description": "razor kickstart - razor kickstart",
+  "require": {
+    "typo3/cms-extbase": "^14.3",
+    "typo3/cms-fluid": "^14.3",
+    "typo3/cms-core": "^14.3",
+    "php": "^8.2 || ^8.5"
+  },
+  "autoload": {
+      "psr-4": {
+          "RZ\\Razorkickstart\\": "Classes/"
+      }
+  },
+  "extra": {
+      "typo3/cms": {
+          "extension-key": "razorkickstart",
+          "version": "14.3.0",
+          "extra": {
+              "typo3/cms": {
+                  "extension-key": "razor",
+                  "version": "14.3.0",
+                  "Package": {
+                      "providesPackages": {}
+                  }
+              }
+          }
+      }
+  }
+}

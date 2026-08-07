@@ -426,42 +426,47 @@ export default class extends Generator {
     }
 
     /*
-    * Restore razorbootstrap from the generator template.
+    * Restore temporary extensions from generator templates.
     *
-    * yarn --modules-folder and Razor's Initialisation/Extensions
-    * may have modified typo3conf/ext before this point.
+    * They are copied here because Yarn and Razor's
+    * Initialisation/Extensions may have modified typo3conf/ext.
     */
     const templateVersion = this._getTemplateVersion()
 
-    const razorBootstrapSource = this.templatePath(
-      templateVersion,
-      'typo3conf/ext/razorbootstrap'
-    )
+    const temporaryExtensions = [
+      'razorkickstart',
+      'razorbootstrap'
+    ]
 
-    const razorBootstrapDestination = this.destinationPath(
-      'typo3conf/ext/razorbootstrap'
-    )
-
-    await fs.remove(
-      razorBootstrapDestination
-    )
-
-    await fs.copy(
-      razorBootstrapSource,
-      razorBootstrapDestination,
-      {
-        overwrite: true,
-        errorOnExist: false,
-        dereference: false
-      }
-    )
-
-    if (!await fs.pathExists(
-      path.join(razorBootstrapDestination, 'composer.json')
-    )) {
-      throw new Error(
-        'razorbootstrap was not copied from the generator template.'
+    for (const extension of temporaryExtensions) {
+      const source = this.templatePath(
+        templateVersion,
+        `typo3conf/ext/${extension}`
       )
+
+      const destination = this.destinationPath(
+        `typo3conf/ext/${extension}`
+      )
+
+      await fs.remove(destination)
+
+      await fs.copy(
+        source,
+        destination,
+        {
+          overwrite: true,
+          errorOnExist: false,
+          dereference: false
+        }
+      )
+
+      if (!await fs.pathExists(
+        path.join(destination, 'composer.json')
+      )) {
+        throw new Error(
+          `${extension} was not copied from the generator template.`
+        )
+      }
     }
 
     await this._fixProjectGroup()
@@ -472,38 +477,67 @@ export default class extends Generator {
     )
 
     /*
-    * Bootstrap
+    * Razor Kickstart
+    *
+    * This extension has no external dependencies and only exists
+    * to make the TER update command available.
     */
-
-    this.log('→ Activating razor bootstrap...')
+    this.log('→ Activating Razor kickstart...')
 
     await this._runCommand(
       typo3,
-      ['extension:activate', 'razorbootstrap']
+      ['extension:activate', 'razorkickstart']
     )
 
     this.log('→ Updating TER extension list...')
 
     await this._runCommand(
       typo3,
-      ['razorbootstrap:ter:update']
+      ['razorkickstart:ter:update']
     )
 
-    this.log('→ Removing razor bootstrap...')
+    /*
+    * Razor Bootstrap
+    *
+    * Now that the TER extension list is current, TYPO3 can safely
+    * resolve and download Razor's dependencies.
+    */
+    this.log('→ Activating Razor bootstrap...')
+
+    await this._runCommand(
+      typo3,
+      ['extension:activate', 'razorbootstrap']
+    )
+
+    /*
+    * Remove temporary extensions.
+    */
+    this.log('→ Removing Razor bootstrap...')
 
     await this._runCommand(
       typo3,
       ['extension:deactivate', 'razorbootstrap']
     )
 
-    await fs.remove(
-      razorBootstrapDestination
+    this.log('→ Removing Razor kickstart...')
+
+    await this._runCommand(
+      typo3,
+      ['extension:deactivate', 'razorkickstart']
     )
 
-    /*
-    * Clear stale package / DI information
-    */
+    for (const extension of temporaryExtensions) {
+      await fs.remove(
+        this.destinationPath(
+          `typo3conf/ext/${extension}`
+        )
+      )
+    }
 
+    /*
+    * Clear stale package / DI caches after removing the
+    * temporary extensions.
+    */
     this.log('→ Flushing TYPO3 caches...')
 
     await fs.remove(
@@ -516,19 +550,16 @@ export default class extends Generator {
     )
 
     /*
-    * Install Razor
+    * Activate Razor.
+    *
+    * Razor's InstallService should create razor.sh.
     */
-
-    this.log('→ Activating razor...')
+    this.log('→ Activating Razor...')
 
     await this._runCommand(
       typo3,
       ['extension:activate', 'razor']
     )
-
-    /*
-    * Razor's InstallService creates razor.sh
-    */
 
     const razorScript = this.destinationPath(
       'razor.sh'
@@ -536,36 +567,35 @@ export default class extends Generator {
 
     if (!await fs.pathExists(razorScript)) {
       throw new Error(
-        'razor.sh was not created during razor installation.'
+        'razor.sh was not created during Razor installation.'
       )
     }
 
-    const orange = chalk.ansi256(208)
-    const petrol = chalk.ansi256(24)
-
-    this.log(orange(`
-  ██████╗  ██████╗ ███╗   ██╗███████╗
-  ██╔══██╗██╔═══██╗████╗  ██║██╔════╝
-  ██║  ██║██║   ██║██╔██╗ ██║█████╗
-  ██║  ██║██║   ██║██║╚██╗██║██╔══╝
-  ██████╔╝╚██████╔╝██║ ╚████║███████╗
-  ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚══════╝
-  `))
-
-    this.log(petrol(
-      `    ${this.props.ProjectName} was generated successfully.\n`
-    ))
-
     /*
-    * Hand over to Razor
+    * Hand over to the Razor installer.
     */
-
-    this.log('→ Starting razor installer...')
+    this.log('→ Starting Razor installer...')
 
     await this._runCommand(
       'bash',
       ['./razor.sh']
     )
+
+    const orange = chalk.ansi256(208)
+    const petrol = chalk.ansi256(24)
+
+    this.log(orange(`
+      ██████╗  ██████╗ ███╗   ██╗███████╗
+      ██╔══██╗██╔═══██╗████╗  ██║██╔════╝
+      ██║  ██║██║   ██║██╔██╗ ██║█████╗
+      ██║  ██║██║   ██║██║╚██╗██║██╔══╝
+      ██████╔╝╚██████╔╝██║ ╚████║███████╗
+      ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚══════╝
+    `))
+
+    this.log(petrol(
+      `    ${this.props.ProjectName} was generated successfully.\n`
+    ))
   }
 
   async _fixProjectGroup () {
