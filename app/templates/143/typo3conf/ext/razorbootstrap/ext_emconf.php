@@ -1,8 +1,8 @@
 <?php
 
 $EM_CONF[$_EXTKEY] = [
-    'title' => 'Razor Bootstrap',
-    'description' => 'Installs the complete Razor framework',
+    'title' => 'razor bootstrap',
+    'description' => 'Installs the complete razor framework',
     'category' => 'misc',
     'author' => 'Raphael Zschorsch',
     'author_email' => 'rafu1987@gmail.com',
