@@ -425,6 +425,45 @@ export default class extends Generator {
       }
     }
 
+    /*
+    * Restore razorbootstrap from the generator template.
+    *
+    * yarn --modules-folder and Razor's Initialisation/Extensions
+    * may have modified typo3conf/ext before this point.
+    */
+    const templateVersion = this._getTemplateVersion()
+
+    const razorBootstrapSource = this.templatePath(
+      templateVersion,
+      'typo3conf/ext/razorbootstrap'
+    )
+
+    const razorBootstrapDestination = this.destinationPath(
+      'typo3conf/ext/razorbootstrap'
+    )
+
+    await fs.remove(
+      razorBootstrapDestination
+    )
+
+    await fs.copy(
+      razorBootstrapSource,
+      razorBootstrapDestination,
+      {
+        overwrite: true,
+        errorOnExist: false,
+        dereference: false
+      }
+    )
+
+    if (!await fs.pathExists(
+      path.join(razorBootstrapDestination, 'composer.json')
+    )) {
+      throw new Error(
+        'razorbootstrap was not copied from the generator template.'
+      )
+    }
+
     await this._fixProjectGroup()
     await this._fixWritableDirectoryPermissions()
 
@@ -432,44 +471,38 @@ export default class extends Generator {
       'typo3/sysext/core/bin/typo3'
     )
 
-    const cwd = this.destinationRoot()
+    /*
+    * Bootstrap
+    */
 
     this.log('→ Activating razor bootstrap...')
 
-    this.spawnSync(
+    await this._runCommand(
       typo3,
-      ['extension:activate', 'razorbootstrap'],
-      {
-        cwd,
-        stdio: 'inherit'
-      }
+      ['extension:activate', 'razorbootstrap']
     )
 
     this.log('→ Updating TER extension list...')
 
-    this.spawnSync(
+    await this._runCommand(
       typo3,
-      ['razorbootstrap:ter:update'],
-      {
-        cwd,
-        stdio: 'inherit'
-      }
+      ['razorbootstrap:ter:update']
     )
 
     this.log('→ Removing razor bootstrap...')
 
-    this.spawnSync(
+    await this._runCommand(
       typo3,
-      ['extension:deactivate', 'razorbootstrap'],
-      {
-        cwd,
-        stdio: 'inherit'
-      }
+      ['extension:deactivate', 'razorbootstrap']
     )
 
     await fs.remove(
-      this.destinationPath('typo3conf/ext/razorbootstrap')
+      razorBootstrapDestination
     )
+
+    /*
+    * Clear stale package / DI information
+    */
 
     this.log('→ Flushing TYPO3 caches...')
 
@@ -477,27 +510,29 @@ export default class extends Generator {
       this.destinationPath('typo3temp/var/cache')
     )
 
-    this.spawnSync(
+    await this._runCommand(
       typo3,
-      ['cache:flush'],
-      {
-        cwd,
-        stdio: 'inherit'
-      }
+      ['cache:flush']
     )
+
+    /*
+    * Install Razor
+    */
 
     this.log('→ Activating razor...')
 
-    this.spawnSync(
+    await this._runCommand(
       typo3,
-      ['extension:activate', 'razor'],
-      {
-        cwd,
-        stdio: 'inherit'
-      }
+      ['extension:activate', 'razor']
     )
 
-    const razorScript = this.destinationPath('razor.sh')
+    /*
+    * Razor's InstallService creates razor.sh
+    */
+
+    const razorScript = this.destinationPath(
+      'razor.sh'
+    )
 
     if (!await fs.pathExists(razorScript)) {
       throw new Error(
@@ -505,31 +540,32 @@ export default class extends Generator {
       )
     }
 
-    this.log('→ Starting razor installer...')
-
-    await this.spawnCommand(
-      'bash',
-      ['./razor.sh'],
-      {
-        cwd: this.destinationRoot()
-      }
-    )
-
     const orange = chalk.ansi256(208)
     const petrol = chalk.ansi256(24)
 
     this.log(orange(`
-    ██████╗  ██████╗ ███╗   ██╗███████╗
-    ██╔══██╗██╔═══██╗████╗  ██║██╔════╝
-    ██║  ██║██║   ██║██╔██╗ ██║█████╗
-    ██║  ██║██║   ██║██║╚██╗██║██╔══╝
-    ██████╔╝╚██████╔╝██║ ╚████║███████╗
-    ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚══════╝
-    `))
+  ██████╗  ██████╗ ███╗   ██╗███████╗
+  ██╔══██╗██╔═══██╗████╗  ██║██╔════╝
+  ██║  ██║██║   ██║██╔██╗ ██║█████╗
+  ██║  ██║██║   ██║██║╚██╗██║██╔══╝
+  ██████╔╝╚██████╔╝██║ ╚████║███████╗
+  ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚══════╝
+  `))
 
     this.log(petrol(
       `    ${this.props.ProjectName} was generated successfully.\n`
     ))
+
+    /*
+    * Hand over to Razor
+    */
+
+    this.log('→ Starting razor installer...')
+
+    await this._runCommand(
+      'bash',
+      ['./razor.sh']
+    )
   }
 
   async _fixProjectGroup () {
