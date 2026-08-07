@@ -25,10 +25,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use TYPO3\CMS\Extensionmanager\Service\ExtensionManagementService;
 
 #[AsCommand(
-    name: 'razorkickstart:install',
-    description: 'Installs the complete Razor framework'
+    name: 'razorkickstart:prepare',
+    description: 'Downloads all required Razor dependencies'
 )]
-final class InstallCommand extends Command
+final class PrepareCommand extends Command
 {
     public function __construct(
         private readonly ExtensionManagementService $extensionManagementService
@@ -42,18 +42,27 @@ final class InstallCommand extends Command
     ): int {
         $io = new SymfonyStyle($input, $output);
 
-        $io->writeln('Installing razor dependencies...');
+        $io->writeln('Preparing Razor dependencies...');
 
         $extension = $this->extensionManagementService->getExtension(
             'razorbootstrap'
         );
+
+        /*
+         * Resolve and download dependencies, but do NOT activate them.
+         *
+         * Activation must happen in a fresh TYPO3 process so the
+         * newly downloaded extensions are part of the DI container.
+         */
+        $this->extensionManagementService
+            ->setAutomaticInstallationEnabled(false);
 
         $result = $this->extensionManagementService
             ->installExtension($extension);
 
         if ($result === false) {
             $io->error([
-                'razor dependencies could not be resolved.',
+                'Razor dependencies could not be resolved.',
                 print_r(
                     $this->extensionManagementService->getDependencyErrors(),
                     true
@@ -64,7 +73,7 @@ final class InstallCommand extends Command
         }
 
         $io->success(
-            'razor framework successfully installed.'
+            'Razor dependencies successfully prepared.'
         );
 
         return Command::SUCCESS;

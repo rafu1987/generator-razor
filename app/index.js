@@ -507,8 +507,7 @@ export default class extends Generator {
     )
 
     /*
-    * Update the TER extension list before resolving any
-    * Razor dependencies.
+    * Update TER.
     */
     this.log('→ Updating TER extension list...')
 
@@ -518,11 +517,37 @@ export default class extends Generator {
     )
 
     /*
-    * Install the complete Razor framework through
-    * ExtensionManagementService.
+    * Download all dependencies without activating them.
+    */
+    this.log('→ Preparing razor dependencies...')
+
+    await this._runCommand(
+      typo3,
+      ['razorkickstart:prepare']
+    )
+
+    /*
+    * IMPORTANT:
     *
-    * This resolves and installs Razor's TER dependencies,
-    * Razor itself, the Razor extensions and Razor Bootstrap.
+    * Start installation from a fresh TYPO3 bootstrap so newly downloaded
+    * extensions are available to dependency injection.
+    */
+    this.log('→ Preparing TYPO3 for razor installation...')
+
+    await fs.remove(
+      this.destinationPath('typo3temp/var/cache')
+    )
+
+    await this._runCommand(
+      typo3,
+      ['cache:flush']
+    )
+
+    /*
+    * This is a NEW PHP process.
+    *
+    * Container, News, Content Blocks, etc. now physically existed before
+    * TYPO3 booted and can therefore participate in DI compilation.
     */
     this.log('→ Installing razor framework...')
 
