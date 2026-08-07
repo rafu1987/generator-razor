@@ -477,10 +477,25 @@ export default class extends Generator {
     )
 
     /*
-    * Razor Kickstart
+    * Start TYPO3 with completely fresh caches.
     *
-    * This extension has no external dependencies and only exists
-    * to make the TER update command available.
+    * Important before activating the first temporary extension,
+    * otherwise stale configuration may still reference caches
+    * removed in newer TYPO3 versions.
+    */
+    this.log('→ Preparing TYPO3 caches...')
+
+    await fs.remove(
+      this.destinationPath('typo3temp/var/cache')
+    )
+
+    await this._runCommand(
+      typo3,
+      ['cache:flush']
+    )
+
+    /*
+    * Razor Kickstart
     */
     this.log('→ Activating Razor kickstart...')
 
