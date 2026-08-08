@@ -606,16 +606,6 @@ export default class extends Generator {
       )
     }
 
-    /*
-    * Hand over to the Razor installer.
-    */
-    this.log('→ Starting razor installer...')
-
-    await this._runCommand(
-      'bash',
-      ['./razor.sh']
-    )
-
     const orange = chalk.ansi256(208)
     const petrol = chalk.ansi256(24)
 
@@ -631,6 +621,16 @@ export default class extends Generator {
     this.log(petrol(
       `    ${this.props.ProjectName} was generated successfully.\n`
     ))
+
+    /*
+    * Hand over to the Razor installer.
+    */
+    this.log('→ Starting razor installer...')
+
+    await this._runCommand(
+      'bash',
+      ['./razor.sh']
+    )
   }
 
   async _fixProjectGroup () {
@@ -1163,8 +1163,14 @@ export default class extends Generator {
   }
 
   async _setRazorConfig () {
+    const devDomain = process.env.DEV_DOMAIN ?? ''
+    const projectName = path.basename(this.destinationRoot())
+
     const config = {
       siteName: this.props.ProjectName,
+      localDomain: devDomain
+        ? `${projectName}.${devDomain}`
+        : '',
       user: this.props.User,
       adminEmail: this.props.AdminEmail,
       english: this.props.English,
