@@ -42,7 +42,7 @@ final class PrepareCommand extends Command
     ): int {
         $io = new SymfonyStyle($input, $output);
 
-        $io->writeln('Preparing razor dependencies...');
+        $io->writeln('<fg=cyan>Preparing razor dependencies...</>');
 
         $extension = $this->extensionManagementService->getExtension(
             'razorbootstrap'

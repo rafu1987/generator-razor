@@ -482,7 +482,9 @@ export default class extends Generator {
     /*
     * Start TYPO3 with completely fresh caches.
     */
-    this.log('→ Preparing TYPO3 caches...')
+    this.log(orange(
+      `→ Preparing TYPO3 caches...`
+    ))
 
     await fs.remove(
       this.destinationPath('typo3temp/var/cache')
@@ -499,7 +501,9 @@ export default class extends Generator {
     * This extension has no external dependencies and provides
     * the TER update and installation commands.
     */
-    this.log('→ Activating razor kickstart...')
+    this.log(orange(
+      `→ Activating razor kickstart...`
+    ))
 
     await this._runCommand(
       typo3,
@@ -509,7 +513,9 @@ export default class extends Generator {
     /*
     * Update TER extension list.
     */
-    this.log('→ Updating TER extension list...')
+    this.log(orange(
+      `→ Updating TER extension list...`
+    ))
 
     await this._runCommand(
       typo3,
@@ -521,7 +527,9 @@ export default class extends Generator {
     *
     * Nothing is activated by this command.
     */
-    this.log('→ Preparing razor dependencies...')
+    this.log(orange(
+      `→ Preparing razor dependencies...`
+    ))
 
     await this._runCommand(
       typo3,
@@ -534,7 +542,9 @@ export default class extends Generator {
     * This command must only update package states. It must not
     * perform TCA loading or extension setup in this process.
     */
-    this.log('→ Activating razor packages...')
+    this.log(orange(
+      `→ Activating razor packages...`
+    ))
 
     await this._runCommand(
       typo3,
@@ -547,7 +557,9 @@ export default class extends Generator {
     *
     * Remove the old DI/cache state before starting TYPO3 again.
     */
-    this.log('→ Preparing TYPO3 for razor setup...')
+    this.log(orange(
+      `→ Preparing TYPO3 for razor setup...`
+    ))
 
     await fs.remove(
       this.destinationPath('typo3temp/var/cache')
@@ -560,7 +572,9 @@ export default class extends Generator {
     * so their services can participate in DI compilation before
     * extension initialization and TCA loading starts.
     */
-    this.log('→ Setting up razor framework...')
+    this.log(orange(
+      `→ Setting up razor framework...`
+    ))
 
     await this._runCommand(
       typo3,
@@ -584,14 +598,18 @@ export default class extends Generator {
     /*
     * Remove temporary helper extensions.
     */
-    this.log('→ Removing razor bootstrap...')
+    this.log(orange(
+      `→ Removing razor bootstrap...`
+    ))
 
     await this._runCommand(
       typo3,
       ['extension:deactivate', 'razorbootstrap']
     )
 
-    this.log('→ Removing razor kickstart...')
+    this.log(orange(
+      `→ Removing razor kickstart...`
+    ))
 
     await this._runCommand(
       typo3,
@@ -619,7 +637,7 @@ export default class extends Generator {
     `))
 
     this.log(petrol(
-      `    ${this.props.ProjectName} was generated successfully.\n`
+      `${this.props.ProjectName} was generated successfully.\n`
     ))
 
     /*

@@ -47,7 +47,7 @@ final class InstallCommand extends Command
     ): int {
         $io = new SymfonyStyle($input, $output);
 
-        $io->writeln('Preparing razor package states...');
+        $io->writeln('<fg=cyan>Preparing razor package states...</>');
 
         /*
          * Resolve the complete installation queue again.
@@ -105,7 +105,7 @@ final class InstallCommand extends Command
         foreach (array_keys($installQueue) as $extensionKey) {
             $io->writeln(
                 sprintf(
-                    'Activating package %s...',
+                    '<fg=green>✓ Activating package %s...</>',
                     $extensionKey
                 )
             );
@@ -124,7 +124,7 @@ final class InstallCommand extends Command
          * newly activated extensions.
          */
         $io->writeln(
-            'Rebuilding TYPO3 class loading information...'
+            '<fg=cyan>Rebuilding TYPO3 class loading information...</>'
         );
 
         ClassLoadingInformation::dumpClassLoadingInformation();
