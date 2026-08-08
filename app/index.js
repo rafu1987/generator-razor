@@ -399,6 +399,9 @@ export default class extends Generator {
   }
 
   async end () {
+    const orange = chalk.ansi256(208)
+    const petrol = chalk.ansi256(24)
+    
     await fs.remove(
       this.destinationPath('package.json')
     )
@@ -623,9 +626,6 @@ export default class extends Generator {
         )
       )
     }
-
-    const orange = chalk.ansi256(208)
-    const petrol = chalk.ansi256(24)
 
     this.log(orange(`
       ██████╗  ██████╗ ███╗   ██╗███████╗

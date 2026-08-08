@@ -45,7 +45,7 @@ final class UpdateTerCommand extends Command
     ): int {
         $io = new SymfonyStyle($input, $output);
 
-        $io->text('Updating TER extension list...');
+        $io->writeln('<fg=cyan>Updating TER extension list...</>');
 
         try {
             foreach ($this->remoteRegistry->getListableRemotes() as $remote) {
