@@ -102,11 +102,11 @@ export default class extends Generator {
       message: 'New database name? A new database, username and password will be created.',
       default: 'newproject',
       validate: value => {
-        if (/^[a-zA-Z0-9_]+$/.test(value)) {
+        if (/^[a-zA-Z0-9_-]+$/.test(value)) {
           return true
         }
 
-        return 'Use only letters, numbers and underscores.'
+        return 'Use only letters, numbers, underscores and hyphens.'
       }
     }, {
       type: 'input',
