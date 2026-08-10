@@ -366,7 +366,6 @@ export default class extends Generator {
     )
 
     await this._writeSystemSettings()
-    await this._writeLocalSettings()
     await this._createDatabaseAndImportSql()
     await this._setRazorConfig()
   }
@@ -1035,55 +1034,6 @@ export default class extends Generator {
     )
   }
 
-  async _writeLocalSettings () {
-    const localSettingsPath = this.destinationPath(
-      'typo3conf/system/local.php'
-    )
-
-    if (this.props.Transport !== 'smtp') {
-      await fs.remove(localSettingsPath)
-      return
-    }
-
-    let content = await fs.readFile(
-      localSettingsPath,
-      'utf8'
-    )
-
-    let encryptionMarker = '###SMTP_ENCRYPT###'
-
-    if (
-      this.props.Encrypt === true ||
-      this.props.Encrypt === false
-    ) {
-      encryptionMarker = "'###SMTP_ENCRYPT###'"
-    }
-
-    const replacements = [
-      ['###TRANSPORT###', this.props.Transport],
-      [encryptionMarker, this.props.Encrypt],
-      ['###SMTP_PASS###', this.props.SmtpPass ?? ''],
-      ['###SMTP_SERVER###', this.props.SmtpServer ?? ''],
-      ['###SMTP_USER###', this.props.SmtpUser ?? ''],
-      ['###SMTP_EMAIL###', this.props.SmtpEmail ?? ''],
-      ['###SMTP_NAME###', this.props.SmtpName ?? '']
-    ]
-
-    for (const [marker, value] of replacements) {
-      content = this._substituteMarker(
-        content,
-        marker,
-        value
-      )
-    }
-
-    await fs.writeFile(
-      localSettingsPath,
-      content,
-      'utf8'
-    )
-  }
-
   async _createDatabaseAndImportSql () {
     const databaseName = this.props.DbNew.toLowerCase()
 
@@ -1201,7 +1151,13 @@ export default class extends Generator {
       fontawesome: this.props.FontAwesome,
       cols: this.props.Cols,
       htaccess: this.props.Htaccess,
-      smtpemail: this.props.SmtpEmail ?? '',
+      smtpTransport: this.props.Transport ?? '',
+      smtpEncrypt: this.props.Encrypt === true ? 1 : 0,
+      smtpServer: this.props.SmtpServer ?? '',
+      smtpUser: this.props.SmtpUser ?? '',
+      smtpPass: this.props.SmtpPass ?? '',
+      smtpEmail: this.props.SmtpEmail ?? '',
+      smtpName: this.props.SmtpName ?? '',
       search: this.props.Search,
       ssl: this.props.SSL
     }
