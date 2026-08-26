@@ -156,10 +156,6 @@ RewriteRule .* browser-support.html [L]
 
 ### Begin: Compression ###
 
-<IfModule http2_module>
-  Protocols h2 http/1.1
-</IfModule>
-
 # Optional: enable pre-compressed asset delivery
 AddEncoding gzip .gz
 AddType "text/javascript" .js.gz
