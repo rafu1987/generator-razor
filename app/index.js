@@ -612,7 +612,6 @@ export default class extends Generator {
       'composer',
       [
         'install',
-        '--no-dev',
         '--prefer-dist',
         '--no-interaction',
         '--no-progress',
