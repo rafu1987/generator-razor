@@ -598,6 +598,40 @@ export default class extends Generator {
     }
 
     /*
+    * Install razor Composer dependencies.
+    *
+    * InstallService copied composer.json and composer.lock to the
+    * project root. Composer is configured to install them directly
+    * into vendor-razor.
+    */
+    this.log(orange(
+      '→ Installing razor PHP dependencies...'
+    ))
+
+    await this._runCommand(
+      'composer',
+      [
+        'install',
+        '--no-dev',
+        '--prefer-dist',
+        '--no-interaction',
+        '--no-progress',
+        '--optimize-autoloader'
+      ]
+    )
+
+    const razorAutoloadFile = this.destinationPath(
+      'vendor-razor/autoload.php'
+    )
+
+    if (!await fs.pathExists(razorAutoloadFile)) {
+      throw new Error(
+        'razor Composer dependencies were installed, but ' +
+        'vendor-razor/autoload.php was not created.'
+      )
+    }
+
+    /*
     * Remove temporary helper extensions.
     */
     this.log(orange(
