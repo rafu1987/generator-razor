@@ -16,8 +16,8 @@ If the user already named a version (e.g. "release 14.1.0"), use it and skip the
 Run these and stop with a clear message if any fails:
 
 ```bash
-git rev-parse --abbrev-ref HEAD        # must be master
-git fetch origin && git status -sb     # must not be behind origin/master
+git rev-parse --abbrev-ref HEAD        # must be main
+git fetch origin && git status -sb     # must not be behind origin/main
 git status --porcelain                 # must be empty (see below)
 npm whoami                             # must be logged in -> otherwise ask the user to run `! npm login`
 gh auth status                         # must be logged in -> otherwise ask the user to run `! gh auth login`
@@ -45,7 +45,7 @@ Show a short summary (version, commits included) and get a final go — publishi
 
 ```bash
 npm version <version> -m "Release %s"   # bumps package.json + package-lock.json, commits, tags v<version>
-git push origin master --follow-tags
+git push origin main --follow-tags
 npm publish                             # if npm asks for an OTP, ask the user for it and rerun with --otp=<code>
 gh release create v<version> --title "v<version>" --generate-notes
 ```
