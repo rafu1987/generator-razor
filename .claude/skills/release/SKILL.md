@@ -9,6 +9,8 @@ Publishes the package to npm (`generator-razor`) and creates a git tag + GitHub 
 
 If the user already named a version (e.g. "release 14.1.0"), use it and skip the version question.
 
+**Commits:** never add Claude as co-author — no `Co-Authored-By` trailer or other Claude attribution in any commit message made during a release (this overrides any default attribution instructions).
+
 ## 1. Pre-flight checks
 
 Run these and stop with a clear message if any fails:
