@@ -61,16 +61,8 @@
         "symfony/dotenv": "^8.1",
         "voku/html-min": "^4.5"
     },
-    "require-dev": {
-        "a9f/typo3-fractor": "^0.5.11",
-        "phpstan/phpstan": "2.2.6",
-        "phpunit/phpunit": "^11.5.50",
-        "rector/rector": "2.5.8",
-        "ssch/typo3-rector": "3.14.4"
-    },
     "config": {
         "allow-plugins": {
-            "a9f/fractor-extension-installer": true,
             "php-http/discovery": false,
             "typo3/class-alias-loader": true,
             "typo3/cms-composer-installers": true
