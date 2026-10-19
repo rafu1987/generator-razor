@@ -35,6 +35,9 @@ return [
         'filelist' => [
             'packagePath' => 'typo3/sysext/filelist/',
         ],
+        'impexp' => [
+            'packagePath' => 'typo3/sysext/impexp/',
+        ],
         'form' => [
             'packagePath' => 'typo3/sysext/form/',
         ],

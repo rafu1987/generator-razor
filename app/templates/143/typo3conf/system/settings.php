@@ -1,9 +1,12 @@
 <?php
+
 return [
     'BE' => [
         'debug' => false,
         'explicitADmode' => 'explicitAllow',
+								'fileadminDir' => 'fileadmin/user_upload/',
         'installToolPassword' => '###PASS###',
+								'lockSSL' => true,
         'passwordHashing' => [
             'className' => 'TYPO3\\CMS\\Core\\Crypto\\PasswordHashing\\Argon2idPasswordHash',
             'options' => [],
@@ -96,13 +99,6 @@ return [
         'displayErrors' => 1,
         'encryptionKey' => '###ENCRYPTION_KEY###',
         'exceptionalErrors' => 20480,
-        'features' => [
-            'felogin.extbase' => true,
-            'fluidBasedPageModule' => true,
-            'rearrangedRedirectMiddlewares' => true,
-            'unifiedPageTranslationHandling' => true,
-            'yamlImportsFollowDeclarationOrder' => true,
-        ],
         'fileCreateMask' => '0664',
         'folderCreateMask' => '2775',
         'sitename' => '###PROJECTNAME###',

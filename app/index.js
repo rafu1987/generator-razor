@@ -50,6 +50,27 @@ export default class extends Generator {
       message: 'Choose your project name',
       default: 'Project'
     }, {
+      type: 'select',
+      name: 'ComposerMode',
+      message: 'Install TYPO3 in Composer mode?',
+      choices: [{
+        name: 'No',
+        value: false
+      }, {
+        name: 'Yes',
+        value: true
+      }],
+      default: false,
+      store: true
+    },{
+      type: 'input',
+      name: 'ComposerVendor',
+      message: 'Composer vendor:',
+      default: 'gg',
+      store: true,
+      when: answers => answers.ComposerMode === true
+      }, {
+      when: answers => !answers.ComposerMode,
       type: 'input',
       name: 'SrcPath',
       message: 'What is the path to the TYPO3 source files?',
@@ -318,6 +339,7 @@ export default class extends Generator {
       }],
       store: true
     }, {
+      when: answers => !answers.ComposerMode,
       type: 'select',
       name: 'Picture',
       message: 'Download TYPO3 picture extension?',
@@ -347,17 +369,23 @@ export default class extends Generator {
   async writing () {
     const templateVersion = this._getTemplateVersion()
 
-    const sourcePath = path.resolve(
-      this.destinationRoot(),
-      this.props.SrcPath,
-      `typo3_src-${this.props.Version}`
-    )
+    if (!this.props.ComposerMode) {
+      const sourcePath = path.resolve(
+        this.destinationRoot(),
+        this.props.SrcPath,
+        `typo3_src-${this.props.Version}`
+      )
 
-    await this._ensureTypo3Source(sourcePath)
-    await this._createSymlinks(sourcePath)
+      await this._ensureTypo3Source(sourcePath)
+      await this._createSymlinks(sourcePath)
+    }
 
     await fs.copy(
-      this.templatePath(templateVersion),
+      this.templatePath(
+        this.props.ComposerMode
+          ? `${templateVersion}-composer`
+          : templateVersion
+      ),
       this.destinationPath(),
       {
         overwrite: true,
@@ -365,19 +393,25 @@ export default class extends Generator {
       }
     )
 
+    if (this.props.ComposerMode) {
+      await this._prepareComposerJson()
+    }
+
     await this._writeSystemSettings()
     await this._createDatabaseAndImportSql()
-    await this._setRazorConfig()
+    await this._setrazorConfig()
   }
 
   async install () {
-    const branch = this._getRazorBranch()
+    const branch = this._getrazorBranch()
 
     const packages = [
-      `ssh://git@github.com/rafu1987/razor.git#${branch}`
+      this.props.ComposerMode
+        ? `ssh://git@github.com/rafu1987/razorsite.git#${branch}`
+        : `ssh://git@github.com/rafu1987/razor.git#${branch}`
     ]
 
-    if (this.props.Picture) {
+    if (!this.props.ComposerMode && this.props.Picture) {
       const picturePackage = await this._getLatestGithubReleasePackage(
         'b13',
         'picture',
@@ -387,40 +421,141 @@ export default class extends Generator {
       packages.push(picturePackage)
     }
 
+    /*
+    * Classic:
+    *   razor is downloaded through Yarn to typo3conf/ext/razor.
+    *
+    * Composer:
+    *   only razorsite is downloaded through Yarn to
+    *   packages/razorsite.
+    */
     await this._runCommand('yarn', [
       'add',
       '--dev',
       '--no-lockfile',
       '--modules-folder',
-      'typo3conf/ext/',
+      this._getExtensionRootPath(),
       ...packages
     ])
+
+    if (this.props.ComposerMode) {
+      const razorsiteComposer = await fs.readJson(
+        this.destinationPath('packages/razorsite/composer.json')
+      )
+
+      const razorsiteVersion =
+        razorsiteComposer.extra['typo3/cms'].version
+
+      const composerPath = this.destinationPath('composer.json')
+      const composer = await fs.readJson(composerPath)
+
+      const pathRepository = composer.repositories.find(
+        repository =>
+          repository.type === 'path' &&
+          repository.url === 'packages/*'
+      )
+
+      pathRepository.options.versions['rafu1987/razorsite'] =
+        razorsiteVersion
+
+      await fs.writeJson(composerPath, composer, { spaces: 4 })
+    }
+
+    /*
+    * Classic:
+    * razor contains the other private razor extensions inside
+    * Initialisation/Extensions. Copy them to typo3conf/ext/.
+    */
+    if (!this.props.ComposerMode) {
+      if (this._usesModernTypo3Structure()) {
+        const extensionsSource = this.destinationPath(
+          this._getExtensionRootPath(),
+          'razor',
+          'Initialisation',
+          'Extensions'
+        )
+
+        if (await fs.pathExists(extensionsSource)) {
+          await fs.copy(
+            extensionsSource,
+            this.destinationPath(
+              this._getExtensionRootPath()
+            ),
+            {
+              overwrite: true,
+              errorOnExist: false,
+              dereference: false
+            }
+          )
+        }
+      }
+
+      return
+    }
+
+    /*
+    * Composer:
+    * TYPO3, razor, the reusable razor extensions and all PHP
+    * dependencies are installed through the root Composer project.
+    *
+    * packages/razorsite already exists at this point and is
+    * resolved through the local path repository.
+    */
+    await this._runCommand(
+      'composer',
+      [
+        'update',
+        '--with',
+        `typo3/cms-core:${this.props.Version}`,
+        '--no-blocking',
+        '--prefer-dist',
+        '--no-interaction',
+        '--no-progress',
+        '--optimize-autoloader'
+      ]
+    )
   }
 
   async end () {
     const orange = chalk.ansi256(208)
     const petrol = chalk.ansi256(24)
-    
-    await fs.remove(
-      this.destinationPath('package.json')
-    )
+
+    // await fs.remove(
+    //   this.destinationPath('package.json')
+    // )
 
     await fs.remove(
-      this.destinationPath('typo3conf/ext/.yarn-integrity')
+      this.destinationPath(
+        this._getExtensionRootPath(),
+        '.yarn-integrity'
+      )
     )
 
     /*
-    * Copy Razor extensions provided by the Razor repository.
-    */
-    if (this._usesModernTypo3Structure()) {
+     * Copy razor extensions provided by the razor repository.
+     *
+     * Composer mode already had to do this during install(),
+     * before Composer dependency resolution.
+     *
+     * Classic mode keeps the existing behaviour here.
+     */
+    if (
+      !this.props.ComposerMode &&
+      this._usesModernTypo3Structure()
+    ) {
       const extensionsSource = this.destinationPath(
-        'typo3conf/ext/razor/Initialisation/Extensions'
+        this._getExtensionRootPath(),
+        'razor',
+        'Initialisation',
+        'Extensions'
       )
 
       if (await fs.pathExists(extensionsSource)) {
         await fs.copy(
           extensionsSource,
-          this.destinationPath('typo3conf/ext'),
+          this.destinationPath(
+            this._getExtensionRootPath()
+          ),
           {
             overwrite: true,
             errorOnExist: false,
@@ -431,151 +566,169 @@ export default class extends Generator {
     }
 
     /*
-    * Restore temporary extensions from generator templates.
-    *
-    * Yarn and Razor's Initialisation/Extensions may have modified
-    * typo3conf/ext before this point.
-    */
-    const templateVersion = this._getTemplateVersion()
-
+     * Restore temporary extensions from generator templates.
+     *
+     * These are only required in Classic mode.
+     */
     const temporaryExtensions = [
       'razorkickstart',
       'razorbootstrap'
     ]
 
-    for (const extension of temporaryExtensions) {
-      const source = this.templatePath(
-        templateVersion,
-        `typo3conf/ext/${extension}`
-      )
+    if (!this.props.ComposerMode) {
+      const templateVersion = this._getTemplateVersion()
 
-      const destination = this.destinationPath(
-        `typo3conf/ext/${extension}`
-      )
-
-      await fs.remove(destination)
-
-      await fs.copy(
-        source,
-        destination,
-        {
-          overwrite: true,
-          errorOnExist: false,
-          dereference: false
-        }
-      )
-
-      if (!await fs.pathExists(
-        path.join(destination, 'composer.json')
-      )) {
-        throw new Error(
-          `${extension} was not copied from the generator template.`
+      for (const extension of temporaryExtensions) {
+        const source = this.templatePath(
+          templateVersion,
+          `typo3conf/ext/${extension}`
         )
+
+        const destination = this.destinationPath(
+          this._getExtensionRootPath(),
+          extension
+        )
+
+        await fs.remove(destination)
+
+        await fs.copy(
+          source,
+          destination,
+          {
+            overwrite: true,
+            errorOnExist: false,
+            dereference: false
+          }
+        )
+
+        if (!await fs.pathExists(
+          path.join(destination, 'composer.json')
+        )) {
+          throw new Error(
+            `${extension} was not copied from the generator template.`
+          )
+        }
       }
     }
 
     await this._fixProjectGroup()
     await this._fixWritableDirectoryPermissions()
 
-    const typo3 = this.destinationPath(
-      'typo3/sysext/core/bin/typo3'
-    )
+    const typo3 = this._getTypo3Binary()
 
     /*
-    * Start TYPO3 with completely fresh caches.
+    * Start TYPO3 with completely fresh filesystem caches.
+    *
+    * In Composer mode we must not run cache:flush before
+    * extension:setup because Composer-installed extensions are already
+    * active and may require database tables that do not exist yet.
     */
     this.log(orange(
-      `→ Preparing TYPO3 caches...`
+      '→ Preparing TYPO3 caches...'
     ))
 
     await fs.remove(
-      this.destinationPath('typo3temp/var/cache')
+      this.destinationPath(
+        this._getCachePath()
+      )
     )
 
-    await this._runCommand(
-      typo3,
-      ['cache:flush']
-    )
+    if (!this.props.ComposerMode) {
+      await this._runCommand(
+        typo3,
+        ['cache:flush']
+      )
+    }
 
     /*
-    * Activate Razor Kickstart.
-    *
-    * This extension has no external dependencies and provides
-    * the TER update and installation commands.
-    */
-    this.log(orange(
-      `→ Activating razor kickstart...`
-    ))
+     * Classic mode still needs razor Kickstart to resolve TER
+     * dependencies and update PackageStates.php.
+     *
+     * Composer mode already resolved and installed all packages.
+     */
+    if (!this.props.ComposerMode) {
+      /*
+       * Activate razor Kickstart.
+       */
+      this.log(orange(
+        '→ Activating razor kickstart...'
+      ))
 
-    await this._runCommand(
-      typo3,
-      ['extension:activate', 'razorkickstart']
-    )
+      await this._runCommand(
+        typo3,
+        ['extension:activate', 'razorkickstart']
+      )
+
+      /*
+       * Update TER extension list.
+       */
+      this.log(orange(
+        '→ Updating TER extension list...'
+      ))
+
+      await this._runCommand(
+        typo3,
+        ['razorkickstart:ter:update']
+      )
+
+      /*
+       * Resolve and download all missing TER dependencies.
+       *
+       * Nothing is activated by this command.
+       */
+      this.log(orange(
+        '→ Preparing razor dependencies...'
+      ))
+
+      await this._runCommand(
+        typo3,
+        ['razorkickstart:prepare']
+      )
+
+      /*
+       * Activate all razor packages in PackageStates.php.
+       *
+       * This command must only update package states. It must not
+       * perform TCA loading or extension setup in this process.
+       */
+      this.log(orange(
+        '→ Activating razor packages...'
+      ))
+
+      await this._runCommand(
+        typo3,
+        ['razorkickstart:install']
+      )
+
+      /*
+       * All dependencies now exist physically and are active in
+       * PackageStates.php.
+       *
+       * Remove the old DI/cache state before starting TYPO3 again.
+       */
+      this.log(orange(
+        '→ Preparing TYPO3 for razor setup...'
+      ))
+
+      await fs.remove(
+        this.destinationPath(
+          this._getCachePath()
+        )
+      )
+    }
 
     /*
-    * Update TER extension list.
-    */
+     * Fresh TYPO3 process.
+     *
+     * Classic:
+     * All razor dependencies are already active when TYPO3 boots.
+     *
+     * Composer:
+     * All razor dependencies are already installed and active
+     * through Composer.
+     */
     this.log(orange(
-      `→ Updating TER extension list...`
-    ))
-
-    await this._runCommand(
-      typo3,
-      ['razorkickstart:ter:update']
-    )
-
-    /*
-    * Resolve and download all missing TER dependencies.
-    *
-    * Nothing is activated by this command.
-    */
-    this.log(orange(
-      `→ Preparing razor dependencies...`
-    ))
-
-    await this._runCommand(
-      typo3,
-      ['razorkickstart:prepare']
-    )
-
-    /*
-    * Activate all Razor packages in PackageStates.php.
-    *
-    * This command must only update package states. It must not
-    * perform TCA loading or extension setup in this process.
-    */
-    this.log(orange(
-      `→ Activating razor packages...`
-    ))
-
-    await this._runCommand(
-      typo3,
-      ['razorkickstart:install']
-    )
-
-    /*
-    * All dependencies now exist physically and are active in
-    * PackageStates.php.
-    *
-    * Remove the old DI/cache state before starting TYPO3 again.
-    */
-    this.log(orange(
-      `→ Preparing TYPO3 for razor setup...`
-    ))
-
-    await fs.remove(
-      this.destinationPath('typo3temp/var/cache')
-    )
-
-    /*
-    * Fresh TYPO3 process.
-    *
-    * All Razor dependencies are already active when TYPO3 boots,
-    * so their services can participate in DI compilation before
-    * extension initialization and TCA loading starts.
-    */
-    this.log(orange(
-      `→ Setting up razor framework...`
+      '→ Setting up razor framework...'
     ))
 
     await this._runCommand(
@@ -584,79 +737,82 @@ export default class extends Generator {
     )
 
     /*
-    * Razor's InstallService should have run during extension setup
-    * and created razor.sh.
-    */
+     * razor's InstallService should have run during extension setup
+     * and created razor.sh.
+     */
     const razorScript = this.destinationPath(
       'razor.sh'
     )
 
     if (!await fs.pathExists(razorScript)) {
       throw new Error(
-        'razor.sh was not created during Razor installation.'
+        'razor.sh was not created during razor installation.'
       )
     }
 
     /*
-    * Install razor Composer dependencies.
-    *
-    * InstallService copied composer.json and composer.lock to the
-    * project root. Composer is configured to install them directly
-    * into vendor-razor.
-    */
-    this.log(orange(
-      '→ Installing razor PHP dependencies...'
-    ))
+     * Classic mode still installs the standalone razor Composer
+     * dependencies into vendor-razor.
+     *
+     * Composer mode already installed these dependencies together
+     * with TYPO3 in vendor/.
+     */
+    if (!this.props.ComposerMode) {
+      this.log(orange(
+        '→ Installing razor PHP dependencies...'
+      ))
 
-    await this._runCommand(
-      'composer',
-      [
-        'install',
-        '--prefer-dist',
-        '--no-interaction',
-        '--no-progress',
-        '--optimize-autoloader'
-      ]
-    )
-
-    const razorAutoloadFile = this.destinationPath(
-      'vendor-razor/autoload.php'
-    )
-
-    if (!await fs.pathExists(razorAutoloadFile)) {
-      throw new Error(
-        'razor Composer dependencies were installed, but ' +
-        'vendor-razor/autoload.php was not created.'
+      await this._runCommand(
+        'composer',
+        [
+          'install',
+          '--prefer-dist',
+          '--no-interaction',
+          '--no-progress',
+          '--optimize-autoloader'
+        ]
       )
-    }
 
-    /*
-    * Remove temporary helper extensions.
-    */
-    this.log(orange(
-      `→ Removing razor bootstrap...`
-    ))
+      const razorAutoloadFile = this.destinationPath(
+        'vendor-razor/autoload.php'
+      )
 
-    await this._runCommand(
-      typo3,
-      ['extension:deactivate', 'razorbootstrap']
-    )
-
-    this.log(orange(
-      `→ Removing razor kickstart...`
-    ))
-
-    await this._runCommand(
-      typo3,
-      ['extension:deactivate', 'razorkickstart']
-    )
-
-    for (const extension of temporaryExtensions) {
-      await fs.remove(
-        this.destinationPath(
-          `typo3conf/ext/${extension}`
+      if (!await fs.pathExists(razorAutoloadFile)) {
+        throw new Error(
+          'razor Composer dependencies were installed, but ' +
+          'vendor-razor/autoload.php was not created.'
         )
+      }
+
+      /*
+       * Remove temporary helper extensions.
+       */
+      this.log(orange(
+        '→ Removing razor bootstrap...'
+      ))
+
+      await this._runCommand(
+        typo3,
+        ['extension:deactivate', 'razorbootstrap']
       )
+
+      this.log(orange(
+        '→ Removing razor kickstart...'
+      ))
+
+      await this._runCommand(
+        typo3,
+        ['extension:deactivate', 'razorkickstart']
+      )
+
+      for (const extension of temporaryExtensions) {
+        await fs.remove(
+          this.destinationPath(
+            this._getExtensionRootPath(),
+            extension
+          )
+        )
+      }
     }
 
     this.log(orange(`
@@ -673,8 +829,8 @@ export default class extends Generator {
     ))
 
     /*
-    * Hand over to the Razor installer.
-    */
+     * Hand over to the razor installer.
+     */
     this.log('→ Starting razor installer...')
 
     await this._runCommand(
@@ -719,12 +875,19 @@ export default class extends Generator {
     await processPath(destination)
   }
 
-  async _fixWritableDirectoryPermissions() {
-    const writableDirectories = [
-      'fileadmin',
-      'typo3temp',
-      'typo3conf'
-    ]
+  async _fixWritableDirectoryPermissions () {
+    const writableDirectories = this.props.ComposerMode
+      ? [
+          'public/fileadmin',
+          'public/typo3temp',
+          'var',
+          'config'
+        ]
+      : [
+          'fileadmin',
+          'typo3temp',
+          'typo3conf'
+        ]
 
     for (const directory of writableDirectories) {
       await this._chmodDirectoriesRecursive(
@@ -733,7 +896,7 @@ export default class extends Generator {
     }
   }
 
-  async _chmodDirectoriesRecursive(directory) {
+  async _chmodDirectoriesRecursive (directory) {
     if (!await fs.pathExists(directory)) {
       return
     }
@@ -849,7 +1012,7 @@ export default class extends Generator {
     )
   }
 
-  _getRazorBranch () {
+  _getrazorBranch () {
     if (this.props.Version.startsWith('14.3.')) {
       return 'razor14-dev'
     }
@@ -863,7 +1026,7 @@ export default class extends Generator {
     }
 
     throw new Error(
-      `No Razor branch configured for TYPO3 ${this.props.Version}`
+      `No razor branch configured for TYPO3 ${this.props.Version}`
     )
   }
 
@@ -871,6 +1034,108 @@ export default class extends Generator {
     return this.props.Version.startsWith('12.4.') ||
       this.props.Version.startsWith('13.4.') ||
       this.props.Version.startsWith('14.3.')
+  }
+
+  _getConfigPath () {
+    return this.props.ComposerMode
+      ? 'config'
+      : 'typo3conf'
+  }
+
+  _getPublicPath () {
+    return this.props.ComposerMode
+      ? 'public'
+      : ''
+  }
+
+  _getExtensionRootPath () {
+    return this.props.ComposerMode
+      ? 'packages'
+      : 'typo3conf/ext'
+  }
+
+  _getCachePath () {
+    return this.props.ComposerMode
+      ? 'var/cache'
+      : 'typo3temp/var/cache'
+  }
+
+  _getTypo3Binary () {
+    return this.props.ComposerMode
+      ? this.destinationPath('vendor/bin/typo3')
+      : this.destinationPath('typo3/sysext/core/bin/typo3')
+  }
+
+  async _prepareComposerJson () {
+    const composerPath = this.destinationPath(
+      'composer.json'
+    )
+
+    if (!await fs.pathExists(composerPath)) {
+      throw new Error(
+        'Composer mode was selected, but the template did not ' +
+        'provide a composer.json file.'
+      )
+    }
+
+    let content = await fs.readFile(
+      composerPath,
+      'utf8'
+    )
+
+    const typo3Constraint = `^${this.props.Version}`
+
+    content = this._substituteMarker(
+      content,
+      '###TYPO3_VERSION###',
+      typo3Constraint
+    )
+
+    let composer
+
+    try {
+      composer = JSON.parse(content)
+    } catch (error) {
+      throw new Error(
+        `The generated composer.json is invalid: ${error.message}`,
+        {
+          cause: error
+        }
+      )
+    }
+
+    const packageName = this.props.ProjectName
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+
+    composer.name =
+      `${this.props.ComposerVendor}/${packageName}`
+
+    composer.description =
+      `${this.props.ProjectName} TYPO3 project`
+
+    /*
+    * indexed_search is optional and controlled by the Search prompt.
+    *
+    * In Composer mode the extension must be installed through
+    * Composer instead of extension:activate.
+    */
+    if (this.props.Search) {
+      composer.require['typo3/cms-indexed-search'] =
+        typo3Constraint
+    } else {
+      delete composer.require['typo3/cms-indexed-search']
+    }
+
+    await fs.writeJson(
+      composerPath,
+      composer,
+      {
+        spaces: 4
+      }
+    )
   }
 
   async _ensureTypo3Source (sourcePath) {
@@ -1012,7 +1277,8 @@ export default class extends Generator {
 
   async _writeSystemSettings () {
     const settingsPath = this.destinationPath(
-      'typo3conf/system/settings.php'
+      this._getConfigPath(),
+      'system/settings.php'
     )
 
     let content = await fs.readFile(
@@ -1163,8 +1429,11 @@ export default class extends Generator {
       .join(String(replacement))
   }
 
-  async _setRazorConfig () {
-    const devDomain = process.env.DEV_DOMAIN ?? ''
+  async _setrazorConfig () {
+    const devDomain = this.props.ComposerMode
+      ? process.env.DEV_COMPOSER_DOMAIN ?? ''
+      : process.env.DEV_DOMAIN ?? ''
+
     const projectName = path.basename(this.destinationRoot())
 
     const config = {
@@ -1192,7 +1461,8 @@ export default class extends Generator {
       smtpEmail: this.props.SmtpEmail ?? '',
       smtpName: this.props.SmtpName ?? '',
       search: this.props.Search,
-      ssl: this.props.SSL
+      ssl: this.props.SSL,
+      composerMode: this.props.ComposerMode
     }
 
     const plainHtaccess = this.destinationPath(
@@ -1203,9 +1473,14 @@ export default class extends Generator {
       '_.htaccess-dev-ssl'
     )
 
-    const targetHtaccess = this.destinationPath(
-      '.htaccess-dev'
-    )
+    const targetHtaccess = this.props.ComposerMode
+      ? this.destinationPath(
+          'public',
+          '.htaccess-dev'
+        )
+      : this.destinationPath(
+          '.htaccess-dev'
+        )
 
     if (!this.props.Htaccess) {
       await fs.remove(plainHtaccess)

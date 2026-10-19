@@ -1,0 +1,94 @@
+{
+    "name": "###COMPOSER_PACKAGE###",
+    "description": "###PROJECT_NAME### TYPO3 project",
+    "type": "project",
+    "repositories": [
+        {
+            "name": "gandayo",
+            "type": "composer",
+            "url": "https://composer.gandayo.com/gandayo"
+        },
+        {
+            "type": "path",
+            "url": "packages/*",
+            "options": {
+                "symlink": true,
+                "versions": {
+                    "rafu1987/razorsite": "14.3"
+                }
+            }
+        }
+    ],
+    "require": {
+        "php": "^8.4.1",
+
+        "typo3/cms-backend": "###TYPO3_VERSION###",
+        "typo3/cms-belog": "###TYPO3_VERSION###",
+        "typo3/cms-beuser": "###TYPO3_VERSION###",
+        "typo3/cms-core": "###TYPO3_VERSION###",
+        "typo3/cms-extbase": "###TYPO3_VERSION###",
+        "typo3/cms-filelist": "###TYPO3_VERSION###",
+        "typo3/cms-fluid": "###TYPO3_VERSION###",
+        "typo3/cms-fluid-styled-content": "###TYPO3_VERSION###",
+        "typo3/cms-form": "###TYPO3_VERSION###",
+        "typo3/cms-frontend": "###TYPO3_VERSION###",
+        "typo3/cms-info": "###TYPO3_VERSION###",
+        "typo3/cms-install": "###TYPO3_VERSION###",
+        "typo3/cms-recycler": "###TYPO3_VERSION###",
+        "typo3/cms-rte-ckeditor": "###TYPO3_VERSION###",
+        "typo3/cms-seo": "###TYPO3_VERSION###",
+        "typo3/cms-setup": "###TYPO3_VERSION###",
+        "typo3/cms-sys-note": "###TYPO3_VERSION###",
+        "typo3/cms-tstemplate": "###TYPO3_VERSION###",
+        "typo3/cms-viewpage": "###TYPO3_VERSION###",
+        "typo3/cms-scheduler": "###TYPO3_VERSION###",
+        "typo3/cms-redirects": "###TYPO3_VERSION###",
+        "typo3/cms-linkvalidator": "###TYPO3_VERSION###",
+        "typo3/cms-impexp": "###TYPO3_VERSION###",
+        "typo3/cms-adminpanel": "###TYPO3_VERSION###",
+
+        "rafu1987/razor": "^14.3",
+        "rafu1987/razorce": "^14.3",
+        "rafu1987/razornews": "^14.3",
+        "rafu1987/razormin": "^14.3",
+        "rafu1987/razorcookieconsent": "^14.3",
+        "rafu1987/razorsite": "^14.3",
+
+        "drewm/mailchimp-api": "^2.5",
+        "getbrevo/brevo-php": "^5.0",
+        "league/commonmark": "^2.10",
+        "matthiasmullie/minify": "^1.3",
+        "symfony/dotenv": "^8.1",
+        "voku/html-min": "^4.5"
+    },
+    "require-dev": {
+        "a9f/typo3-fractor": "^0.5.11",
+        "phpstan/phpstan": "2.2.6",
+        "phpunit/phpunit": "^11.5.50",
+        "rector/rector": "2.5.8",
+        "ssch/typo3-rector": "3.14.4"
+    },
+    "config": {
+        "allow-plugins": {
+            "a9f/fractor-extension-installer": true,
+            "php-http/discovery": false,
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true
+        },
+        "sort-packages": true,
+        "update-with-minimal-changes": true
+    },
+    "extra": {
+        "typo3/cms": {
+            "web-dir": "public"
+        }
+    },
+    "scripts": {
+        "typo3-cms-scripts": [
+            "vendor/bin/typo3 extension:setup"
+        ],
+        "post-autoload-dump": [
+            "@typo3-cms-scripts"
+        ]
+    }
+}
