@@ -1044,41 +1044,6 @@ CREATE TABLE `tt_content` (
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `tx_extensionmanager_domain_model_extension`
---
-
-CREATE TABLE `tx_extensionmanager_domain_model_extension` (
-  `uid` int UNSIGNED NOT NULL,
-  `pid` int UNSIGNED NOT NULL DEFAULT '0',
-  `extension_key` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `remote` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ter',
-  `version` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `alldownloadcounter` int UNSIGNED NOT NULL DEFAULT '0',
-  `downloadcounter` int UNSIGNED NOT NULL DEFAULT '0',
-  `title` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `serialized_dependencies` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
-  `author_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `author_email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `ownerusername` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `md5hash` varchar(35) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `authorcompany` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `integer_version` int NOT NULL DEFAULT '0',
-  `lastreviewedversion` int NOT NULL DEFAULT '0',
-  `documentation_link` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `distribution_image` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `distribution_welcome_image` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `description` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
-  `state` int UNSIGNED NOT NULL DEFAULT '0',
-  `category` int UNSIGNED NOT NULL DEFAULT '0',
-  `last_updated` bigint NOT NULL DEFAULT '0',
-  `update_comment` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT (NULL),
-  `current_version` smallint UNSIGNED NOT NULL DEFAULT '0',
-  `review_state` int NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
--- --------------------------------------------------------
-
---
 -- Tabellenstruktur für Tabelle `tx_linkvalidator_link`
 --
 
@@ -1451,16 +1416,6 @@ ALTER TABLE `tt_content`
   ADD KEY `t3ver_oid` (`t3ver_oid`,`t3ver_wsid`);
 
 --
--- Indizes für die Tabelle `tx_extensionmanager_domain_model_extension`
---
-ALTER TABLE `tx_extensionmanager_domain_model_extension`
-  ADD PRIMARY KEY (`uid`),
-  ADD UNIQUE KEY `versionextrepo` (`extension_key`,`version`,`remote`),
-  ADD KEY `index_extrepo` (`extension_key`,`remote`),
-  ADD KEY `index_versionrepo` (`integer_version`,`remote`,`extension_key`),
-  ADD KEY `index_currentversions` (`current_version`,`review_state`);
-
---
 -- Indizes für die Tabelle `tx_linkvalidator_link`
 --
 ALTER TABLE `tx_linkvalidator_link`
@@ -1672,12 +1627,6 @@ ALTER TABLE `sys_template`
 -- AUTO_INCREMENT für Tabelle `tt_content`
 --
 ALTER TABLE `tt_content`
-  MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT für Tabelle `tx_extensionmanager_domain_model_extension`
---
-ALTER TABLE `tx_extensionmanager_domain_model_extension`
   MODIFY `uid` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
