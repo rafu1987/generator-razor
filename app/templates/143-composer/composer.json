@@ -67,8 +67,7 @@
             "typo3/class-alias-loader": true,
             "typo3/cms-composer-installers": true
         },
-        "sort-packages": true,
-        "update-with-minimal-changes": true
+        "sort-packages": true
     },
     "extra": {
         "typo3/cms": {
