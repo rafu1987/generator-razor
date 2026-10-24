@@ -1344,6 +1344,14 @@ export default class extends Generator {
       this.props.DbHostname
     )
 
+    // The port is used to create the database, TYPO3 needs it as well
+    if (this.props.DbPort) {
+      content = content.replace(
+        /^(\s*)'host' => '([^']*)',$/m,
+        `$1'host' => '$2',\n$1'port' => ${Number(this.props.DbPort)},`
+      )
+    }
+
     content = this._substituteMarker(
       content,
       '###PROJECTNAME###',
@@ -1476,9 +1484,11 @@ export default class extends Generator {
   }
 
   async _setrazorConfig () {
+    // nginx: DEV_NGINX_(COMPOSER_)DOMAIN, otherwise the Apache domains
+    const nginx = this.props.Webserver === 'nginx'
     const devDomain = this.props.ComposerMode
-      ? process.env.DEV_COMPOSER_DOMAIN ?? ''
-      : process.env.DEV_DOMAIN ?? ''
+      ? (nginx && process.env.DEV_NGINX_COMPOSER_DOMAIN) || process.env.DEV_COMPOSER_DOMAIN || ''
+      : (nginx && process.env.DEV_NGINX_DOMAIN) || process.env.DEV_DOMAIN || ''
 
     const projectName = path.basename(this.destinationRoot())
 
