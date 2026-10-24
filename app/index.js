@@ -54,22 +54,22 @@ export default class extends Generator {
       name: 'ComposerMode',
       message: 'Install TYPO3 in Composer mode?',
       choices: [{
-        name: 'No',
-        value: false
-      }, {
         name: 'Yes',
         value: true
+      }, {
+        name: 'No',
+        value: false
       }],
       default: false,
       store: true
-    },{
+    }, {
       type: 'input',
       name: 'ComposerVendor',
       message: 'Composer vendor:',
       default: 'gg',
       store: true,
       when: answers => answers.ComposerMode === true
-      }, {
+    }, {
       when: answers => !answers.ComposerMode,
       type: 'input',
       name: 'SrcPath',
@@ -95,11 +95,32 @@ export default class extends Generator {
       default: 'root',
       store: true
     }, {
-      type: 'input',
+      type: 'select',
       name: 'DbHostname',
       message: 'Database hostname?',
-      default: 'localhost',
+      choices: [{
+        name: 'mysql',
+        value: 'mysql'
+      }, {
+        name: 'mysql8',
+        value: 'mysql8'
+      }, {
+        name: 'mariadb',
+        value: 'mariadb'
+      }, {
+        name: 'Custom',
+        value: 'custom'
+      }],
+      default: 'mariadb',
       store: true
+    }, {
+      type: 'input',
+      name: 'DbHostnameCustom',
+      message: 'Custom database hostname?',
+      default: 'localhost',
+      store: true,
+      when: answers => answers.DbHostname === 'custom',
+      validate: value => value.trim() !== '' || 'Please enter a hostname.'
     }, {
       type: 'input',
       name: 'DbPort',
@@ -218,36 +239,39 @@ export default class extends Generator {
       name: 'English',
       message: 'Activate English language in TYPO3?',
       choices: [{
-        name: 'No',
-        value: false
-      }, {
         name: 'Yes',
         value: true
+      }, {
+        name: 'No',
+        value: false
       }],
+      default: false,
       store: true
     }, {
       type: 'select',
       name: 'EnglishDefault',
       message: 'Set English as default language?',
       choices: [{
-        name: 'No',
-        value: false
-      }, {
         name: 'Yes',
         value: true
+      }, {
+        name: 'No',
+        value: false
       }],
+      default: false,
       store: true
     }, {
       type: 'select',
       name: 'SwitchFreeMode',
       message: 'Switch connected mode to free mode?',
       choices: [{
-        name: 'No',
-        value: false
-      }, {
         name: 'Yes',
         value: true
+      }, {
+        name: 'No',
+        value: false
       }],
+      default: false,
       store: true
     }, {
       type: 'input',
@@ -272,12 +296,26 @@ export default class extends Generator {
       name: 'Copyright',
       message: 'Add copyright?',
       choices: [{
-        name: 'No',
-        value: false
-      }, {
         name: 'Gandayo',
         value: true
+      }, {
+        name: 'No',
+        value: false
       }],
+      default: true,
+      store: true
+    }, {
+      type: 'select',
+      name: 'Webserver',
+      message: 'Web server?',
+      choices: [{
+        name: 'Apache',
+        value: 'apache'
+      }, {
+        name: 'nginx',
+        value: 'nginx'
+      }],
+      default: 'apache',
       store: true
     }, {
       type: 'select',
@@ -290,6 +328,8 @@ export default class extends Generator {
         name: 'No',
         value: false
       }],
+      // nginx reads no .htaccess-dev
+      when: answers => answers.Webserver !== 'nginx',
       store: true
     }, {
       type: 'select',
@@ -308,12 +348,13 @@ export default class extends Generator {
       name: 'Search',
       message: 'Activate search?',
       choices: [{
-        name: 'No',
-        value: false
-      }, {
         name: 'Yes',
         value: true
-      }]
+      }, {
+        name: 'No',
+        value: false
+      }],
+      default: false
     }, {
       type: 'select',
       name: 'SSL',
@@ -344,12 +385,13 @@ export default class extends Generator {
       name: 'Picture',
       message: 'Download TYPO3 picture extension?',
       choices: [{
-        name: 'No',
-        value: false
-      }, {
         name: 'Yes',
         value: true
-      }]
+      }, {
+        name: 'No',
+        value: false
+      }],
+      default: false
     }]
 
     this.props = await this.prompt(prompts)
@@ -362,6 +404,10 @@ export default class extends Generator {
     )
 
     this._globalConfig.set('promptValues', promptValues)
+
+    if (this.props.DbHostname === 'custom') {
+      this.props.DbHostname = this.props.DbHostnameCustom.trim()
+    }
 
     await this.fs.commit()
   }
@@ -1452,7 +1498,8 @@ export default class extends Generator {
       copyright: this.props.Copyright,
       fontawesome: this.props.FontAwesome,
       cols: this.props.Cols,
-      htaccess: this.props.Htaccess,
+      htaccess: this.props.Webserver !== 'nginx' && this.props.Htaccess === true,
+      webserver: this.props.Webserver ?? 'apache',
       smtpTransport: this.props.Transport ?? '',
       smtpEncrypt: this.props.Encrypt === true ? 1 : 0,
       smtpServer: this.props.SmtpServer ?? '',
@@ -1475,14 +1522,14 @@ export default class extends Generator {
 
     const targetHtaccess = this.props.ComposerMode
       ? this.destinationPath(
-          'public',
-          '.htaccess-dev'
-        )
+        'public',
+        '.htaccess-dev'
+      )
       : this.destinationPath(
-          '.htaccess-dev'
-        )
+        '.htaccess-dev'
+      )
 
-    if (!this.props.Htaccess) {
+    if (!config.htaccess) {
       await fs.remove(plainHtaccess)
       await fs.remove(sslHtaccess)
       await fs.remove(targetHtaccess)
