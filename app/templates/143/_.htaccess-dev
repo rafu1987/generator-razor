@@ -49,6 +49,23 @@ RewriteCond %{HTTP_USER_AGENT} "AppleWebKit.*Version\/[1-8]\.[0-9\.]*\ Mobile\/[
 RewriteCond %{HTTP_USER_AGENT} (MSIE|Trident) [NC]
 RewriteRule .* browser-support.html [L]
 
+# ------------------------------------------------------------------------------
+# | build & deploy                                                             |
+# ------------------------------------------------------------------------------
+
+<IfModule mod_authz_core.c>
+	<FilesMatch "^(vite\.config\.mjs|razor\.mjs|stylelint\.config\.mjs|postcss\.config\.mjs|deploy\.php)$">
+		Require all denied
+	</FilesMatch>
+</IfModule>
+
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+
+	RewriteRule ^build(?:/|$) - [F,L,NC]
+	RewriteRule ^deploy(?:/|$) - [F,L,NC]
+</IfModule>
+
 # ----------------------------------------------------------------------
 # | Keep alive                                                         |
 # ----------------------------------------------------------------------
@@ -117,12 +134,12 @@ RewriteRule .* browser-support.html [L]
 # Redirect from the `http://` to the `https://` version of the URL.
 # https://wiki.apache.org/httpd/RewriteHTTPToHTTPS
 
-#<IfModule mod_rewrite.c>
-#  RewriteEngine On
-#  RewriteCond %{HTTPS} !=on
-#  RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
-#  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
-#</IfModule>
+# <IfModule mod_rewrite.c>
+  # RewriteEngine On
+  # RewriteCond %{HTTPS} !=on
+  # RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+  # RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+# </IfModule>
 
 # ----------------------------------------------------------------------
 # | TYPO3                                                              |
@@ -297,6 +314,10 @@ AddType "text/css" .css.gz
 
   ExpiresByType text/x-cross-domain-policy            "access plus 1 week"
 
+  <FilesMatch "^index\.php$">
+    ExpiresActive Off
+  </FilesMatch>
+
 </IfModule>
 
 ### End: Browser caching of resource files ###
@@ -438,7 +459,7 @@ RewriteCond %{HTTP:X-Forwarded-Port} ^[0-9]+$
 RewriteRule .* - [E=SFC_PORT:%{HTTP:X-Forwarded-Port}]
 
 # Full path for redirect
-RewriteRule .* - [E=SFC_FULLPATH:typo3temp/tx_staticfilecache/%{ENV:SFC_PROTOCOL}_%{ENV:SFC_HOST}_%{ENV:SFC_PORT}%{ENV:SFC_URI}/index]
+RewriteRule .* - [E=SFC_FULLPATH:typo3temp/assets/tx_staticfilecache/%{ENV:SFC_PROTOCOL}_%{ENV:SFC_HOST}_%{ENV:SFC_PORT}%{ENV:SFC_URI}/index]
 
 # Extension (Order: br, gzip, default)
 RewriteRule .* - [E=SFC_EXT:]
@@ -476,7 +497,7 @@ RewriteCond %{REQUEST_METHOD} GET
 RewriteRule .* %{ENV:SFC_ROOT}/%{ENV:SFC_FULLPATH} [L]
 
 # Do not allow direct call the cache entries
-RewriteCond %{ENV:SFC_URI} ^/typo3temp/tx_staticfilecache/.*
+RewriteCond %{ENV:SFC_URI} ^/typo3temp/assets/tx_staticfilecache/.*
 RewriteCond %{ENV:REDIRECT_STATUS} ^$
 RewriteRule .* - [F,L]
 
@@ -602,7 +623,7 @@ RewriteRule ^.*\.sfc$ %{ENV:CWD}index.php?eID=sfc_manifest [QSA,L]
   # IMPORTANT: This rule has to be the very first RewriteCond in order to work!
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.+)\.(\d+)\.(php|js|mjs|css|png|jpg|gif|svg|avif|webp|gz)$ %{ENV:CWD}$1.$3 [L]
+  RewriteRule ^(.+)\.(\d+)\.(php|js|mjs|css|png|jpg|gif|svg|avif|webp|gz|xsl|ico)$ %{ENV:CWD}$1.$3 [L]
 
   # Access block for folders
   RewriteRule _(?:recycler|temp)_/ - [F]
@@ -619,7 +640,7 @@ RewriteRule ^.*\.sfc$ %{ENV:CWD}index.php?eID=sfc_manifest [QSA,L]
 
   # Stop rewrite processing, if we are in any known directory
   # NOTE: Add your additional local storages here
-  RewriteRule ^(?:fileadmin/|typo3conf/|typo3temp/|_assets/) - [L]
+  RewriteRule ^(?:fileadmin/|typo3conf/|typo3temp/|_assets/|_assets_install/) - [L]
 
   # If the file/symlink/directory does not exist but is below /typo3/, redirect to the main TYPO3 entry point.
   RewriteCond %{REQUEST_FILENAME} !-f
@@ -637,7 +658,8 @@ RewriteRule ^.*\.sfc$ %{ENV:CWD}index.php?eID=sfc_manifest [QSA,L]
 # Access block for files
 # Apache < 2.3
 <IfModule !mod_authz_core.c>
-  <FilesMatch "(?i:^\.|^#.*#|^(?:ChangeLog|ToDo|Readme|License)(?:\.md|\.txt)?|^composer\.(?:json|lock)|^ext_conf_template\.txt|^ext_typoscript_constants\.txt|^ext_typoscript_setup\.txt|flexform[^.]*\.xml|locallang[^.]*\.(?:xml|xlf)|\.(?:bak|co?nf|cfg|neon|ya?ml|ts|typoscript|tsconfig|dist|fla|in[ci]|log|sh|sql(?:\..*)?|sqlite(?:\..*)?|sw[op]|git.*|rc)|.*~)$">    Order allow,deny
+  <FilesMatch "(?i:^\.|^#.*#|^(?:ChangeLog|ToDo|Readme|License)(?:\.md|\.txt)?|^composer\.(?:json|lock)|^ext_conf_template\.txt|^ext_typoscript_constants\.txt|^ext_typoscript_setup\.txt|flexform[^.]*\.xml|locallang[^.]*\.(?:xml|xlf)|\.(?:bak|co?nf|cfg|neon|ya?ml|ts|typoscript|tsconfig|dist|fla|in[ci]|log|sh|sql(?:\..*)?|sqlite(?:\..*)?|sw[op]|git.*|rc)|.*~)$">
+    Order allow,deny
     Deny from all
     Satisfy All
   </FilesMatch>
