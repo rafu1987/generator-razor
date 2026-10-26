@@ -20,7 +20,7 @@
         }
     ],
     "require": {
-        "php": "^8.4.1",
+        "php": "^8.4",
 
         "typo3/cms-backend": "###TYPO3_VERSION###",
         "typo3/cms-belog": "###TYPO3_VERSION###",
