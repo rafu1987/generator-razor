@@ -15,7 +15,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=22.0.0"
+    "node": "^22.18.0 || >=24.11.0"
   },
   "scripts": {
     "test:syntax": "node --check app/index.js"
@@ -34,6 +34,6 @@
     "fs-extra": "^11.4.0",
     "mysql2": "^3.23.1",
     "tar": "^7.5.22",
-    "yeoman-generator": "^8.2.2"
+    "yeoman-generator": "^10.2.1"
   }
 }
