@@ -59,7 +59,7 @@
         "league/commonmark": "^2.10",
         "matthiasmullie/minify": "^1.3",
         "symfony/dotenv": "^8.1",
-        "voku/html-min": "^4.5"
+        "voku/html-min": "^5.0"
     },
     "config": {
         "allow-plugins": {
