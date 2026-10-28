@@ -28,25 +28,41 @@
 # | Maintenance mode                                                           |
 # ------------------------------------------------------------------------------
 
+# Answers 503 with maintenance.html for everyone except the given IP, so
+# search engines keep the pages and try again later (Retry-After: 1 hour).
+# Behind a proxy, check X-Forwarded-For instead of REMOTE_ADDR.
+
 # <IfModule mod_rewrite.c>
-#   RewriteEngine on
-#   RewriteCond %{REMOTE_HOST} !^111\.222\.333\.444
-#   RewriteCond %{HTTP:X-FORWARDED-FOR} !^111\.222\.333\.444
-#   RewriteCond %{REQUEST_URI} !/maintenance.html$ [NC]
-#   RewriteCond %{REQUEST_URI} !\.(jpe?g?|png|gif) [NC]
-#   # RewriteRule (IP) /x%{HTTP:X-FORWARDED-FOR}x [R,L]
-#   RewriteRule .* /maintenance.html [R=302,L]
+# 	RewriteEngine On
+# 	RewriteCond %{REMOTE_ADDR} !^203\.0\.113\.10$
+# 	# RewriteCond %{HTTP:X-Forwarded-For} !(^|,\s*)203\.0\.113\.10$
+# 	RewriteCond %{REQUEST_URI} !^/maintenance\.html$
+# 	RewriteCond %{REQUEST_URI} !\.(jpe?g|png|gif|svg|webp)$ [NC]
+# 	RewriteRule .* - [R=503,L]
+# </IfModule>
+# ErrorDocument 503 /maintenance.html
+# <IfModule mod_headers.c>
+# 	Header always set Retry-After "3600" "expr=%{REQUEST_STATUS} == 503"
 # </IfModule>
 
 # ------------------------------------------------------------------------------
-# | Browserupdate                                                              |
+# | Outdated browsers                                                          |
 # ------------------------------------------------------------------------------
 
-RewriteCond %{HTTP_USER_AGENT} "Mozilla.*Gecko.*Firefox/([1-9]|[1-2][0-9])[^0-9]" [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} "^Firefox[\/\s]([1-9]|[1-2][0-9])[^0-9]" [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} "AppleWebKit.*Version\/[1-8]\.[0-9\.]*\ Safari" [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} "AppleWebKit.*Version\/[1-8]\.[0-9\.]*\ Mobile\/[A-z0-9]+\ Safari" [NC,OR]
-RewriteCond %{HTTP_USER_AGENT} (MSIE|Trident) [NC]
+# Shows browser-support.html to browsers older than the build target (Vite's
+# "baseline widely available"): Internet Explorer, Firefox < 115,
+# Chrome / Edge < 111, Safari < 16.4 and every browser on iOS < 16.4.
+# Bots are left out, some send old browser versions.
+
+RewriteCond %{REQUEST_URI} !^/browser-support\.html$
+RewriteCond %{HTTP_USER_AGENT} !(bot|crawl|spider|slurp|preview|facebookexternalhit|lighthouse|headless) [NC]
+RewriteCond %{HTTP_USER_AGENT} (MSIE|Trident/) [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} Firefox/([0-9]{1,2}|10[0-9]|11[0-4])\. [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} Chrome/([0-9]{1,2}|10[0-9]|110)\. [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} "Version/([0-9]|1[0-5])(\.[0-9.]+)? Safari/" [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} "Version/16\.[0-3](\.[0-9]+)? Safari/" [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} "(iPhone|iPad|iPod).* OS ([0-9]|1[0-5])_" [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} "(iPhone|iPad|iPod).* OS 16_[0-3]( |_)" [NC]
 RewriteRule .* browser-support.html [L]
 
 # ------------------------------------------------------------------------------
