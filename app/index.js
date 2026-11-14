@@ -105,8 +105,14 @@ export default class extends Generator {
         name: 'mysql8',
         value: 'mysql8'
       }, {
+        name: 'mysql84',
+        value: 'mysql84'
+      }, {
         name: 'mariadb',
         value: 'mariadb'
+      }, {
+        name: 'mariadb11',
+        value: 'mariadb11'
       }, {
         name: 'Custom',
         value: 'custom'
@@ -1060,15 +1066,15 @@ export default class extends Generator {
 
   _getrazorBranch () {
     if (this.props.Version.startsWith('14.3.')) {
-      return 'razor14-dev'
+      return 'main'
     }
 
     if (this.props.Version.startsWith('13.4.')) {
-      return 'razor13-dev'
+      return 'razor13'
     }
 
     if (this.props.Version.startsWith('12.4.')) {
-      return 'razor12-dev'
+      return 'razor12'
     }
 
     throw new Error(
