@@ -20,6 +20,48 @@ export default class extends Generator {
     this.props = {}
   }
 
+  /**
+   * Yeoman stores global prompt answers in ~/.yo-rc-global.json under
+   * "<generator>:<version>", so every release starts with empty defaults.
+   * Use a version-independent key instead and migrate the answers from the
+   * newest versioned entry once, then drop the obsolete versioned entries.
+   */
+  _getGlobalStorage () {
+    const storageDir = this.options.localConfigOnly ? this.destinationRoot() : os.homedir()
+    const storePath = path.join(storageDir, '.yo-rc-global.json')
+    const name = this.rootGeneratorName()
+
+    const rootStorage = this.createStorage(storePath, { allowOutsideRoot: true })
+    const storage = this.createStorage(storePath, { name, allowOutsideRoot: true })
+
+    const compareVersions = (a, b) => {
+      const pa = a.split('.').map(Number)
+      const pb = b.split('.').map(Number)
+      for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+        const diff = (pa[i] || 0) - (pb[i] || 0)
+        if (diff !== 0) return diff
+      }
+      return 0
+    }
+
+    const versionedKeys = Object.keys(rootStorage.getAll())
+      .filter(key => key.startsWith(`${name}:`))
+      .sort((a, b) => compareVersions(a.slice(name.length + 1), b.slice(name.length + 1)))
+
+    if (versionedKeys.length > 0) {
+      if (!storage.get('promptValues')) {
+        const latest = rootStorage.get(versionedKeys[versionedKeys.length - 1])
+        if (latest?.promptValues) {
+          storage.set('promptValues', latest.promptValues)
+        }
+      }
+
+      versionedKeys.forEach(key => rootStorage.delete(key))
+    }
+
+    return storage
+  }
+
   async prompting () {
     const orange = chalk.ansi256(208)
     const petrol = chalk.ansi256(24)
