@@ -239,21 +239,15 @@ export default class extends Generator {
       type: 'select',
       name: 'Encrypt',
       message: 'SMTP encrypt?',
-      default: true,
+      // Not stored on purpose: a saved answer would override the port-based default.
+      default: answers => /:465$/.test((answers.SmtpServer ?? '').trim()),
       choices: [{
-        name: 'true (TYPO3 >= 10 - if port 465 or other)',
+        name: 'true (implicit TLS / SMTPS, port 465)',
         value: true
       }, {
-        name: 'false (TYPO3 >= 10 - if port 587)',
+        name: 'false (plain, or STARTTLS if offered - ports 25, 587, 1025/Mailpit)',
         value: false
-      }, {
-        name: 'ssl (TYPO3 9.5.x)',
-        value: 'ssl'
-      }, {
-        name: 'tls (TYPO3 9.5.x)',
-        value: 'tls'
-      }],
-      store: true
+      }]
     }, {
       when: answers => answers.Transport === 'smtp',
       type: 'input',
