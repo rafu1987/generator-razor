@@ -444,7 +444,7 @@ RewriteCond %{HTTP:X-Forwarded-Port} ^[0-9]+$
 RewriteRule .* - [E=SFC_PORT:%{HTTP:X-Forwarded-Port}]
 
 # Full path for redirect
-RewriteRule .* - [E=SFC_FULLPATH:typo3temp/tx_staticfilecache/%{ENV:SFC_PROTOCOL}_%{ENV:SFC_HOST}_%{ENV:SFC_PORT}%{ENV:SFC_URI}/index]
+RewriteRule .* - [E=SFC_FULLPATH:typo3temp/assets/tx_staticfilecache/%{ENV:SFC_PROTOCOL}_%{ENV:SFC_HOST}_%{ENV:SFC_PORT}%{ENV:SFC_URI}/index]
 
 # Extension (Order: br, gzip, default)
 RewriteRule .* - [E=SFC_EXT:]
@@ -482,7 +482,7 @@ RewriteCond %{REQUEST_METHOD} GET
 RewriteRule .* %{ENV:SFC_ROOT}/%{ENV:SFC_FULLPATH} [L]
 
 # Do not allow direct call the cache entries
-RewriteCond %{ENV:SFC_URI} ^/typo3temp/tx_staticfilecache/.*
+RewriteCond %{ENV:SFC_URI} ^/typo3temp/assets/tx_staticfilecache/.*
 RewriteCond %{ENV:REDIRECT_STATUS} ^$
 RewriteRule .* - [F,L]
 
