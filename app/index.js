@@ -175,18 +175,6 @@ export default class extends Generator {
       message: 'Database port?',
       store: true
     }, {
-      type: 'select',
-      name: 'DbSocket',
-      message: 'Database socket path?',
-      choices: [{
-        name: 'None',
-        value: ''
-      }, {
-        name: 'MAMP',
-        value: '/Applications/MAMP/tmp/mysql/mysql.sock'
-      }],
-      store: true
-    }, {
       type: 'input',
       name: 'DbNew',
       message: 'New database name? A new database, username and password will be created.',
@@ -1441,10 +1429,6 @@ export default class extends Generator {
 
     if (this.props.DbPort) {
       connectionOptions.port = Number(this.props.DbPort)
-    }
-
-    if (this.props.DbSocket) {
-      connectionOptions.socketPath = this.props.DbSocket
     }
 
     const connection = await mysql.createConnection(
